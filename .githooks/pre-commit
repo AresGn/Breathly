@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Pré-commit : le commit est refusé tant que les contrôles du code modifié ne sont pas verts en local.
+# Activer avec : make hooks (une fois par clone). Contourner ce hook (--no-verify) est interdit (CONTRIBUTING.md, règle 2) :
+# la CI (ou `make ci-local`) rejoue tous les contrôles et son verdict bloque la fusion.
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+bash tools/run-checks.sh --staged
+echo "pré-commit : OK"

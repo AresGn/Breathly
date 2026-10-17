@@ -1,0 +1,26 @@
+# Général
+.DS_Store
+.idea/
+.vscode/
+*.log
+.env
+.env.*
+!.env.example
+*.dump
+*.sql.gz
+
+# Brouillons de tickets et sorties d'outils locaux
+brouillons-tickets/
+graphify-out/
+
+# Fichiers propres à un poste d'agent
+.claude/settings.local.json
+
+#  (Rust)
+/target/
+
+# extension (Node / TypeScript)
+extension/node_modules/
+extension/.next/
+extension/dist/
+extension/coverage/

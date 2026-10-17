@@ -1,0 +1,8 @@
+packages:
+  - "."
+# Bloque l'installation de tout paquet publié depuis moins de 7 jours (en minutes). À vérifier dans la documentation de pnpm :
+# `pnpm install` doit refuser un paquet trop récent (orthographe camelCase attendue dans ce fichier).
+minimumReleaseAge: 10080
+# Seuls ces paquets peuvent exécuter un script d'installation. Ajouter seulement ce que `pnpm install` signale
+# comme bloqué ET dont on a vérifié l'utilité.
+onlyBuiltDependencies: []

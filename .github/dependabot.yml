@@ -1,0 +1,23 @@
+# Mises à jour de dépendances : hebdomadaires, alertes de sécurité comprises (docs/policies/securite.md).
+# `cooldown` retarde les mises à jour de versions de 7 jours, comme la règle du dépôt (il ne s'applique pas aux
+# mises à jour de sécurité). Les blocs d'écosystème sont ajoutés par bootstrap.py selon les piles choisies.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+  - package-ecosystem: npm
+    directory: /extension
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
