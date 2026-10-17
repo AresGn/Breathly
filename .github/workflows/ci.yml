@@ -1,0 +1,103 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# Les actions sont épinglées par SHA de commit (chaîne d'approvisionnement) : `make pin-actions` les met à jour,
+# `python3 -I tools/pin-actions.py --check` (job docs) échoue si l'une n'est pas épinglée.
+jobs:
+  # Quelles applications déclarées dans .kit.conf sont déjà initialisées ? Seules celles-là ont un job.
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.d.outputs.matrix }}
+      count: ${{ steps.d.outputs.count }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: d
+        run: |
+          . ./.kit.conf
+          items=""; count=0
+          for entry in $APPS; do
+            path="${entry%%:*}"; stack="${entry##*:}"
+            if ( . "tools/stacks/$stack.sh"; [ -e "$path/$STACK_MARKER" ] ); then
+              items="${items:+$items,}{\"path\":\"$path\",\"stack\":\"$stack\"}"
+              count=$((count + 1))
+            fi
+          done
+          echo "matrix={\"include\":[${items}]}" >> "$GITHUB_OUTPUT"
+          echo "count=${count}" >> "$GITHUB_OUTPUT"
+
+  # Secrets : fichiers du dépôt + toutes les lignes ajoutées par les commits de la PR.
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - run: bash tools/scan-secrets.sh --all
+      - name: Historique de la PR
+        if: github.event_name == 'pull_request'
+        run: bash tools/scan-secrets.sh --range "origin/${{ github.base_ref }}..HEAD"
+
+  # Documentation : liens relatifs valides, actions épinglées.
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: python3 -I tools/check-docs.py
+      - run: python3 -I tools/pin-actions.py --check
+
+  # Une application initialisée = une ligne de la matrice : outils de sa pile, puis toutes ses portes.
+  app:
+    needs: detect
+    if: needs.detect.outputs.count != '0'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.detect.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - if: matrix.stack == 'rust'
+        run: rustup toolchain install stable --profile minimal -c clippy,rustfmt
+      - if: contains(fromJSON('["typescript-nextjs","node-api"]'), matrix.stack)
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: ${{ matrix.path }}/package.json
+      - if: contains(fromJSON('["typescript-nextjs","node-api"]'), matrix.stack)
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ${{ matrix.path }}/pnpm-lock.yaml
+      - name: Setup de l'application
+        run: bash tools/stack.sh setup "${{ matrix.path }}"
+      - name: Portes (lint, statique, architecture, tests)
+        run: bash tools/stack.sh check "${{ matrix.path }}"
+      - name: Audit des dépendances
+        run: bash tools/stack.sh audit "${{ matrix.path }}"
+
+  # Contrôles propres au projet (base de données avec service, contrat d'API…) : ajouter des jobs ici
+  # et les lister dans `needs` de la porte. Exemple de service PostgreSQL : voir playbooks/ci-services.md du kit.
+
+  # Point de contrôle unique : à déclarer comme vérification obligatoire de la branche par défaut quand la
+  # protection de branche est disponible. Un job sauté (application pas encore initialisée) est accepté ;
+  # un job en échec ou annulé fait échouer la porte.
+  gate:
+    if: always()
+    needs: [detect, secrets, docs, app]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tous les contrôles sont verts
+        run: |
+          echo '${{ toJSON(needs) }}' | grep -Eq '"result": *"(failure|cancelled)"' && { echo "Au moins un contrôle a échoué"; exit 1; }
+          echo "OK"

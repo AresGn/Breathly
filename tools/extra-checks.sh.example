@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Contrôles propres au projet, appelés par tools/run-checks.sh (hooks) et tools/ci-local.sh.
+# Renommer ce fichier en tools/extra-checks.sh, le rendre exécutable (chmod +x) et l'adapter.
+#   tools/extra-checks.sh "<liste des fichiers modifiés, un par ligne>"   (hooks : seulement ce qui est concerné)
+#   tools/extra-checks.sh --full                                        (CI locale : tout)
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+arg="${1:-}"
+has() { [ "$arg" = "--full" ] || printf '%s\n' "$arg" | grep -qE "$1"; }
+
+# Exemple : base de données (schéma, prototype SQL).
+# if has '^(infra/postgres/|docs/design/.*base-de-donnees)'; then
+#   echo "contrôles : base de données"
+#   make db-proto
+# fi
+
+# Exemple : contrat d'API généré (échoue si le fichier commité diffère de celui que l'API génère).
+# if has '^(apps/api/|packages/api-contract/)'; then
+#   echo "contrôles : contrat d'API"
+#   make gen-api
+#   git diff --exit-code packages/api-contract
+# fi
+
+exit 0
