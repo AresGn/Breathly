@@ -56,6 +56,8 @@ flowchart TD
 
 ## Détail de l'état
 
+Protection de `main` : appliquée le 2026-10-18 (voir `CONTRIBUTING.md` §5).
+
 | Étape | État | Reste à faire |
 |---|---|---|
 | 0 · Prérequis | fait | |
@@ -69,7 +71,7 @@ flowchart TD
 | 2.7 Maquettes | à faire | accueil, diagnostic, disque, onglets, dans `docs/design/` |
 | 2.8 Sécurité | à faire | `docs/policies/modele-de-menaces.md` ; adapter `securite.md` (règles écrites pour une API) |
 | 2.9 Prototype | à faire | Tauri v2 + Svelte 5 ; native messaging (Firefox, Chromium, flatpak/snap) ; suppression vers la corbeille sur Linux et Windows |
-| 3 · Règles | en cours | `AGENTS.md` rempli ; `make kit-todo` renvoie encore des lignes (SECURITY.md, CODE_OF_CONDUCT.md, guide de démarrage, menaces) ; protection de `main` non appliquée |
+| 3 · Règles | en cours | `AGENTS.md` rempli ; `make kit-todo` renvoie encore des lignes (SECURITY.md, CODE_OF_CONDUCT.md, guide de démarrage, menaces) ; protection de `main` appliquée le 2026-10-18 |
 | 4 · Outils | à faire | pack `rust` non éprouvé : exécuter chaque commande sur un workspace vide, sondes négatives, `pin-actions.py` |
 | 5 · Applications | à faire | `Cargo.toml` racine, `extension/package.json`, `apps/desktop/ui` |
 | 6 · Backlog | à faire | après la porte des étapes 2 à 5 |
