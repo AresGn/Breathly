@@ -6,6 +6,7 @@ La documentation vit dans le dépôt, en Markdown, et se relit comme le code : u
 
 | Je cherche… | Document | Mis à jour quand… |
 |---|---|---|
+| Où en est le projet avant le code (étapes, qui, état) | `parcours.md` | une étape est terminée ou change d'état |
 | Les règles du dépôt (flux, contrôles, CI locale, revue) | `CONTRIBUTING.md` | une règle de travail change |
 | Les invariants métier et le style de code | `AGENTS.md` | un invariant ou un seuil change (court par conception) |
 | Écrire du code dans une application | `CODING.md` de chaque application (chemins dans `.kit.conf`) | une convention de code change |
