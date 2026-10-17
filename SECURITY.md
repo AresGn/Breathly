@@ -5,8 +5,6 @@
 **Ne publiez pas de faille dans une issue ou une PR publique.** Utilisez le signalement privé de GitHub :
 <https://github.com/AresGn/Breathly/security/advisories/new> (onglet *Security* du dépôt, bouton *Report a vulnerability*).
 
-À REMPLIR: activer « Private vulnerability reporting » dans Settings > Code security du dépôt (sans cela, le lien ci-dessus ne fonctionne pas), puis supprimer cette ligne. Si le signalement privé n'est pas disponible, indiquer ici une adresse de contact dédiée.
-
 Indiquez : la version concernée, le système d'exploitation, les étapes pour reproduire, l'effet constaté et, si possible, la correction envisagée.
 
 ## Ce que vous pouvez attendre de nous
@@ -19,7 +17,7 @@ Ces délais sont des objectifs d'un projet maintenu bénévolement, pas des gara
 
 ## Versions couvertes
 
-Seule la **dernière version publiée** reçoit des correctifs de sécurité. À REMPLIR: préciser si les versions précédentes sont couvertes.
+Seule la **dernière version publiée** reçoit des correctifs de sécurité. Avant la première version stable (V1.0), seule la branche `main` est suivie.
 
 ## Périmètre
 

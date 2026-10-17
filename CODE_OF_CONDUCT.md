@@ -22,7 +22,7 @@ Les mainteneurs peuvent modifier, masquer ou supprimer un commentaire, une issue
 
 ## Signaler un problème
 
-Écrire aux mainteneurs : À REMPLIR: adresse de contact dédiée, lue par au moins deux personnes quand c'est possible. Le signalement reste confidentiel. Un mainteneur mis en cause ne traite pas le signalement qui le concerne.
+Écrire aux mainteneurs : aresgnimagnon0@gmail.com (propriétaire du dépôt). Le signalement reste confidentiel. Un mainteneur mis en cause ne traite pas le signalement qui le concerne.
 
 ## Portée et sources
 
