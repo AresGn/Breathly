@@ -2,7 +2,7 @@
 
 > *Let your PC breathe.*
 
-Breathly is a free, open-source, lightweight tool that helps anyone — technical or not — understand **why their PC is slow** and fix it safely, on Windows, Linux and (later) macOS.
+Breathly is a free, open-source, lightweight tool that helps anyone — technical or not — understand **why their PC is slow** and fix it safely, on Windows and Linux (macOS after v1.0).
 
 - 🩺 **Diagnose** — RAM, swap, disk, heat, and what's eating your resources, explained in plain words.
 - 🧹 **Free up space safely** — caches, old versions and leftovers, sorted by risk (🟢 safe · 🟡 review · 🔴 personal). Nothing is deleted without your confirmation, and your files go to the trash first.
@@ -21,7 +21,7 @@ Built with **Rust** and **Tauri** so the tool itself stays light.
 | v0.2 | Background service, tray icon, multiple-browser alert |
 | v0.3 | Tab sleeping extension (Firefox, Zen, Chrome, Brave, Edge) |
 | v0.4 | Startup apps, admin-level cleanups |
-| v1.0 | macOS, signed installers, extensions on stores |
+| v1.0 | signed installers (Windows, Linux), extensions on stores |
 
 ## Contributing
 

@@ -1,20 +1,20 @@
 # Breathly — Product Requirements Document
 
 > *Let your PC breathe.*
-> Statut : **brouillon v0 — à valider** · Dernière mise à jour : 2026-10-17
+> Statut : **brouillon v0.1 — cadrage validé le 2026-10-17 (§0, §17) ; user stories numérotées et specs par module encore à écrire** · Dernière mise à jour : 2026-10-17
 
 ---
 
-## 0. Hypothèses à valider
+## 0. Hypothèses (validées le 2026-10-17)
 
-Ces points ont été déduits de la discussion. Ils orientent tout le reste du document : **à corriger avant de passer au plan.**
+Ces points orientent tout le reste du document. Ils sont validés par le propriétaire ✅ ; tout changement passe par une PR qui le dit.
 
-1. **Plateformes V1 : Windows 10/11 et Linux** (Debian, Ubuntu, Mint, Fedora). macOS arrive plus tard (§6).
-2. **Pile technique : Rust + Tauri v2** pour l'application, **WebExtension** (TypeScript) pour l'extension navigateur.
-3. **Langues de l'interface : français et anglais** dès la première version ; les autres langues viendront des contributeurs.
-4. **Aucune télémétrie, aucun compte, aucun serveur.** Tout reste sur la machine.
+1. **Plateformes V1 : Windows 10/11 et Linux** (Debian, Ubuntu, Mint, Fedora). macOS est **hors V1.0** : après la V1.0 (§6). ✅
+2. **Pile technique : Rust + Tauri v2** pour l'application, **WebExtension** (TypeScript) pour l'extension navigateur. ✅
+3. **Langues de l'interface : français et anglais** dès la première version ; les autres langues viendront des contributeurs. ✅
+4. **Aucune télémétrie, aucun compte, aucun serveur.** Tout reste sur la machine. ✅
 5. **Licence : MIT** (fichier `LICENSE` du dépôt). ✅ Décidé.
-6. **Breathly ne supprime jamais rien sans montrer la liste et obtenir une confirmation.**
+6. **Breathly ne supprime jamais rien sans montrer la liste et obtenir une confirmation.** ✅
 
 ---
 
@@ -173,13 +173,13 @@ rules ────┘                                   ├─> app-ui
 | `diagnose` | Recommandations Linux : zram, swappiness. Recommandations Windows : mode d'alimentation, démarrage rapide |
 
 ### V1.0 « Stable »
-- **macOS** (13+).
-- Installeurs **signés** (Windows : signature de code ; macOS : notarisation) et **mises à jour automatiques**.
+- Installeurs **signés** (Windows : signature de code) et **mises à jour automatiques**.
 - Extensions publiées sur **addons.mozilla.org**, le **Chrome Web Store** et **Edge Add-ons**.
 - Site de documentation, guide de contribution des règles et des traductions.
 - Audit de sécurité des actions de suppression.
 
 ### Idées pour après la V1.0 (hors périmètre)
+- **macOS** (13+) : installeur signé et notarisé, CI `macos-latest`. Le code reste portable derrière les traits de `platform` ; rouvrir selon la demande et la disponibilité d'un testeur.
 - Historique de santé du PC dans le temps (graphiques).
 - Détection des doublons (intégration de Czkawka).
 - Groupes d'onglets et sessions sauvegardées.
@@ -284,7 +284,7 @@ command     = "npm cache clean --force"   # optionnel : commande officielle pré
 |---|---|---|
 | Cœur | Rust (édition 2024), workspace Cargo | Faible consommation mémoire, binaire unique, multiplateforme |
 | Système | `sysinfo` (processus, RAM, disques, températures), `jwalk` (parcours parallèle du disque), `trash` (corbeille multiplateforme) | Bibliothèques maintenues et multiplateformes |
-| Interface | Tauri v2 + framework web léger (**à décider**, §13) | Design soigné, contributeurs web nombreux, utilise le moteur web du système (WebView2, WebKitGTK, WKWebView) |
+| Interface | Tauri v2 + Svelte 5 (ADR 0001) | Design soigné, contributeurs web nombreux, utilise le moteur web du système (WebView2, WebKitGTK, WKWebView) |
 | Extension | TypeScript, Manifest V3, construite pour Firefox et Chromium | Une seule base de code |
 | Règles | Fichiers TOML dans `rules/` | Les contributeurs ajoutent des caches sans écrire de Rust |
 
@@ -335,7 +335,7 @@ npx web-ext lint --source-dir extension/dist/firefox
 
 - **Règles :** chaque règle TOML est validée automatiquement (schéma, chemins, explication FR et EN présentes, niveau de risque).
 - **Nettoyage :** tests d'intégration **uniquement dans des dossiers temporaires** (`tempfile`). **Aucun test ne touche le vrai dossier personnel.** Les garde-fous S5 ont chacun un test dédié qui vérifie le refus.
-- **Plateformes :** CI GitHub Actions sur `ubuntu-latest` et `windows-latest` (et `macos-latest` à partir de la V1.0).
+- **Plateformes :** CI GitHub Actions sur `ubuntu-latest` et `windows-latest` (`macos-latest` s'ajoutera avec le support de macOS, après la V1.0).
 - **Extension :** tests unitaires des règles de mise en veille (Vitest) ; tests manuels sur Firefox, Zen, Brave et Chrome à chaque version.
 - **Validation réelle :** avant chaque version, test sur les machines des 3 personas (Linux du développeur, Windows de l'ami, Ubuntu de l'amie).
 
@@ -356,7 +356,7 @@ npx web-ext lint --source-dir extension/dist/firefox
 | **V0.2** | L'ouverture d'un 2e navigateur déclenche la fenêtre d'alerte en < 2 s ; service < 15 Mo de RAM sur 24 h |
 | **V0.3** | Avec ~40 onglets dont des épinglés, la RAM du navigateur baisse d'**au moins 40 %** après 30 min, **sans qu'aucun onglet ne disparaisse** |
 | **V0.4** | Les services de développement lancés au démarrage sont détectés et désactivables depuis l'interface, avec possibilité de les réactiver |
-| **V1.0** | Installeurs signés pour les 3 OS ; extensions publiées sur les 3 boutiques ; ≥ 3 contributeurs externes ont ajouté des règles ou des traductions |
+| **V1.0** | Installeurs signés pour Windows et Linux ; extensions publiées sur les 3 boutiques ; ≥ 3 contributeurs externes ont ajouté des règles ou des traductions |
 
 ---
 
@@ -375,8 +375,8 @@ npx web-ext lint --source-dir extension/dist/firefox
 
 ## 17. Questions ouvertes
 
-1. **Framework de l'interface** : Svelte 5 (léger, simple pour les contributeurs), SolidJS ou vanilla + Web Components ?
+1. ~~**Framework de l'interface**~~ → **Svelte 5** ✅ (décision du 2026-10-17, ADR 0001 ; à confirmer par le prototype d'un écran)
 2. ~~**Licence**~~ → MIT ✅
-3. **macOS** : est-ce bien OK de le repousser à la V1.0 ?
+3. ~~**macOS**~~ → **après la V1.0** ✅
 4. ~~**Hébergement**~~ → https://github.com/AresGn/Breathly ✅
-5. **Identité visuelle** : faut-il faire une maquette cliquable (accueil, diagnostic, disque, onglets) avant la V0.1 pour valider le design ?
+5. ~~**Identité visuelle**~~ → **maquette cliquable de 4 écrans** (accueil, diagnostic, disque, onglets) dans `docs/design/`, validée avant d'écrire l'interface ✅ (à produire)
