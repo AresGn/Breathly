@@ -69,9 +69,14 @@ Une PR :
 
 ## 5. Protection de `main` (à régler une fois, par le propriétaire du dépôt)
 
-**État au 2026-10-17 : à régler.** Le dépôt est **public** : la protection de branche et les rulesets sont disponibles sans abonnement payant. Le propriétaire les active selon la liste ci-dessous. En attendant :
-- les règles 1 et 2 reposent sur la relecture et le hook de pré-push, qui **refuse tout push sur `main`** sauf `BREATHLY_ALLOW_MAIN=1 git push` (réservé au propriétaire) ;
-- chaque PR garde sa relecture, sa case « Documentation » et son `make ci-local` vert avant fusion.
+**État au 2026-10-18 : appliquée** (dépôt public, réglée par le propriétaire via l'API GitHub). Sur `main` :
+- PR obligatoire, **0 approbation requise** tant que le projet n'a qu'un mainteneur (une approbation requise bloquerait la seule personne qui peut fusionner) ; à passer à **1** dès qu'un second mainteneur existe ;
+- contrôle `gate` obligatoire et branche à jour avant fusion ;
+- historique linéaire, conversations résolues, aucun force push, aucune suppression ;
+- la règle vaut aussi pour les administrateurs (le propriétaire passe par une PR comme les autres) ;
+- fusion **uniquement par squash**, branche supprimée après fusion.
+
+Le hook de pré-push local reste utile : il refuse un push sur `main` avant même d'atteindre GitHub.
 
 Les hooks sont locaux et contournables. Seul GitHub peut rendre les règles 1 et 2 impossibles à enfreindre. Réglage à faire dans **Settings** (les libellés de GitHub évoluent ; la règle et son effet comptent plus que le chemin exact).
 
