@@ -1,0 +1,382 @@
+# Breathly — Product Requirements Document
+
+> *Let your PC breathe.*
+> Statut : **brouillon v0 — à valider** · Dernière mise à jour : 2026-10-17
+
+---
+
+## 0. Hypothèses à valider
+
+Ces points ont été déduits de la discussion. Ils orientent tout le reste du document : **à corriger avant de passer au plan.**
+
+1. **Plateformes V1 : Windows 10/11 et Linux** (Debian, Ubuntu, Mint, Fedora). macOS arrive plus tard (§6).
+2. **Pile technique : Rust + Tauri v2** pour l'application, **WebExtension** (TypeScript) pour l'extension navigateur.
+3. **Langues de l'interface : français et anglais** dès la première version ; les autres langues viendront des contributeurs.
+4. **Aucune télémétrie, aucun compte, aucun serveur.** Tout reste sur la machine.
+5. **Licence : MIT** (fichier `LICENSE` du dépôt). ✅ Décidé.
+6. **Breathly ne supprime jamais rien sans montrer la liste et obtenir une confirmation.**
+
+---
+
+## 1. Problème
+
+Les PC « qui rament » ont presque toujours les mêmes causes, sur tous les systèmes :
+
+| Cause | Ce que vit l'utilisateur | Exemple réel (machine de référence, 2026-10-17) |
+|---|---|---|
+| **Disque plein** | Lenteurs, mises à jour qui échouent, « je ne sais pas quoi supprimer » | 666 Mo libres sur 221 Go. **~30 Go** de caches et d'anciennes versions supprimables sans risque, 6,6 Go d'anciens noyaux |
+| **RAM saturée → swap** | Gels, PC lent « presque tout le temps » | Swap pleine (7,5/7,6 Go) avec 16 Go de RAM |
+| **Trop d'onglets / de navigateurs** | On n'ose pas fermer ses onglets, surtout les épinglés | Firefox + Zen + Brave ouverts en même temps, dizaines d'onglets épinglés pour ~10 vraiment utilisés |
+| **Programmes lancés au démarrage** | Le PC est lent dès l'allumage | Apache, MariaDB, PostgreSQL, Redis, Tor, BreakTimer (580 Mo) lancés en permanence |
+| **Surchauffe** | Le processeur ralentit pour se protéger | 70 °C à 10 % de charge |
+
+Les outils existants traitent chacun **un morceau** du problème et ne savent pas **expliquer** :
+
+| Outil | Limite |
+|---|---|
+| BleachBit | Vide des caches, mais n'explique pas ce qui ralentit le PC et ne trouve pas les gros fichiers |
+| WizTree, WinDirStat, dust, gdu | Montrent ce qui occupe le disque, sans dire ce qu'on peut supprimer |
+| Czkawka, Kondo | Excellents mais spécialisés (doublons, dossiers de projets) |
+| Économiseurs de mémoire des navigateurs | Ne connaissent pas les habitudes de l'utilisateur, réglages cachés, un seul navigateur à la fois |
+| **Surveillance de plusieurs navigateurs ouverts en même temps** | **N'existe pas** |
+
+**La valeur de Breathly : diagnostiquer, expliquer simplement, proposer des actions classées par niveau de risque, et ne rien faire sans accord.**
+
+---
+
+## 2. Utilisateurs cibles
+
+| Persona | Système | Besoin principal | Niveau technique |
+|---|---|---|---|
+| **Le développeur aux 50 onglets** | Linux (LMDE / Debian) | Garder ses onglets épinglés sans que le PC s'effondre ; nettoyer les caches de développement | Élevé |
+| **L'ami sous Windows** | Windows 11 | « Mon disque est plein et je ne sais pas quoi supprimer » | Faible |
+| **L'amie sous Ubuntu** | Ubuntu (Firefox en snap) | PC lent, disque plein | Moyen |
+| **Le parent** | Windows ou Linux | Cliquer sur un bouton et comprendre ce qui se passe | Très faible |
+
+**Règle de conception :** chaque écran doit pouvoir être utilisé par le persona « parent ». Le détail technique est disponible, mais jamais imposé.
+
+---
+
+## 3. Objectifs et non-objectifs
+
+### Objectifs
+- **G1.** Répondre en moins d'une minute à « pourquoi mon PC est lent ? », en langage simple.
+- **G2.** Libérer de l'espace disque **sans risque pour les données personnelles**.
+- **G3.** Réduire la RAM consommée par les navigateurs **sans obliger à fermer des onglets**.
+- **G4.** Éviter d'avoir plusieurs navigateurs ouverts en même temps sans le vouloir.
+- **G5.** Être **lui-même léger** : un outil anti-lenteur qui ralentit le PC n'a pas de sens.
+- **G6.** Être **facile à étendre** par la communauté (nouveaux caches, nouveaux navigateurs, nouvelles langues) sans écrire de Rust.
+
+### Non-objectifs (ce que Breathly ne fera jamais)
+- ❌ **« Nettoyeur de registre » Windows** : gain nul, risque réel.
+- ❌ **« Booster de RAM »** qui vide la mémoire de force : contre-productif.
+- ❌ Antivirus, mise à jour de pilotes, VPN, ou tout ce qui sort du sujet.
+- ❌ Comptes, synchronisation dans le cloud, publicité, télémétrie activée par défaut.
+- ❌ Supprimer des **données personnelles** (documents, photos, profils de navigateur, conteneurs chiffrés, bases de données) **de sa propre initiative**. L'utilisateur peut les voir dans l'analyse, mais Breathly ne les propose jamais au nettoyage automatique.
+- ❌ Application mobile.
+
+---
+
+## 4. Principes produit
+
+1. **Montrer avant d'agir.** Toute action affiche ce qui va se passer et ce que ça libère. Une simulation est toujours possible.
+2. **Réversible par défaut.** Les fichiers de l'utilisateur vont **dans la corbeille** du système. Seuls les caches (qui se recréent tout seuls) sont supprimés définitivement. Chaque action est notée dans un **historique** et peut être annulée quand c'est possible.
+3. **Trois niveaux de risque, partout :**
+   - 🟢 **Sans risque** : caches, fichiers temporaires, anciennes versions. Ils se recréent tout seuls.
+   - 🟡 **À vérifier** : dossiers recréables (`node_modules`, installeurs déjà utilisés), anciens téléchargements.
+   - 🔴 **Décision personnelle** : gros fichiers personnels. Breathly les montre, mais ne les sélectionne jamais par défaut.
+4. **Expliquer chaque proposition en une phrase** (« C'est le cache de npm : il se recrée automatiquement au prochain `npm install` »). Le détail technique reste accessible.
+5. **Ne rien casser.** En cas de doute, Breathly ne propose pas l'action. Il vaut mieux libérer 20 Go sans risque que 25 Go dont 5 de trop.
+6. **Sobriété.** Le service en arrière-plan consomme moins qu'un onglet ouvert. La fenêtre ne tourne que quand elle est ouverte.
+
+---
+
+## 5. Carte des modules
+
+Chaque module a un identifiant stable. Ces identifiants nomment les specs détaillées (`docs/specs/SPEC-<id>.md`) et les tâches.
+
+| Module id | Responsabilité | Dépend de |
+|---|---|---|
+| `platform` | Abstraction du système d'exploitation : processus, RAM, swap, disques, températures, chemins standard, corbeille, droits administrateur | — |
+| `rules` | Format et chargement des **règles de nettoyage** déclaratives (TOML) : emplacement, OS, niveau de risque, explication, commande éventuelle | — |
+| `diagnose` | Analyse « pourquoi mon PC est lent » : score, causes classées, recommandations | `platform` |
+| `disk-scan` | Parcours rapide du disque, regroupement par catégorie, application des règles | `platform`, `rules` |
+| `disk-clean` | Exécution des nettoyages : simulation, corbeille, historique, annulation | `platform`, `rules`, `disk-scan` |
+| `daemon` | Service léger en arrière-plan : icône dans la barre des tâches, IPC avec l'interface, planification | `platform` |
+| `browser-guard` | Détection des navigateurs ouverts, RAM par navigateur, alertes « un autre navigateur est déjà ouvert » | `platform`, `daemon` |
+| `tab-sleep` | Extension navigateur et hôte *native messaging* : mise en veille des onglets, apprentissage des onglets du quotidien, statistiques | `daemon`, `browser-guard` |
+| `startup` | Liste et désactivation des programmes et services lancés au démarrage | `platform` |
+| `app-ui` | Application Tauri : écrans, i18n, accessibilité, thème clair/sombre | tous les modules ci-dessus (via des commandes Tauri) |
+
+**Ordre de construction :**
+`platform`, `rules` → `diagnose`, `disk-scan` → `disk-clean` → `app-ui` (V0.1) → `daemon` → `browser-guard` (V0.2) → `tab-sleep` (V0.3) → `startup` (V0.4)
+
+```
+platform ─┬─> diagnose ───────────────────────┐
+          ├─> disk-scan ─> disk-clean ────────┤
+rules ────┘                                   ├─> app-ui
+          ├─> daemon ─> browser-guard ─> tab-sleep ┤
+          └─> startup ────────────────────────┘
+```
+
+---
+
+## 6. Périmètre par version
+
+### V0.1 « Respire » : diagnostic et disque
+*L'ami sous Windows et l'amie sous Ubuntu peuvent libérer de l'espace et comprendre pourquoi leur PC est lent.*
+
+**Plateformes :** Windows 10/11, Linux (Debian/Ubuntu/Mint, Fedora).
+
+| Module | Inclus | Exclu (plus tard) |
+|---|---|---|
+| `platform` | Processus, RAM, swap, disques, température du processeur quand elle est disponible, corbeille, chemins standard | Droits administrateur (V0.4) |
+| `rules` | Format TOML, ~40 règles de départ (§8) | Règles qui demandent des droits administrateur |
+| `diagnose` | Écran « État du PC » : disque, RAM, swap, chauffe, **top 10 des applications par RAM (processus regroupés par application)**, recommandations en phrases simples | Historique dans le temps |
+| `disk-scan` | Analyse du dossier personnel + caches connus, catégories 🟢🟡🔴, **plus gros fichiers et dossiers**, dossiers de projets recréables (`node_modules`, `target`, `.gradle`…) | Doublons (on renverra vers Czkawka), analyse des disques externes |
+| `disk-clean` | Nettoyage 🟢 en un clic, 🟡 élément par élément, simulation, corbeille, historique, annulation | Nettoyages système qui demandent des droits administrateur |
+| `app-ui` | Accueil (« Analyser mon PC »), écran Diagnostic, écran Espace disque, écran Historique, Réglages, FR/EN, thème clair/sombre | Icône dans la barre des tâches |
+
+**Livrables :** installeur `.msi` (Windows), `.deb`, `.rpm` et `.AppImage` (Linux), publiés dans les *GitHub Releases*.
+
+### V0.2 « Un seul navigateur » : surveillance des navigateurs
+*Breathly prévient quand un deuxième navigateur s'ouvre et montre ce que chaque navigateur consomme.*
+
+| Module | Inclus |
+|---|---|
+| `daemon` | Service en arrière-plan + icône dans la barre des tâches, lancement automatique au démarrage (désactivable), communication avec l'interface |
+| `browser-guard` | Détection de Firefox, Zen, LibreWolf, Chrome, Chromium, Brave, Edge, Opera, Vivaldi (liste extensible en TOML). Quand un **deuxième** navigateur s'ouvre, une petite fenêtre Breathly propose : **« Fermer [A] »**, **« Fermer [B] »**, **« Garder les deux »**, **« Ne plus demander pendant 1 h »**. Liste blanche. Alerte quand un navigateur dépasse X Go (seuil réglable) |
+| `app-ui` | Écran « Navigateurs » : RAM par navigateur, nombre de processus, réglages des alertes |
+
+**Contrainte connue :** Breathly ne peut pas *empêcher* un navigateur de démarrer sans aller très loin dans le système (pilote, hook). Il **détecte** le lancement (vérification toutes les 1 à 2 s, ou événements du système quand ils existent) et **réagit** dans les 2 secondes.
+
+### V0.3 « Sieste des onglets » : mise en veille des onglets
+*Garder tous ses onglets, y compris épinglés, sans que le PC rame.*
+
+| Module | Inclus |
+|---|---|
+| `tab-sleep` (extension) | Une extension pour **Firefox / Zen / LibreWolf** et **Chrome / Brave / Edge / Chromium** (même code, deux paquets). Met en veille les onglets inactifs avec l'API `tabs.discard()` : l'onglet **reste à sa place, épinglé, avec son titre et son icône**, et se recharge au clic |
+| `tab-sleep` (règles) | **Jamais en veille :** l'onglet affiché, ceux qui jouent du son ou une visio, ceux protégés par l'utilisateur. **Onglets du quotidien :** Breathly apprend les onglets utilisés chaque jour (fréquence d'activation sur 7 jours) et les garde éveillés plus longtemps. **Les autres :** en veille après X minutes d'inactivité (30 par défaut). **Pression mémoire :** si la RAM libre passe sous un seuil, Breathly met en veille en priorité les onglets les moins utilisés |
+| `tab-sleep` (hôte) | Hôte *native messaging* (petit binaire Rust) qui relie l'extension au service : la RAM du système est transmise à l'extension, et les statistiques à l'interface |
+| `app-ui` | Écran « Onglets » : onglets éveillés et en veille par navigateur, **RAM économisée (estimation)**, onglets protégés, réglages |
+
+**Contraintes connues :**
+- Les navigateurs **ne donnent pas la RAM onglet par onglet** aux extensions. Breathly mesure la RAM exacte **par navigateur** (au niveau du système) et **estime** les économies par onglet.
+- L'extension fonctionne **seule** (sans l'application) en mode simplifié, avec des règles par défaut et sans pression mémoire.
+
+### V0.4 « Démarrage léger » : démarrage et actions système
+
+| Module | Inclus |
+|---|---|
+| `startup` | Liste des programmes et services lancés au démarrage, avec leur RAM ; désactivation et réactivation en un clic. Linux : autostart XDG, services systemd utilisateur et système. Windows : clés `Run`, dossier Démarrage, tâches planifiées |
+| `platform` / `rules` | **Actions qui demandent des droits administrateur**, avec explication et demande de mot de passe : anciens noyaux (Debian/Ubuntu), révisions snap désactivées, flatpak inutilisés, journaux systemd, cache apt/dnf, cache Windows Update, instantanés Timeshift |
+| `diagnose` | Recommandations Linux : zram, swappiness. Recommandations Windows : mode d'alimentation, démarrage rapide |
+
+### V1.0 « Stable »
+- **macOS** (13+).
+- Installeurs **signés** (Windows : signature de code ; macOS : notarisation) et **mises à jour automatiques**.
+- Extensions publiées sur **addons.mozilla.org**, le **Chrome Web Store** et **Edge Add-ons**.
+- Site de documentation, guide de contribution des règles et des traductions.
+- Audit de sécurité des actions de suppression.
+
+### Idées pour après la V1.0 (hors périmètre)
+- Historique de santé du PC dans le temps (graphiques).
+- Détection des doublons (intégration de Czkawka).
+- Groupes d'onglets et sessions sauvegardées.
+- Mode « une session de travail » : rouvrir seulement les onglets d'un projet.
+
+---
+
+## 7. Exigences fonctionnelles détaillées
+
+### 7.1 `diagnose`
+- **D1.** Le diagnostic complet prend **moins de 10 secondes**, sans compter l'analyse du disque, qui est lancée à part.
+- **D2.** Il produit **au plus 5 recommandations**, classées par impact, chacune avec : un titre en langage simple, le gain estimé, le niveau de risque, un bouton d'action ou d'explication.
+- **D3.** Les processus sont **regroupés par application** (« VS Code : 3,2 Go », pas « code », « code », « code »…).
+- **D4.** Seuils par défaut : disque > 90 % = alerte ; swap > 50 % avec une RAM disponible < 15 % = alerte ; température > 80 °C au repos = alerte.
+
+### 7.2 `disk-scan` / `disk-clean`
+- **S1.** Analyse du dossier personnel (~500 000 fichiers) en **moins de 60 s** sur un SSD.
+- **S2.** Chaque élément proposé au nettoyage provient **d'une règle explicite** (fichier TOML). Aucune heuristique ne propose de supprimer un fichier.
+- **S3.** Les fichiers de l'utilisateur vont dans la **corbeille** (crate `trash`) ; les caches 🟢 peuvent être supprimés définitivement, ce qui est indiqué à l'écran.
+- **S4.** **Liste d'exclusion** gérée par l'utilisateur, qui prime sur toutes les règles.
+- **S5.** **Garde-fous non désactivables :** jamais en dehors des emplacements prévus par une règle ; jamais les profils de navigateur, `Documents`, `Images`, `Vidéos`, `Musique`, `Bureau`, les conteneurs chiffrés (`.hc`, `.vc`, `.kdbx`…), les dossiers `.git`, les fichiers ouverts par un programme.
+- **S6.** **Historique** : date, élément, taille, destination (corbeille ou suppression définitive), et annulation pour ce qui est passé par la corbeille.
+
+### 7.3 `browser-guard`
+- **B1.** Un navigateur lancé est détecté en **moins de 2 s**.
+- **B2.** Les processus « en arrière-plan » (Edge *Startup Boost*, Chrome « continuer en arrière-plan ») ne déclenchent **pas** d'alerte tant qu'aucune fenêtre n'est ouverte, pour éviter les fausses alertes.
+- **B3.** Fermer un navigateur se fait **proprement** (fermeture normale, pour que le navigateur puisse restaurer sa session), jamais en tuant directement le processus.
+- **B4.** La liste des navigateurs (noms de processus par OS, nom affiché, icône) est un **fichier TOML** que les contributeurs peuvent compléter.
+
+### 7.4 `tab-sleep`
+- **T1.** Un onglet mis en veille garde sa position, son épinglage, son titre et son icône.
+- **T2.** Ne jamais mettre en veille : l'onglet actif, un onglet `audible`, un onglet qui partage le micro, la caméra ou l'écran, un onglet protégé, un onglet avec un formulaire en cours de saisie quand le navigateur le signale.
+- **T3.** Les « onglets du quotidien » sont calculés **sur la machine**, à partir de la fréquence d'activation sur 7 jours glissants. **Les URL ne sortent jamais du navigateur** : seuls le domaine et des compteurs sont transmis à l'application.
+- **T4.** L'utilisateur peut voir, modifier ou effacer les données d'apprentissage.
+
+### 7.5 `daemon`
+- **M1.** Un seul processus en arrière-plan, **< 15 Mo de RAM** (objectif < 8 Mo), **< 0,5 % de CPU** en moyenne.
+- **M2.** Le service peut être mis en pause depuis l'icône (« Mettre Breathly en pause 1 h »).
+
+---
+
+## 8. Règles de nettoyage de départ (V0.1)
+
+Exemple de règle (format provisoire, défini en détail dans `SPEC-rules.md`) :
+
+```toml
+[[rule]]
+id          = "npm-cache"
+name.fr     = "Cache de npm"
+name.en     = "npm cache"
+explain.fr  = "Paquets téléchargés par npm. Ils sont retéléchargés automatiquement si besoin."
+explain.en  = "Packages downloaded by npm. They are re-downloaded automatically when needed."
+risk        = "safe"          # safe | review | personal
+os          = ["linux", "windows", "macos"]
+paths.linux   = ["~/.npm/_cacache"]
+paths.windows = ["%LOCALAPPDATA%/npm-cache/_cacache"]
+paths.macos   = ["~/.npm/_cacache"]
+command     = "npm cache clean --force"   # optionnel : commande officielle préférée à la suppression directe
+```
+
+**Règles minimales pour la V0.1 :**
+- **Communes :** caches npm, pnpm, yarn, pip, Gradle, Cargo (registre), Go (build), Playwright, ms-playwright ; caches des navigateurs (**le cache seulement, jamais le profil**) ; caches de VS Code et de Cursor (VSIX en cache, `CachedData`) ; anciennes versions d'outils (Codex, etc.) ; installeurs dans Téléchargements (`.deb`, `.exe`, `.msi`, `.AppImage`, `.dmg`) en 🟡 ; dossiers de projets recréables en 🟡.
+- **Linux :** `~/.cache` (par sous-dossier connu), corbeille, miniatures.
+- **Windows :** `%TEMP%`, corbeille, `%LOCALAPPDATA%\CrashDumps`, miniatures, ancien dossier `Windows.old` (V0.4, droits administrateur).
+
+---
+
+## 9. Exigences non fonctionnelles
+
+| Catégorie | Exigence |
+|---|---|
+| **Légèreté** | Service < 15 Mo de RAM ; interface ouverte < 150 Mo ; installeur < 15 Mo ; aucun processus de l'interface quand la fenêtre est fermée |
+| **Accessibilité** | WCAG 2.2 AA : contraste, navigation au clavier, lecteur d'écran, textes à taille réglable |
+| **Simplicité** | Un utilisateur non technique libère de l'espace **en 3 clics ou moins** depuis l'accueil |
+| **Langues** | Toutes les chaînes dans des fichiers de traduction (FR, EN au départ) ; aucun texte en dur dans le code |
+| **Confidentialité** | Aucune connexion réseau, sauf la vérification des mises à jour (V1.0, désactivable) |
+| **Sécurité** | Les actions administrateur passent par l'élévation standard de l'OS (UAC, polkit/pkexec), une action à la fois, jamais l'application entière en administrateur |
+| **Fiabilité** | Une erreur pendant un nettoyage n'interrompt pas le reste ; chaque erreur est affichée avec une explication |
+
+---
+
+## 10. Architecture et pile technique
+
+```
+┌──────────────────────── Navigateur ────────────────────────┐
+│  Extension Breathly (WebExtension, TypeScript)             │
+│  tabs.query · tabs.discard · tabs.onActivated · storage    │
+└──────────────┬─────────────────────────────────────────────┘
+               │ native messaging (stdin/stdout JSON)
+┌──────────────▼──────────────┐      IPC locale       ┌───────────────────────┐
+│ breathly-nmhost (Rust)      │ ◄──────────────────►  │ breathly-daemon (Rust)│
+└─────────────────────────────┘ (socket Unix / pipe   │ icône · guard · stats │
+                                 nommé Windows)        └──────────┬────────────┘
+                                                                  │ IPC
+                                                       ┌──────────▼────────────┐
+                                                       │ Breathly (Tauri v2)   │
+                                                       │ Rust + interface web  │
+                                                       └───────────────────────┘
+```
+
+| Couche | Choix | Raison |
+|---|---|---|
+| Cœur | Rust (édition 2024), workspace Cargo | Faible consommation mémoire, binaire unique, multiplateforme |
+| Système | `sysinfo` (processus, RAM, disques, températures), `jwalk` (parcours parallèle du disque), `trash` (corbeille multiplateforme) | Bibliothèques maintenues et multiplateformes |
+| Interface | Tauri v2 + framework web léger (**à décider**, §13) | Design soigné, contributeurs web nombreux, utilise le moteur web du système (WebView2, WebKitGTK, WKWebView) |
+| Extension | TypeScript, Manifest V3, construite pour Firefox et Chromium | Une seule base de code |
+| Règles | Fichiers TOML dans `rules/` | Les contributeurs ajoutent des caches sans écrire de Rust |
+
+---
+
+## 11. Structure du dépôt (prévue)
+
+```
+breathly/
+├── crates/
+│   ├── breathly-platform/    # module platform
+│   ├── breathly-rules/       # module rules
+│   ├── breathly-diagnose/    # module diagnose
+│   ├── breathly-disk/        # modules disk-scan + disk-clean
+│   ├── breathly-guard/       # module browser-guard
+│   ├── breathly-daemon/      # binaire du service (module daemon)
+│   └── breathly-nmhost/      # binaire native messaging (module tab-sleep)
+├── apps/desktop/             # application Tauri (module app-ui)
+│   ├── src-tauri/
+│   └── ui/
+├── extension/                # extension navigateur (module tab-sleep)
+├── rules/                    # règles de nettoyage TOML
+├── browsers/                 # définitions des navigateurs TOML
+├── locales/                  # traductions (fr, en…)
+├── docs/
+│   ├── PRD.md                # ce document
+│   └── specs/                # SPEC-<module-id>.md
+├── tasks/                    # plan.md, todo.md
+├── LICENSE · CONTRIBUTING.md · CODE_OF_CONDUCT.md · SECURITY.md
+└── README.md
+```
+
+## 12. Commandes de développement (prévues)
+
+```bash
+cargo build --workspace                     # compiler tout le cœur
+cargo test --workspace                      # tests unitaires et d'intégration
+cargo clippy --workspace --all-targets -- -D warnings
+cargo fmt --all --check
+cargo tauri dev        # (dans apps/desktop) lancer l'application en développement
+cargo tauri build      # installeurs
+pnpm --dir extension build                  # construire les extensions Firefox et Chromium
+pnpm --dir extension test
+npx web-ext lint --source-dir extension/dist/firefox
+```
+
+## 13. Stratégie de test
+
+- **Règles :** chaque règle TOML est validée automatiquement (schéma, chemins, explication FR et EN présentes, niveau de risque).
+- **Nettoyage :** tests d'intégration **uniquement dans des dossiers temporaires** (`tempfile`). **Aucun test ne touche le vrai dossier personnel.** Les garde-fous S5 ont chacun un test dédié qui vérifie le refus.
+- **Plateformes :** CI GitHub Actions sur `ubuntu-latest` et `windows-latest` (et `macos-latest` à partir de la V1.0).
+- **Extension :** tests unitaires des règles de mise en veille (Vitest) ; tests manuels sur Firefox, Zen, Brave et Chrome à chaque version.
+- **Validation réelle :** avant chaque version, test sur les machines des 3 personas (Linux du développeur, Windows de l'ami, Ubuntu de l'amie).
+
+## 14. Règles de travail
+
+- **Toujours :** simulation avant suppression dans le code comme dans l'interface ; tests avant chaque commit ; `clippy` sans avertissement ; textes dans les fichiers de traduction.
+- **Demander d'abord :** ajout d'une dépendance ; nouvelle règle 🟢 qui supprime définitivement ; tout ce qui demande des droits administrateur ; changement du format des règles.
+- **Jamais :** supprimer en dehors d'une règle ; écrire un test qui touche le vrai dossier personnel ; envoyer des données hors de la machine ; tuer un navigateur sans lui laisser le temps de se fermer proprement.
+
+---
+
+## 15. Critères de réussite
+
+| Version | Critère vérifiable |
+|---|---|
+| **V0.1** | Sur la machine Windows de l'ami, une personne non technique libère ≥ 5 Go **en ≤ 3 clics, sans aide** ; aucun fichier hors règle n'est touché (vérifié par l'historique) ; installeur < 15 Mo |
+| **V0.1** | Sur la machine de référence Linux, Breathly retrouve **au moins 80 %** des ~30 Go libérés à la main le 2026-10-17 |
+| **V0.2** | L'ouverture d'un 2e navigateur déclenche la fenêtre d'alerte en < 2 s ; service < 15 Mo de RAM sur 24 h |
+| **V0.3** | Avec ~40 onglets dont des épinglés, la RAM du navigateur baisse d'**au moins 40 %** après 30 min, **sans qu'aucun onglet ne disparaisse** |
+| **V0.4** | Les services de développement lancés au démarrage sont détectés et désactivables depuis l'interface, avec possibilité de les réactiver |
+| **V1.0** | Installeurs signés pour les 3 OS ; extensions publiées sur les 3 boutiques ; ≥ 3 contributeurs externes ont ajouté des règles ou des traductions |
+
+---
+
+## 16. Risques
+
+| Risque | Impact | Parade |
+|---|---|---|
+| **Navigateurs en flatpak ou en snap** (Zen en flatpak, Firefox en snap sur Ubuntu) : le *native messaging* est limité par le bac à sable | L'extension ne peut pas parler à l'application | Prototype dès le début de la V0.3 ; portail `xdg-desktop-portal` (WebExtensions) quand il est disponible ; sinon mode autonome de l'extension (T, §6 V0.3) |
+| Zen / forks de Firefox : emplacement non standard des manifestes *native messaging* | Installation incomplète | Définitions par navigateur dans `browsers/*.toml`, testées dans la CI |
+| Une règle de nettoyage fausse supprime des données | Perte de confiance, irréversible | Règles revues par 2 personnes ; garde-fous S5 non désactivables ; corbeille pour les fichiers de l'utilisateur |
+| Antivirus Windows qui bloque un exécutable non signé | L'ami ne peut pas installer | Signature de code dès que possible ; documentation SmartScreen en attendant |
+| WebKitGTK lent ou ancien sur certaines distributions | Interface lente sous Linux | Interface sobre, pas d'animations lourdes ; test sur Ubuntu LTS |
+| Températures indisponibles (sous Windows, souvent sans droits administrateur) | Diagnostic incomplet | Afficher « non disponible » plutôt qu'une valeur fausse |
+
+---
+
+## 17. Questions ouvertes
+
+1. **Framework de l'interface** : Svelte 5 (léger, simple pour les contributeurs), SolidJS ou vanilla + Web Components ?
+2. ~~**Licence**~~ → MIT ✅
+3. **macOS** : est-ce bien OK de le repousser à la V1.0 ?
+4. ~~**Hébergement**~~ → https://github.com/AresGn/Breathly ✅
+5. **Identité visuelle** : faut-il faire une maquette cliquable (accueil, diagnostic, disque, onglets) avant la V0.1 pour valider le design ?
