@@ -48,10 +48,8 @@ flowchart TD
     classDef progress fill:#fff3cd,stroke:#b8860b,color:#111
     classDef todo fill:#eceff1,stroke:#607d8b,color:#111
     classDef na fill:#fafafa,stroke:#bbb,stroke-dasharray: 4 3,color:#888
-    class A0,A1,B1,B2,B3,B4,B5,B7,B8 done
-    class C done
-    class D,E,F,G,H,I todo
-    class B9 progress
+    class A0,A1,B1,B2,B3,B4,B5,B7,B8,B9,C,D,E done
+    class F,G,H,I todo
     class B6 na
 ```
 
@@ -71,10 +69,10 @@ Protection de `main` : appliquée le 2026-10-18 (voir `CONTRIBUTING.md` §5).
 | 2.6 Base | sans objet | pas de base de données ; le format des fichiers locaux relève d'un ADR (2.3) |
 | 2.7 Maquettes | fait (écarts à traiter) | 20 écrans livrés le 2026-10-18 dans `docs/design/maquettes/` (clair et sombre, jetons `breathly.css`) ; reste : libellés anglais appliqués, logo à vectoriser, texte à 200 %, polices à embarquer en WOFF2 |
 | 2.8 Sécurité | fait | `docs/policies/modele-de-menaces.md` (5 flux, 16 tests de sécurité TS-01 à TS-16) ; `securite.md` réécrit pour un outil local (SEC1 à SEC11) ; points ouverts : suppression sûre, CSP Tauri, attestation de provenance |
-| 2.9 Prototype | en cours | P1 corbeille et suppression sûre, P2 mesures, P3 native messaging (Chromium, Firefox), P5 inactivité X11 : faits sous Linux le 2026-10-18 (`docs/research/2026-10-18-prototypes-2-9.md`). **Reste** : P4 Tauri + Svelte (paquets WebKitGTK à installer par le propriétaire), Windows, Wayland, Zen/Brave/snap/Flatpak en exécution, ADR 0008 et 0009 à finaliser |
+| 2.9 Prototype | fait sous Linux (ADR 0008 et 0009 en attente) | P1, P2, P3, P5 (`docs/research/2026-10-18-prototypes-2-9.md`) et P4 (`docs/research/2026-10-18-coquille-desktop.md`). **Reste** : Windows, Wayland, Zen/Brave/snap/Flatpak en exécution ; ADR 0008 (décision du propriétaire sur la cible de mémoire) et ADR 0009 |
 | 3 · Règles | fait (prouvé à l'étape 4) | structure (ADR 0010), outillage (ADR 0011) ; `CODING.md` Rust et `CODING.md` de l'interface réécrits pour Breathly ; `AGENTS.md` rempli ; reste `make kit-todo` (guide de démarrage, modèle de menaces, README de l'interface) |
 | 4 · Outils | fait (PR de cette étape) | outils éprouvés le 2026-10-18 par sondes négatives, au niveau de chaque outil puis de `make check` (`docs/research/2026-10-18-outils-etape-4.md`) ; ajoutés : `cargo-deny` (`deny.toml`), `clippy.toml`, `tools/check-rust.py`, lints complétés dans `Cargo.lints.fragment.toml` ; CI corrigée (Rust lu dans `rust-toolchain.toml`, outils installés, lockfile pnpm à la racine, Node 24, `actions/cache` épinglée). **Reste, à l'étape 5** : créer les fichiers réels à partir de `docs/research/outils-etape-4/interface/` ; vérifier la CI sur un exécuteur hébergé |
-| 5 · Applications | en cours | **Fait** : workspace Cargo, `rust-toolchain.toml` (1.97.1, profil minimal, clippy et rustfmt), 4 crates V0.1 vides, `make check` vert. **Reste** : `apps/desktop` (Tauri + SvelteKit SPA, scripts `lint`, `typecheck`, `test`, configurations de `docs/research/outils-etape-4/interface/`) ; mesure de la RAM de la fenêtre et de l'installeur (P4, ADR 0008) ; identifiant décidé : `io.github.aresgn.breathly` |
+| 5 · Applications | fait (budget de légèreté à décider) | workspace Cargo + 4 crates vides (PR #20) ; coquille `apps/desktop` (Tauri + SvelteKit SPA, CSP stricte, icônes du logo provisoire, `make check` vert) ; mesures P4 dans `docs/research/2026-10-18-coquille-desktop.md` : **fenêtre vide à 288 Mo (PSS), cible du PRD à 150 Mo hors de portée** → décision sur l'ADR 0008 ; identifiant `io.github.aresgn.breathly` |
 | 6 · Backlog | à faire | après la porte des étapes 2 à 5 |
 | 7 · Porte | non franchie | |
 | 8 · Rituels | dès la première PR de fonctionnalité | |

@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capacités de la fenêtre principale : aucune commande n'existe encore, chaque ajout est explicite (SEC3).",
+  "windows": ["main"],
+  "permissions": []
+}

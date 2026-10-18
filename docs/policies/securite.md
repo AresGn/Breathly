@@ -38,7 +38,8 @@
 ## 3. Décisions à prendre par un ADR avant le premier code sensible
 
 - **Suppression sûre** : stratégie contre l'écart entre vérification et action. **Le prototype P1 (2026-10-18) a démontré la faille** : si un dossier du chemin devient un lien symbolique entre la vérification et l'action, `trash::delete` suit le lien et atteint un fichier protégé ; recanoniser juste avant d'agir la détecte sans fermer la fenêtre. À décider : comparaison d'identité du dossier parent avant et après, ou opérations relatives à un descripteur pour la suppression définitive. Normalisation sous Windows (chemins longs, jonctions) non étudiée.
-- **Configuration Tauri** : politique de contenu (CSP) de l'interface, liste des capacités, interdiction de tout contenu distant. À lire dans la documentation de Tauri v2 avant d'écrire la configuration.
+- **Configuration Tauri** : une CSP stricte (`default-src 'self'`, aucun contenu distant) et une liste de capacités **vide** sont posées dans `tauri.conf.json` ; le rendu de la coquille sous cette CSP est vérifié (2026-10-18, `docs/research/2026-10-18-coquille-desktop.md`). Chaque écran ou commande future ajuste la CSP et la capacité de la fenêtre principale par une PR qui le dit.
+- **Construction des installeurs** : l'AppImage télécharge `AppRun`, `linuxdeploy` et un greffon « continuous » non épinglés par empreinte. À épingler, ou à ne pas publier, avant la première release (SEC11).
 - **Garde réseau** : outil exact de contrôle de l'arbre de dépendances (SEC1).
 - **Signature de code** (V1.0) : certificat Windows, clé de signature Linux, stockage des secrets de signature dans la CI.
 - **Attestation de provenance des builds** : à lire dans la documentation de GitHub avant tout choix.
@@ -64,5 +65,7 @@
 | Les contenus d'une page web ne peuvent pas appeler l'hôte directement (Chrome) ; l'extension valide `sender.origin` | documentation Chrome |
 | Tauri v2 : par défaut toute commande enregistrée est appelable depuis toute fenêtre | documentation Tauri, « Capabilities » |
 | Crate `trash` 5.2.9 : `purge_all`, `restore_all` sur Windows et Linux | docs.rs ; essai P1 sous Linux le 2026-10-18 (liens symboliques, collision de restauration, purge sélective) |
+
+**Avis connus de `cargo audit`** (2026-10-18) : `proc-macro-error` non maintenue et `glib` 0.18.5 « unsound », toutes deux par la pile `gtk` de `tauri` sous Linux ; non bloquants, à revoir à chaque mise à jour de `tauri`.
 
 **Non vérifié** : la fermeture complète de la fenêtre entre vérification et action pour `trash`, le comportement d'UAC, le fonctionnement exact de `cargo audit` et de l'outil de garde réseau, l'attestation de provenance GitHub, la gestion des liens symboliques et jonctions par les bibliothèques retenues, la CSP de Tauri.

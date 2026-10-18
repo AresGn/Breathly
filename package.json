@@ -1,0 +1,5 @@
+{
+	"private": true,
+	"name": "breathly",
+	"packageManager": "pnpm@11.5.3"
+}
