@@ -48,8 +48,8 @@ flowchart TD
     classDef progress fill:#fff3cd,stroke:#b8860b,color:#111
     classDef todo fill:#eceff1,stroke:#607d8b,color:#111
     classDef na fill:#fafafa,stroke:#bbb,stroke-dasharray: 4 3,color:#888
-    class A0,A1,B1 done
-    class B2,B3,C progress
+    class A0,A1,B1,B2,B3 done
+    class C progress
     class B4,B5,B7,B8,B9,D,E,F,G,H,I todo
     class B6 na
 ```
@@ -63,8 +63,8 @@ Protection de `main` : appliquée le 2026-10-18 (voir `CONTRIBUTING.md` §5).
 | 0 · Prérequis | fait | |
 | 1 · Initialiser | fait (PR #1) | |
 | 2.1 Glossaire | fait (PR de cette étape) | `GLOSSARY.md` : 7 ambiguïtés levées ; à compléter à chaque terme nouveau, dans la PR du code qui l'introduit |
-| 2.2 PRD | en cours | cadrage validé (PR #3) ; ajustements du 2026-10-18 faits (profils, G3 à G9, D5 à D7, §7.6 à §7.8) ; stories numérotées dans `docs/stories.md` (brouillon, à relire) ; risques ouverts à relire |
-| 2.3 ADR | en cours | ADR 0001 (Svelte 5) accepté sous réserve du prototype ; à écrire : format de l'historique et des réglages, protocole extension - hôte - daemon, élévation des droits administrateur (PRD §7.8), budgets de légèreté (après mesure), définition de « inutilisé » (après prototype), chargement des règles (intégrées au build, règles personnalisées plus tard), vidage de la corbeille et espace libéré, effacement de l'historique |
+| 2.2 PRD | fait (PR #8) | `docs/stories.md` : V0.1 détaillée (US-001 à US-073), V0.2 à V1.0 numérotées ; critères détaillés de V0.2+ après les prototypes |
+| 2.3 ADR | fait, 2 en attente | ADR 0001 à 0007 écrits (0006 et 0007 « proposé », à confirmer par prototype) ; **ADR 0008 (budgets) et 0009 (« inutilisé ») en attente** : ils se décident après le prototype 2.9 |
 | 2.4 États | à décider | peut-être : analyse, nettoyage, annulation |
 | 2.5 Design du système | à faire | modules sans cycle (PRD §5), protocole entre processus |
 | 2.6 Base | sans objet | pas de base de données ; le format des fichiers locaux relève d'un ADR (2.3) |
