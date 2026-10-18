@@ -358,6 +358,10 @@ breathly/
 │   ├── breathly-diagnose/    # module diagnose
 │   ├── breathly-disk/        # modules disk-scan + disk-clean
 │   ├── breathly-guard/       # module browser-guard
+│   ├── breathly-watch/       # module app-watch (V0.2)
+│   ├── breathly-startup/     # module startup (V0.4)
+│   ├── breathly-tune/        # module system-tune (V0.4)
+│   ├── breathly-elevated/    # assistant d'élévation à liste fermée (V0.4, ADR 0006)
 │   ├── breathly-daemon/      # binaire du service (module daemon)
 │   └── breathly-nmhost/      # binaire native messaging (module tab-sleep)
 ├── apps/desktop/             # interface Tauri (module app-ui)

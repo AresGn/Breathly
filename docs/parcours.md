@@ -48,9 +48,9 @@ flowchart TD
     classDef progress fill:#fff3cd,stroke:#b8860b,color:#111
     classDef todo fill:#eceff1,stroke:#607d8b,color:#111
     classDef na fill:#fafafa,stroke:#bbb,stroke-dasharray: 4 3,color:#888
-    class A0,A1,B1,B2,B3,B4 done
+    class A0,A1,B1,B2,B3,B4,B5 done
     class C progress
-    class B5,B7,B8,B9,D,E,F,G,H,I todo
+    class B7,B8,B9,D,E,F,G,H,I todo
     class B6 na
 ```
 
@@ -66,7 +66,7 @@ Protection de `main` : appliquée le 2026-10-18 (voir `CONTRIBUTING.md` §5).
 | 2.2 PRD | fait (PR #8) | `docs/stories.md` : V0.1 détaillée (US-001 à US-073), V0.2 à V1.0 numérotées ; critères détaillés de V0.2+ après les prototypes |
 | 2.3 ADR | fait, 2 en attente | ADR 0001 à 0007 écrits (0006 et 0007 « proposé », à confirmer par prototype) ; **ADR 0008 (budgets) et 0009 (« inutilisé ») en attente** : ils se décident après le prototype 2.9 |
 | 2.4 États | fait | `docs/design/0001-machines-a-etats.md` : analyse, nettoyage, entrée d'historique ; prototype jetable `etats.py` (sondes négatives détectées) ; machines V0.2+ à écrire avant leur version |
-| 2.5 Design du système | à faire | modules sans cycle (PRD §5), protocole entre processus |
+| 2.5 Design du système | fait | `docs/design/0002-systeme.md` : carte des modules, dépendances sans cycle (prototype `graphe.py`, conforme au PRD §5), processus et qui écrit quoi, contrat Tauri, composition des recommandations ; 4 points ouverts (asynchrone, API de progression, mémoire de l'analyse, chemins Windows) |
 | 2.6 Base | sans objet | pas de base de données ; le format des fichiers locaux relève d'un ADR (2.3) |
 | 2.7 Maquettes | à faire | accueil, diagnostic, disque, onglets, dans `docs/design/` |
 | 2.8 Sécurité | à faire | `docs/policies/modele-de-menaces.md` ; adapter `securite.md` (règles écrites pour une API) |
