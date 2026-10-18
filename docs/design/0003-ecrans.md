@@ -1,6 +1,6 @@
 # Dossier de commande des maquettes de Breathly
 
-- **Statut** : prêt à soumettre à Claude Design (étape 2.7 du parcours) ; maquettes à produire
+- **Statut** : maquettes livrées le 2026-10-18 et déposées dans [`maquettes/`](maquettes/README.md) ; ce fichier reste le dossier de commande
 - **Date** : 2026-10-18
 - **Lecteurs** : le designer (Claude Design), puis l'équipe qui code l'interface
 - **Sources** (références internes, non nécessaires au designer) : `docs/PRD.md`, `docs/stories.md` (numéros US-xxx), `GLOSSARY.md`, ADR 0001 (Svelte 5), design 0001 (états) et 0002 (système)
@@ -196,9 +196,9 @@ Identité visuelle (palette, typographie, logo, icône de l'application), textes
 
 ### Questions ouvertes
 
-1. Tutoiement ou vouvoiement dans l'interface en français.
-2. Logo et icône de l'application (Breathly) : à proposer.
-3. Présence d'une illustration d'accueil, ou accueil purement typographique.
+1. Tutoiement ou vouvoiement : **vouvoiement** (décidé le 2026-10-18).
+2. Logo et icône : tuile arrondie vert-bleu, point central, anneau ouvert, **provisoire** ; à vectoriser avant la première publication.
+3. Illustration d'accueil : **petite illustration** conservée.
 
 ## 12. Réponses aux questions du designer (2026-10-18)
 

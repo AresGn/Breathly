@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>R3 · Exclusions</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./breathly.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="gal" style="width: 2064px; min-height: 1800px">
+<svg class="spr" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" style="fill:var(--color-accent)"/><circle cx="16" cy="16" r="4.5" style="fill:var(--color-on-accent)"/><circle cx="16" cy="16" r="9.5" style="fill:none;stroke:var(--color-on-accent);stroke-width:2;stroke-linecap:round;stroke-dasharray:44 16"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  <symbol id="i-disk" viewBox="0 0 24 24"><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M5.5 14 8 4h8l2.5 10"/><path d="M7 17.5h.01M11 17.5h.01"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/><path d="M12 8v4.5l3 2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2.5h8.5A1.5 1.5 0 0 1 21 10v8.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+</svg>
+
+<h1 class="gal-title">R3 · Exclusions</h1>
+<p class="gal-note">US-035. Liste d’exclusion : emplacements que Breathly ne touchera jamais, avec ajout et retrait. Rappel des emplacements toujours protégés, non modifiables. Un seul bouton principal : « Ajouter un emplacement ».</p>
+
+<div class="gal-grid">
+<sc-for list="{{wins}}" as="w" hint-placeholder-count="3">
+<figure class="gal-fig">
+  <figcaption class="gal-cap">{{w.caption}}</figcaption>
+  <div class="win" data-theme="{{w.theme}}" lang="fr">
+    <aside class="side">
+      <div class="brand"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span class="brand-name">Breathly</span></div>
+      <nav class="nav" aria-label="Navigation principale">
+        <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="#" aria-current="{{n.current}}" aria-label="{{n.label}}"><svg class="ic" aria-hidden="true"><use href="{{n.icon}}"/></svg><span class="nav-label">{{n.label}}</span></a>
+        </sc-for>
+      </nav>
+      <p class="side-foot">Tout reste sur votre ordinateur.</p>
+    </aside>
+
+    <section class="main" style="gap: 20px">
+      <h1 class="h1">Réglages</h1>
+      <nav class="tabs" aria-label="Sections des réglages">
+        <a href="#">Général</a><a href="#">Seuils</a><a href="#" aria-current="page">Exclusions</a>
+      </nav>
+
+      <div class="stack" style="gap: 12px">
+        <div class="row row--between">
+          <div><h2 class="h2">Vos exclusions</h2><p class="small muted" style="margin: 2px 0 0">Breathly ne touchera jamais à ces emplacements.</p></div>
+          <button class="btn btn--primary"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Ajouter un emplacement</button>
+        </div>
+        <sc-if value="{{w.hasItems}}" hint-placeholder-val="{{ true }}">
+        <div class="card card--flush"><div class="list">
+          <div class="item item--static"><svg class="ic item-icon" aria-hidden="true"><use href="#i-folder"/></svg><span class="item-main"><span class="item-name">client-acme</span><span class="item-desc">dans Projets</span></span><button class="btn btn--secondary btn--sm">Retirer</button></div>
+          <div class="item item--static"><svg class="ic item-icon" aria-hidden="true"><use href="#i-folder"/></svg><span class="item-main"><span class="item-name">archives</span><span class="item-desc">sur un autre disque</span></span><button class="btn btn--secondary btn--sm">Retirer</button></div>
+        </div></div>
+        </sc-if>
+        <sc-if value="{{w.empty}}" hint-placeholder-val="{{ false }}">
+        <div class="card card--flat" style="border-style: dashed"><p class="small muted" style="margin: 0">Aucune exclusion pour l’instant. Ajoutez un dossier que Breathly ne doit jamais nettoyer.</p></div>
+        </sc-if>
+      </div>
+
+      <div class="stack" style="gap: 12px">
+        <div><h2 class="h2">Toujours protégés</h2><p class="small muted" style="margin: 2px 0 0">Breathly ne nettoie jamais ces emplacements. Cette liste ne peut pas être modifiée.</p></div>
+        <div class="row row--wrap" style="gap: 8px">
+          <span class="chip"><svg class="ic ic--sm" aria-hidden="true"><use href="#i-lock"/></svg>Documents</span>
+          <span class="chip"><svg class="ic ic--sm" aria-hidden="true"><use href="#i-lock"/></svg>Images</span>
+          <span class="chip"><svg class="ic ic--sm" aria-hidden="true"><use href="#i-lock"/></svg>Vidéos</span>
+          <span class="chip"><svg class="ic ic--sm" aria-hidden="true"><use href="#i-lock"/></svg>Musique</span>
+          <span class="chip"><svg class="ic ic--sm" aria-hidden="true"><use href="#i-lock"/></svg>Bureau</span>
+          <span class="chip"><svg class="ic ic--sm" aria-hidden="true"><use href="#i-lock"/></svg>Profils de navigateur</span>
+          <span class="chip"><svg class="ic ic--sm" aria-hidden="true"><use href="#i-lock"/></svg>Conteneurs chiffrés</span>
+          <span class="chip"><svg class="ic ic--sm" aria-hidden="true"><use href="#i-lock"/></svg>Dossiers .git</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</figure>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2064,"height":1800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const labels = ['Accueil', 'Diagnostic', 'Espace disque', 'Historique', 'Réglages'];
+    const icons = ['#i-home', '#i-activity', '#i-disk', '#i-history', '#i-sliders'];
+    return {
+      nav: labels.map((l, i) => ({ label: l, icon: icons[i], current: i === 4 ? 'page' : 'false' })),
+      wins: [
+        { theme: 'light', caption: 'Clair', hasItems: true, empty: false },
+        { theme: 'dark', caption: 'Sombre', hasItems: true, empty: false },
+        { theme: 'light', caption: 'Clair · aucune exclusion', hasItems: false, empty: true }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

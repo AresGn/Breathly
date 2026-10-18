@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>D2 · Chauffe</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./breathly.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="gal" style="width: 2064px; min-height: 2500px">
+<svg class="spr" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" style="fill:var(--color-accent)"/><circle cx="16" cy="16" r="4.5" style="fill:var(--color-on-accent)"/><circle cx="16" cy="16" r="9.5" style="fill:none;stroke:var(--color-on-accent);stroke-width:2;stroke-linecap:round;stroke-dasharray:44 16"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  <symbol id="i-disk" viewBox="0 0 24 24"><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M5.5 14 8 4h8l2.5 10"/><path d="M7 17.5h.01M11 17.5h.01"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/><path d="M12 8v4.5l3 2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2h.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8h.01"/></symbol>
+  <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0z"/><path d="M12 9v7"/></symbol>
+</svg>
+
+<h1 class="gal-title">D2 · Chauffe</h1>
+<p class="gal-note">US-013, parcours 8. Explication par paliers : normal sous charge, un logiciel gourmand (nommé), cause matérielle probable avec liste de vérifications. « Consulter un technicien » n’apparaît que si la chauffe persiste. Aucune promesse de réparation.</p>
+
+<div class="gal-grid">
+<sc-for list="{{wins}}" as="w" hint-placeholder-count="3">
+<figure class="gal-fig">
+  <figcaption class="gal-cap">{{w.caption}}</figcaption>
+  <div class="win" data-theme="{{w.theme}}" lang="fr">
+    <aside class="side">
+      <div class="brand"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span class="brand-name">Breathly</span></div>
+      <nav class="nav" aria-label="Navigation principale">
+        <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="#" aria-current="{{n.current}}" aria-label="{{n.label}}"><svg class="ic" aria-hidden="true"><use href="{{n.icon}}"/></svg><span class="nav-label">{{n.label}}</span></a>
+        </sc-for>
+      </nav>
+      <p class="side-foot">Tout reste sur votre ordinateur.</p>
+    </aside>
+
+    <section class="main" style="gap: 20px">
+      <div class="row"><button class="btn btn--ghost" style="padding-left: 0"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg>État du PC</button></div>
+      <div class="head">
+        <h1 class="h1">Pourquoi mon PC chauffe</h1>
+        <p class="lead">Trois pistes, de la plus courante à la moins courante. Breathly regarde pour vous, vous décidez quoi faire.</p>
+      </div>
+
+      <div class="card card--soft row" style="gap: 24px">
+        <svg class="ic ic--lg" aria-hidden="true" style="color: var(--color-accent)"><use href="#i-thermo"/></svg>
+        <div class="stat"><span class="stat-label">Température du processeur</span><span class="stat-value">{{w.temp}}</span></div>
+        <div class="stat"><span class="stat-label">Charge du processeur</span><span class="stat-value">{{w.load}}</span></div>
+        <span class="status status--warn" style="margin-left: auto"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>{{w.level}}</span>
+      </div>
+
+      <div class="stack">
+        <sc-for list="{{w.paliers}}" as="p" hint-placeholder-count="3">
+        <div class="{{p.cls}}">
+          <div class="row" style="align-items: flex-start; gap: 16px">
+            <span class="reco-rank">{{p.n}}</span>
+            <div class="grow stack" style="gap: 8px">
+              <div class="row row--between" style="align-items: flex-start">
+                <div class="h3">{{p.title}}</div>
+                <span class="{{p.stCls}}"><svg class="ic" aria-hidden="true"><use href="{{p.stIcon}}"/></svg>{{p.stLabel}}</span>
+              </div>
+              <p class="small muted" style="margin: 0">{{p.desc}}</p>
+              <p class="small" style="margin: 0; font-weight: 600">{{p.result}}</p>
+              <sc-if value="{{p.btn}}" hint-placeholder-val="{{ false }}"><div><button class="btn btn--secondary btn--sm">Voir le logiciel</button></div></sc-if>
+            </div>
+          </div>
+          <sc-if value="{{p.check}}" hint-placeholder-val="{{ false }}">
+          <div style="margin: 16px -24px -24px; border-top: 1px solid var(--color-border)">
+            <div class="group-head"><span class="grow">À vérifier vous-même</span></div>
+            <div class="list">
+              <label class="item" style="min-height: 56px"><input class="check" type="checkbox"><span class="item-main"><span class="item-name">Aération</span><span class="item-desc">Les grilles sont-elles dégagées ? Évitez de poser l’ordinateur sur un lit ou un canapé.</span></span></label>
+              <label class="item" style="min-height: 56px"><input class="check" type="checkbox"><span class="item-main"><span class="item-name">Poussière</span><span class="item-desc">Les grilles sont-elles encrassées ? Un dépoussiérage à l’air sec peut aider.</span></span></label>
+              <label class="item" style="min-height: 56px"><input class="check" type="checkbox"><span class="item-main"><span class="item-name">Mode d’alimentation</span><span class="item-desc">Le mode « performance » est-il activé ? Le mode équilibré chauffe moins.</span></span></label>
+              <label class="item" style="min-height: 56px"><input class="check" type="checkbox"><span class="item-main"><span class="item-name">Ventilateur</span><span class="item-desc">L’entendez-vous tourner ? S’il est silencieux ou très bruyant, il est peut-être en cause.</span></span></label>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+        </sc-for>
+      </div>
+
+      <p class="small muted" style="margin: 0">Si la chauffe persiste après ces vérifications, consultez un technicien. Breathly ne peut pas réparer une cause matérielle.</p>
+    </section>
+  </div>
+</figure>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2064,"height":2500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const labels = ['Accueil', 'Diagnostic', 'Espace disque', 'Historique', 'Réglages'];
+    const icons = ['#i-home', '#i-activity', '#i-disk', '#i-history', '#i-sliders'];
+    const nav = labels.map((l, i) => ({ label: l, icon: icons[i], current: i === 1 ? 'page' : 'false' }));
+    const ST = {
+      past: ['status status--neutral', '#i-x', 'Écarté'],
+      now: ['status status--info', '#i-info', 'Piste probable'],
+      next: ['status status--neutral', '#i-info', 'Pas encore concerné']
+    };
+    const pal = (n, title, desc, result, state, extra) => Object.assign({
+      n, title, desc, result, cls: state === 'now' ? 'card card--current' : (state === 'next' ? 'card card--dim' : 'card'),
+      stCls: ST[state][0], stIcon: ST[state][1], stLabel: ST[state][2], btn: false, check: false
+    }, extra || {});
+    const hw = [
+      pal(1, 'Normal sous charge', 'Entre 60 et 80 °C pendant un travail intense, c’est habituel.', 'Ne correspond pas à votre cas : le processeur travaille peu (10 %).', 'past'),
+      pal(2, 'Un logiciel gourmand', 'Un logiciel qui monopolise le processeur le fait chauffer.', 'Aucun logiciel ne dépasse 5 % pour l’instant.', 'past'),
+      pal(3, 'Cause matérielle probable', 'Le processeur chauffe sans effort : le refroidissement est peut-être en cause.', 'Quatre vérifications simples, sans rien démonter :', 'now', { check: true })
+    ];
+    const sw = [
+      pal(1, 'Normal sous charge', 'Entre 60 et 80 °C pendant un travail intense, c’est habituel.', 'À 84 °C, c’est un peu plus que d’habitude pour cette charge.', 'past'),
+      pal(2, 'Un logiciel gourmand', 'Un logiciel qui monopolise le processeur le fait chauffer.', 'OBS Studio utilise 38 % du processeur. C’est probablement ce qui fait chauffer votre PC.', 'now', { btn: true }),
+      pal(3, 'Cause matérielle probable', 'Si la chauffe persiste après avoir fermé ce logiciel, vérifiez l’aération, la poussière et le ventilateur.', 'Breathly vous guidera si c’est nécessaire.', 'next')
+    ];
+    return {
+      nav,
+      wins: [
+        { theme: 'light', caption: 'Clair · cause matérielle probable (cas de référence)', temp: '70 °C', load: '10 %', level: 'Élevée pour cette charge', paliers: hw },
+        { theme: 'dark', caption: 'Sombre · cause matérielle probable', temp: '70 °C', load: '10 %', level: 'Élevée pour cette charge', paliers: hw },
+        { theme: 'light', caption: 'Clair · un logiciel gourmand nommé', temp: '84 °C', load: '62 %', level: 'Un peu élevée', paliers: sw }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

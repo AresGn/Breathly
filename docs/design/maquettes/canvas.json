@@ -1,0 +1,58 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-18T04:30:00Z" },
+  "title": "Breathly — Maquettes V0.1",
+  "launch": { "view": "canvas", "page": "direction" },
+  "pages": [
+    { "id": "direction", "name": "0 · Direction et système" },
+    { "id": "accueil", "name": "H · Accueil" },
+    { "id": "diagnostic", "name": "D · Diagnostic" },
+    { "id": "disque", "name": "S · Espace disque" },
+    { "id": "nettoyage", "name": "N · Nettoyage" },
+    { "id": "historique", "name": "Y · Historique" },
+    { "id": "reglages", "name": "R · Réglages et T · Onglets" }
+  ],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1760, "h": 1700, "title": "Direction visuelle", "page": "direction" },
+    "Jetons.dc.html": { "x": 1840, "y": 0, "w": 1760, "h": 3200, "title": "Jetons de design", "page": "direction" },
+    "Composants.dc.html": { "x": 3680, "y": 0, "w": 2064, "h": 3500, "title": "Composants", "page": "direction" },
+    "Ecarts.dc.html": { "x": 5824, "y": 0, "w": 1500, "h": 3200, "title": "Écarts, questions et licences", "page": "direction" },
+
+    "H1-Accueil.dc.html": { "x": 0, "y": 0, "w": 2064, "h": 3600, "title": "H1 · Accueil", "page": "accueil" },
+    "H2-Analyse-en-cours.dc.html": { "x": 2144, "y": 0, "w": 2064, "h": 2000, "title": "H2 · Analyse en cours", "page": "accueil" },
+
+    "D1-Etat-du-PC.dc.html": { "x": 0, "y": 0, "w": 2064, "h": 7800, "title": "D1 · État du PC", "page": "diagnostic" },
+    "D2-Chauffe.dc.html": { "x": 2144, "y": 0, "w": 2064, "h": 2600, "title": "D2 · Chauffe", "page": "diagnostic" },
+    "D3-Reglage-zram.dc.html": { "x": 4288, "y": 0, "w": 2064, "h": 2500, "title": "D3 · Réglage recommandé (Linux)", "page": "diagnostic" },
+
+    "S1-Resultat.dc.html": { "x": 0, "y": 0, "w": 2064, "h": 2800, "title": "S1 · Résultat de l'analyse", "page": "disque" },
+    "S2-Choisir.dc.html": { "x": 2144, "y": 0, "w": 2064, "h": 4700, "title": "S2 · Choisir les éléments", "page": "disque" },
+    "S3-Gros-fichiers.dc.html": { "x": 4288, "y": 0, "w": 2064, "h": 2200, "title": "S3 · Gros fichiers et dossiers", "page": "disque" },
+
+    "N1-Confirmation.dc.html": { "x": 0, "y": 0, "w": 2064, "h": 3600, "title": "N1 · Confirmation", "page": "nettoyage" },
+    "N2-Simulation.dc.html": { "x": 2144, "y": 0, "w": 2064, "h": 1500, "title": "N2 · Simulation", "page": "nettoyage" },
+    "N3-En-cours.dc.html": { "x": 4288, "y": 0, "w": 2064, "h": 2100, "title": "N3 · Nettoyage en cours", "page": "nettoyage" },
+    "N4-Resume.dc.html": { "x": 6432, "y": 0, "w": 2064, "h": 3200, "title": "N4 · Résumé", "page": "nettoyage" },
+    "N5-Vider-corbeille.dc.html": { "x": 8576, "y": 0, "w": 2064, "h": 2100, "title": "N5 · Vider la corbeille", "page": "nettoyage" },
+
+    "Y1-Historique.dc.html": { "x": 0, "y": 0, "w": 2064, "h": 3500, "title": "Y1 · Historique", "page": "historique" },
+    "Y2-Annulation.dc.html": { "x": 2144, "y": 0, "w": 2064, "h": 2600, "title": "Y2 · Annulation", "page": "historique" },
+    "Y3-Effacer-entrees.dc.html": { "x": 4288, "y": 0, "w": 2064, "h": 1100, "title": "Y3 · Effacer les entrées non annulables", "page": "historique" },
+
+    "R1-General.dc.html": { "x": 0, "y": 0, "w": 2064, "h": 1100, "title": "R1 · Général", "page": "reglages" },
+    "R2-Seuils.dc.html": { "x": 2144, "y": 0, "w": 2064, "h": 1300, "title": "R2 · Seuils", "page": "reglages" },
+    "R3-Exclusions.dc.html": { "x": 4288, "y": 0, "w": 2064, "h": 1800, "title": "R3 · Exclusions", "page": "reglages" },
+    "T1-Onglets.dc.html": { "x": 6432, "y": 0, "w": 2064, "h": 1300, "title": "T1 · Onglets (esquisse V0.3)", "page": "reglages" }
+  },
+  "order": [
+    "Main.dc.html", "Jetons.dc.html", "Composants.dc.html", "Ecarts.dc.html",
+    "H1-Accueil.dc.html", "H2-Analyse-en-cours.dc.html",
+    "D1-Etat-du-PC.dc.html", "D2-Chauffe.dc.html", "D3-Reglage-zram.dc.html",
+    "S1-Resultat.dc.html", "S2-Choisir.dc.html", "S3-Gros-fichiers.dc.html",
+    "N1-Confirmation.dc.html", "N2-Simulation.dc.html", "N3-En-cours.dc.html", "N4-Resume.dc.html", "N5-Vider-corbeille.dc.html",
+    "Y1-Historique.dc.html", "Y2-Annulation.dc.html", "Y3-Effacer-entrees.dc.html",
+    "R1-General.dc.html", "R2-Seuils.dc.html", "R3-Exclusions.dc.html", "T1-Onglets.dc.html"
+  ],
+  "notes": {},
+  "designSystems": []
+}

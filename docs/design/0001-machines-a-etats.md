@@ -57,6 +57,8 @@ Une erreur sur un seul chemin n'est pas `fatal` : l'analyse se termine en `Done`
 
 Une restauration qui échoue (emplacement occupé, corbeille vidée entre-temps) ne change pas l'état : l'élément reste `Trashed` et un message l'explique (US-041.2). `Lost` n'est détecté que **à la demande** (ouverture de l'historique, tentative d'annulation, effacement des entrées non annulables) : rien ne tourne en arrière-plan.
 
+**Libellés affichés** (maquette Y1) : `Trashed` → « annulable » ; `Restored` → « annulé » ; `Uncertain` → « incertain » ; `Permanent`, `Failed`, `Skipped`, `Purged`, `Lost` → « plus annulable ».
+
 **Entrées « non annulables »** (effaçables, US-040.3) : `Permanent`, `Failed`, `Skipped`, `Restored`, `Purged`, `Lost`, `Uncertain`. `Pending` et `Trashed` ne s'effacent pas. Une entrée de plus de 12 mois est supprimée dans tous les cas (US-040.4).
 
 ## 4. Invariants

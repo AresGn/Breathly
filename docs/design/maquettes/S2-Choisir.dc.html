@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>S2 · Choisir les éléments</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./breathly.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="gal" style="width: 2064px; min-height: 3800px">
+<svg class="spr" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" style="fill:var(--color-accent)"/><circle cx="16" cy="16" r="4.5" style="fill:var(--color-on-accent)"/><circle cx="16" cy="16" r="9.5" style="fill:none;stroke:var(--color-on-accent);stroke-width:2;stroke-linecap:round;stroke-dasharray:44 16"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  <symbol id="i-disk" viewBox="0 0 24 24"><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M5.5 14 8 4h8l2.5 10"/><path d="M7 17.5h.01M11 17.5h.01"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/><path d="M12 8v4.5l3 2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+</svg>
+
+<h1 class="gal-title">S2 · Choisir les éléments</h1>
+<p class="gal-note">US-021 à US-024, US-031, US-037 ; parcours 2 et 3. Sans risque coché par défaut, À vérifier jamais coché, « Vider la corbeille » distinct et jamais coché. Le total sélectionné se met à jour ; Simuler et Nettoyer sont en bas. Mode avancé : chemin et règle sous chaque nom. Toute la ligne est cliquable (cible ≥ 44 px).</p>
+
+<div class="gal-grid">
+<sc-for list="{{wins}}" as="w" hint-placeholder-count="6">
+<figure class="gal-fig">
+  <figcaption class="gal-cap">{{w.caption}}</figcaption>
+  <div class="win" data-theme="{{w.theme}}" lang="fr">
+    <aside class="side">
+      <div class="brand"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span class="brand-name">Breathly</span></div>
+      <nav class="nav" aria-label="Navigation principale">
+        <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="#" aria-current="{{n.current}}" aria-label="{{n.label}}"><svg class="ic" aria-hidden="true"><use href="{{n.icon}}"/></svg><span class="nav-label">{{n.label}}</span></a>
+        </sc-for>
+      </nav>
+      <p class="side-foot">Tout reste sur votre ordinateur.</p>
+    </aside>
+
+    <section class="main" style="gap: 20px">
+      <div class="row"><button class="btn btn--ghost" style="padding-left: 0"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg>Résultat de l’analyse</button></div>
+      <div class="head">
+        <div class="row row--wrap" style="gap: 12px">
+          <h1 class="h1">Choisissez ce que vous nettoyez</h1>
+          <sc-if value="{{w.adv}}" hint-placeholder-val="{{ false }}"><span class="status status--info">Mode avancé</span></sc-if>
+        </div>
+        <p class="lead">Les éléments sans risque sont déjà cochés. Rien n’est supprimé avant votre accord.</p>
+      </div>
+
+      <sc-if value="{{w.empty}}" hint-placeholder-val="{{ false }}">
+      <div class="card card--flat">
+        <div class="empty">
+          <svg class="ic ic--lg" aria-hidden="true" style="color: var(--color-success-fg)"><use href="#i-check"/></svg>
+          <h2 class="h2">Rien à nettoyer pour l’instant</h2>
+          <p class="lead" style="text-align: center">Breathly n’a trouvé aucun élément à vous proposer. Relancez une analyse plus tard.</p>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-for list="{{w.groups}}" as="g" hint-placeholder-count="3">
+      <div class="stack" style="gap: 8px">
+        <div class="row row--between"><h2 class="h3">{{g.title}}</h2><span class="small muted">{{g.meta}}</span></div>
+        <p class="small muted" style="margin: 0">{{g.hint}}</p>
+        <div class="card card--flush">
+          <div class="list">
+            <sc-for list="{{g.items}}" as="i" hint-placeholder-count="3">
+            <label class="item">
+              <sc-if value="{{i.checked}}" hint-placeholder-val="{{ true }}"><input class="check" type="checkbox" checked></sc-if>
+              <sc-if value="{{i.unchecked}}" hint-placeholder-val="{{ false }}"><input class="check" type="checkbox"></sc-if>
+              <span class="item-main">
+                <span class="item-name">{{i.name}}</span>
+                <span class="item-desc">{{i.desc}}</span>
+                <sc-if value="{{i.adv}}" hint-placeholder-val="{{ false }}"><span class="adv">{{i.path}} · règle {{i.rule}}</span></sc-if>
+              </span>
+              <span class="{{i.riskCls}}"><svg class="ic" aria-hidden="true"><use href="{{i.riskIcon}}"/></svg>{{i.riskLabel}}</span>
+              <span class="item-size">{{i.size}}</span>
+            </label>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      </sc-for>
+
+      <sc-if value="{{w.bar}}" hint-placeholder-val="{{ true }}">
+      <div class="card row row--between" style="gap: 16px; flex-wrap: wrap">
+        <div class="stat"><span class="stat-label">Sélectionné</span><span class="stat-value">{{w.selected}}</span><span class="small muted">{{w.selectedNote}}</span></div>
+        <div class="row"><button class="btn btn--secondary">Simuler</button><button class="btn btn--primary">Nettoyer</button></div>
+      </div>
+      </sc-if>
+    </section>
+  </div>
+</figure>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2064,"height":3800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const labels = ['Accueil', 'Diagnostic', 'Espace disque', 'Historique', 'Réglages'];
+    const icons = ['#i-home', '#i-activity', '#i-disk', '#i-history', '#i-sliders'];
+    const nav = labels.map((l, i) => ({ label: l, icon: icons[i], current: i === 2 ? 'page' : 'false' }));
+    const RISK = {
+      safe: ['risk risk--safe', '#i-check', 'Sans risque'],
+      verify: ['risk risk--verify', '#i-eye', 'À vérifier'],
+      trash: ['status status--alert', '#i-trash', 'Suppression définitive']
+    };
+    const it = (o, adv, checked) => ({
+      name: o.name, desc: o.desc, size: o.size, path: o.path, rule: o.rule, adv: adv,
+      checked: checked, unchecked: !checked,
+      riskCls: RISK[o.risk][0], riskIcon: RISK[o.risk][1], riskLabel: RISK[o.risk][2]
+    });
+    const SAFE = [
+      { name: 'Cache de npm', desc: 'C’est le cache de npm. Il se recrée tout seul.', size: '4,2 Go', risk: 'safe', path: '~/.npm/_cacache', rule: 'cache.npm' },
+      { name: 'Cache de Cargo', desc: 'C’est le cache de Cargo (Rust). Les logiciels le retéléchargent au besoin.', size: '6,1 Go', risk: 'safe', path: '~/.cargo/registry/cache', rule: 'cache.cargo' },
+      { name: 'Cache de Firefox', desc: 'Il se reconstruit tout seul. Vos onglets et vos mots de passe ne sont pas touchés.', size: '1,9 Go', risk: 'safe', path: '~/.cache/mozilla/firefox', rule: 'cache.firefox' }
+    ];
+    const VERIFY = [
+      { name: 'Dossier de projet ancien', desc: 'Il se recrée automatiquement si vous rouvrez le projet. Non ouvert depuis 14 mois.', size: '1,3 Go', risk: 'verify', path: '~/projets/vieux-site/node_modules', rule: 'project.node_modules' },
+      { name: 'Ancien installeur dans Téléchargements', desc: 'Un logiciel déjà installé n’en a plus besoin. Il ira à la corbeille.', size: '180 Mo', risk: 'verify', path: '~/Téléchargements/zoom_amd64.deb', rule: 'download.installer' }
+    ];
+    const TRASH = [
+      { name: 'Vider la corbeille', desc: '214 éléments. Suppression définitive : ces fichiers ne pourront plus être récupérés.', size: '3,1 Go', risk: 'trash', path: '~/.local/share/Trash', rule: 'trash.empty' }
+    ];
+    const groups = (adv, verifyChecked) => [
+      { title: 'Sans risque', meta: '3 éléments · 12,2 Go', hint: 'Ils se recréent tout seuls. Cochés par défaut.', items: SAFE.map(o => it(o, adv, true)) },
+      { title: 'À vérifier', meta: '2 éléments · 1,5 Go', hint: 'Jamais cochés : vous choisissez un par un. Ils vont à la corbeille.', items: VERIFY.map(o => it(o, adv, verifyChecked)) },
+      { title: 'Corbeille', meta: '3,1 Go', hint: 'Un geste à part, avec une confirmation forte.', items: TRASH.map(o => it(o, adv, false)) }
+    ];
+    const mk = (o) => ({
+      caption: o.caption, theme: o.theme, adv: !!o.adv, empty: !!o.empty, bar: !o.empty,
+      groups: o.empty ? [] : groups(!!o.adv, !!o.manual),
+      selected: o.manual ? '13,7 Go' : '12,2 Go',
+      selectedNote: o.manual ? '5 éléments · dont 1,5 Go envoyés à la corbeille' : '3 éléments · libérés tout de suite'
+    });
+    return {
+      nav,
+      wins: [
+        mk({ theme: 'light', caption: 'Clair · mode simple · sélection par défaut' }),
+        mk({ theme: 'dark', caption: 'Sombre · mode simple · sélection par défaut' }),
+        mk({ theme: 'light', adv: true, caption: 'Clair · mode avancé (chemin et règle)' }),
+        mk({ theme: 'dark', adv: true, caption: 'Sombre · mode avancé' }),
+        mk({ theme: 'light', manual: true, caption: 'Clair · choix manuel : éléments À vérifier cochés (parcours 3)' }),
+        mk({ theme: 'light', empty: true, caption: 'Clair · rien à nettoyer' })
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Jetons de design</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./breathly.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="gal" style="width: 1760px; min-height: 2500px">
+<h1 class="gal-title">Breathly — Jetons de design</h1>
+<p class="gal-note">Les noms ci-dessous sont ceux de la feuille de style livrée avec les maquettes (variables CSS). Ils deviennent le thème de l’interface Svelte : aucune couleur n’est écrite en dur dans un composant. Le thème est un attribut (data-theme = light ou dark) posé sur un conteneur. Les contrastes de texte sont au moins de 4,5 : 1 dans les deux thèmes.</p>
+
+<section class="win" data-theme="light" style="width: 1664px; min-height: 0; flex-direction: column; padding: 40px; gap: 48px; border-radius: 24px">
+
+  <div class="stack" style="gap: 8px">
+    <h2 class="h2">Couleurs</h2>
+    <div style="display: grid; grid-template-columns: 280px 1fr 200px 200px; gap: 8px 24px; align-items: center; padding: 0 0 8px; border-bottom: 2px solid var(--color-border)">
+      <b class="small muted">Jeton</b><b class="small muted">Rôle</b><b class="small muted">Clair</b><b class="small muted">Sombre</b>
+    </div>
+    <sc-for list="{{colors}}" as="c" hint-placeholder-count="30">
+    <div style="display: grid; grid-template-columns: 280px 1fr 200px 200px; gap: 8px 24px; align-items: center; min-height: 44px; border-bottom: 1px solid var(--color-border)">
+      <span class="adv" style="font-size: 14px; color: var(--color-text)">{{c.name}}</span>
+      <span class="small">{{c.role}}</span>
+      <span class="row" style="gap: 10px"><span style="width: 36px; height: 28px; border-radius: 8px; border: 1px solid var(--color-border-strong); background: {{c.light}}"></span><span class="adv">{{c.light}}</span></span>
+      <span class="row" style="gap: 10px"><span style="width: 36px; height: 28px; border-radius: 8px; border: 1px solid var(--color-border-strong); background: {{c.dark}}"></span><span class="adv">{{c.dark}}</span></span>
+    </div>
+    </sc-for>
+    <p class="small muted" style="margin: 8px 0 0">Contrastes vérifiés (≈) : texte sur fond 13,5 clair · 15 sombre ; texte atténué 6,6 · 8 ; accent sur fond 5,5 · 8,6 ; texte sur accent 5,9 · 8,2 ; libellés de risque et d’alerte sur leur fond ≥ 5,3 · ≥ 6,5. Le niveau de risque est toujours porté par icône + libellé + couleur.</p>
+  </div>
+
+  <div class="stack" style="gap: 8px">
+    <h2 class="h2">Typographie</h2>
+    <div style="display: grid; grid-template-columns: 280px 1fr 160px; gap: 8px 24px; padding: 0 0 8px; border-bottom: 2px solid var(--color-border)">
+      <b class="small muted">Jeton</b><b class="small muted">Exemple</b><b class="small muted">Valeur</b>
+    </div>
+    <sc-for list="{{fonts}}" as="t" hint-placeholder-count="10">
+    <div style="display: grid; grid-template-columns: 280px 1fr 160px; gap: 8px 24px; align-items: center; min-height: 52px; border-bottom: 1px solid var(--color-border)">
+      <span class="adv" style="font-size: 14px; color: var(--color-text)">{{t.name}}</span>
+      <span style="font-family: {{t.family}}; font-size: {{t.size}}; font-weight: {{t.weight}}; line-height: 1.2; letter-spacing: {{t.track}}">{{t.sample}}</span>
+      <span class="adv">{{t.value}}</span>
+    </div>
+    </sc-for>
+    <p class="small muted" style="margin: 8px 0 0">Familles : Bricolage Grotesque (titres), Hanken Grotesk (texte), DM Mono (mode avancé), toutes sous licence SIL OFL 1.1. Graisses : 400 texte, 500 libellés, 600 titres et boutons, 700 rangs. Interligne : 1,2 pour les titres, 1,5 pour le texte. Chiffres tabulaires pour toutes les tailles de fichier.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px">
+    <div class="stack" style="gap: 8px">
+      <h2 class="h2">Espacements</h2>
+      <sc-for list="{{spaces}}" as="s" hint-placeholder-count="8">
+      <div class="row" style="gap: 16px; min-height: 36px">
+        <span class="adv" style="width: 130px; font-size: 14px; color: var(--color-text)">{{s.name}}</span>
+        <span class="adv" style="width: 50px">{{s.px}}</span>
+        <span style="height: 16px; border-radius: 4px; background: var(--color-accent); width: {{s.px}}"></span>
+      </div>
+      </sc-for>
+    </div>
+    <div class="stack" style="gap: 8px">
+      <h2 class="h2">Rayons</h2>
+      <div class="row row--wrap" style="gap: 16px; align-items: flex-end">
+        <sc-for list="{{radii}}" as="r" hint-placeholder-count="5">
+        <div class="stack" style="gap: 8px; align-items: center">
+          <span style="width: 88px; height: 64px; background: var(--color-accent-soft); border: 2px solid var(--color-accent); border-radius: {{r.px}}"></span>
+          <span class="adv" style="font-size: 13px; color: var(--color-text); text-align: center">{{r.name}}<br>{{r.value}}</span>
+        </div>
+        </sc-for>
+      </div>
+      <h2 class="h2" style="margin-top: 24px">Ombres</h2>
+      <div class="row row--wrap" style="gap: 24px">
+        <div class="stack" style="gap: 8px"><span style="width: 160px; height: 72px; border-radius: 16px; background: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-card)"></span><span class="adv" style="font-size: 13px; color: var(--color-text)">shadow-card<br>0 1px 2px, 6 % (aucune en sombre)</span></div>
+        <div class="stack" style="gap: 8px"><span style="width: 160px; height: 72px; border-radius: 24px; background: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-dialog)"></span><span class="adv" style="font-size: 13px; color: var(--color-text)">shadow-dialog<br>0 12px 32px, dialogues seulement</span></div>
+      </div>
+      <p class="small muted" style="margin: 8px 0 0">Pas de flou d’arrière-plan, pas de dégradé, pas d’autre ombre : WebKitGTK reste fluide.</p>
+      <h2 class="h2" style="margin-top: 24px">Autres jetons</h2>
+      <div class="stack" style="gap: 4px">
+        <div class="row"><span class="adv" style="width: 200px; font-size: 14px; color: var(--color-text)">focus-width</span><span class="adv">3 px, décalage 2 px, color-focus</span></div>
+        <div class="row"><span class="adv" style="width: 200px; font-size: 14px; color: var(--color-text)">sidebar-w / rail-w</span><span class="adv">208 px / 72 px (fenêtre ≤ 720 px)</span></div>
+        <div class="row"><span class="adv" style="width: 200px; font-size: 14px; color: var(--color-text)">fenêtre</span><span class="adv">960 × 640 par défaut, 720 × 520 minimum</span></div>
+        <div class="row"><span class="adv" style="width: 200px; font-size: 14px; color: var(--color-text)">cible tactile / clic</span><span class="adv">44 px minimum</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1760,"height":2500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const c = (name, role, light, dark) => ({ name, role, light, dark });
+    return {
+      colors: [
+        c('--color-bg', 'Fond de la fenêtre', '#F4F6F3', '#111A19'),
+        c('--color-surface', 'Cartes, dialogues, champs', '#FFFFFF', '#1A2524'),
+        c('--color-surface-2', 'Jauges vides, blocs de code, en-têtes de liste', '#E9EEEA', '#243332'),
+        c('--color-sidebar', 'Barre latérale', '#EAF0EC', '#0D1514'),
+        c('--color-text', 'Texte principal', '#1B2A2A', '#E6EEEC'),
+        c('--color-text-muted', 'Texte secondaire', '#4A5B5A', '#A3B6B3'),
+        c('--color-border', 'Bordures décoratives', '#D3DCD7', '#2C3E3C'),
+        c('--color-border-strong', 'Bordures de champs et de boutons (≥ 3 : 1)', '#7A8B88', '#6F8683'),
+        c('--color-accent', 'Action principale, sélection', '#1F6F6B', '#5FC4BB'),
+        c('--color-accent-hover', 'Action principale au survol', '#185A57', '#7AD3CB'),
+        c('--color-accent-soft', 'Fond d’aide et d’information', '#D9ECE8', '#1D3A38'),
+        c('--color-on-accent', 'Texte sur l’accent', '#FFFFFF', '#0A1F1E'),
+        c('--color-focus', 'Anneau de focus clavier', '#2B6FE0', '#8DB8FF'),
+        c('--risk-safe-fg', 'Sans risque : texte et icône', '#1E6B43', '#7FD9A3'),
+        c('--risk-safe-bg', 'Sans risque : fond', '#DDF0E4', '#1B3427'),
+        c('--risk-verify-fg', 'À vérifier : texte et icône', '#8A5300', '#F0C26A'),
+        c('--risk-verify-bg', 'À vérifier : fond', '#FBEBCB', '#3A2D14'),
+        c('--risk-personal-fg', 'Décision personnelle : texte et icône', '#4B4A9E', '#B8B6F5'),
+        c('--risk-personal-bg', 'Décision personnelle : fond', '#E6E5F7', '#2A2A4A'),
+        c('--color-success-fg', 'Succès : texte et icône', '#1E6B43', '#7FD9A3'),
+        c('--color-success-bg', 'Succès : fond', '#DDF0E4', '#1B3427'),
+        c('--color-warn-fg', 'Attention : texte et icône', '#8A5300', '#F0C26A'),
+        c('--color-warn-bg', 'Attention : fond', '#FBEBCB', '#3A2D14'),
+        c('--color-alert-fg', 'Alerte : texte et icône', '#A33A2E', '#F2A59B'),
+        c('--color-alert-bg', 'Alerte : fond (rouge doux)', '#FBE3DF', '#402320'),
+        c('--color-alert-border', 'Alerte : bordure', '#EBB4AB', '#6B3730'),
+        c('--color-danger-solid', 'Bouton destructeur (suppression définitive)', '#A33A2E', '#E58A7E'),
+        c('--color-on-danger', 'Texte sur bouton destructeur', '#FFFFFF', '#2A0F0C'),
+        c('--color-scrim', 'Voile derrière un dialogue', 'rgba(20, 32, 32, 0.50)', 'rgba(0, 0, 0, 0.60)')
+      ],
+      fonts: [
+        { name: '--font-display', family: 'var(--font-display)', size: '22px', weight: '600', track: '-0.01em', sample: 'Voyons pourquoi votre PC est lent.', value: 'Bricolage Grotesque' },
+        { name: '--font-body', family: 'var(--font-body)', size: '16px', weight: '400', track: '0', sample: 'C’est le cache de npm. Il se recrée tout seul.', value: 'Hanken Grotesk' },
+        { name: '--font-mono', family: 'var(--font-mono)', size: '14px', weight: '400', track: '0', sample: '~/.npm/_cacache · règle cache.npm', value: 'DM Mono' },
+        { name: '--text-3xl', family: 'var(--font-display)', size: '38px', weight: '600', track: '-0.02em', sample: '13,7 Go', value: '38 px · accueil, grands chiffres' },
+        { name: '--text-2xl', family: 'var(--font-display)', size: '28px', weight: '600', track: '-0.015em', sample: 'Choisissez ce que vous nettoyez', value: '28 px · titre d’écran' },
+        { name: '--text-xl', family: 'var(--font-display)', size: '22px', weight: '600', track: '-0.01em', sample: 'À faire en priorité', value: '22 px · titre de section' },
+        { name: '--text-lg', family: 'var(--font-body)', size: '18px', weight: '600', track: '0', sample: 'Nettoyer ce qui est sans risque', value: '18 px · titre de carte, bouton large' },
+        { name: '--text-md', family: 'var(--font-body)', size: '16px', weight: '400', track: '0', sample: 'Rien n’est supprimé avant votre accord.', value: '16 px · texte courant' },
+        { name: '--text-sm', family: 'var(--font-body)', size: '14px', weight: '400', track: '0', sample: 'Le swap est un espace de secours sur le disque.', value: '14 px · texte secondaire' },
+        { name: '--text-xs', family: 'var(--font-mono)', size: '13px', weight: '400', track: '0', sample: '/dev/nvme0n1p2 · ext4', value: '13 px · mode avancé' }
+      ],
+      spaces: [
+        { name: '--space-1', px: '4px' }, { name: '--space-2', px: '8px' }, { name: '--space-3', px: '12px' }, { name: '--space-4', px: '16px' },
+        { name: '--space-5', px: '24px' }, { name: '--space-6', px: '32px' }, { name: '--space-7', px: '48px' }, { name: '--space-8', px: '64px' }
+      ],
+      radii: [
+        { name: '--radius-sm', value: '8 px', px: '8px' }, { name: '--radius-md', value: '12 px', px: '12px' }, { name: '--radius-lg', value: '16 px', px: '16px' },
+        { name: '--radius-xl', value: '24 px', px: '24px' }, { name: '--radius-pill', value: '999 px', px: '999px' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

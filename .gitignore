@@ -24,3 +24,6 @@ extension/node_modules/
 extension/.next/
 extension/dist/
 extension/coverage/
+
+# Exports de l'outil de maquettage (le contenu est extrait dans docs/design/maquettes/)
+docs/design/*.zip

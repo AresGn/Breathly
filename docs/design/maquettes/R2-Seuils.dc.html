@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>R2 · Seuils</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./breathly.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="gal" style="width: 2064px; min-height: 1300px">
+<svg class="spr" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" style="fill:var(--color-accent)"/><circle cx="16" cy="16" r="4.5" style="fill:var(--color-on-accent)"/><circle cx="16" cy="16" r="9.5" style="fill:none;stroke:var(--color-on-accent);stroke-width:2;stroke-linecap:round;stroke-dasharray:44 16"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  <symbol id="i-disk" viewBox="0 0 24 24"><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M5.5 14 8 4h8l2.5 10"/><path d="M7 17.5h.01M11 17.5h.01"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/><path d="M12 8v4.5l3 2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+</svg>
+
+<h1 class="gal-title">R2 · Seuils</h1>
+<p class="gal-note">US-020, US-010.3. Quatre seuils réglables : espace libre minimal (2 Go), disque occupé (90 %), swap (50 %, seulement si la RAM disponible est sous 15 %) et température au repos (80 °C). Pas de seuil de RAM ni de processeur en V0.1 (prévus en V0.2). Chaque champ a une vraie étiquette, une aide et sa valeur par défaut ; un bouton rétablit les valeurs par défaut.</p>
+
+<div class="gal-grid">
+<sc-for list="{{wins}}" as="w" hint-placeholder-count="2">
+<figure class="gal-fig">
+  <figcaption class="gal-cap">{{w.caption}}</figcaption>
+  <div class="win" data-theme="{{w.theme}}" lang="fr">
+    <aside class="side">
+      <div class="brand"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span class="brand-name">Breathly</span></div>
+      <nav class="nav" aria-label="Navigation principale">
+        <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="#" aria-current="{{n.current}}" aria-label="{{n.label}}"><svg class="ic" aria-hidden="true"><use href="{{n.icon}}"/></svg><span class="nav-label">{{n.label}}</span></a>
+        </sc-for>
+      </nav>
+      <p class="side-foot">Tout reste sur votre ordinateur.</p>
+    </aside>
+
+    <section class="main" style="gap: 20px">
+      <h1 class="h1">Réglages</h1>
+      <nav class="tabs" aria-label="Sections des réglages">
+        <a href="#">Général</a><a href="#" aria-current="page">Seuils</a><a href="#">Exclusions</a>
+      </nav>
+
+      <div class="card stack" style="gap: 24px">
+        <div class="field">
+          <label for="{{w.p}}free">Espace libre minimal</label>
+          <div class="row"><input id="{{w.p}}free" type="number" value="2" min="1"><span class="h3">Go</span></div>
+          <span class="help">Sous ce seuil, un bandeau s’affiche sur l’accueil. Par défaut : 2 Go.</span>
+        </div>
+        <div class="field" style="border-top: 1px solid var(--color-border); padding-top: 24px">
+          <label for="{{w.p}}used">Disque occupé</label>
+          <div class="row"><input id="{{w.p}}used" type="number" value="90" min="1" max="100"><span class="h3">%</span></div>
+          <span class="help">Au-delà, Breathly signale que le disque est presque plein. Par défaut : 90 %.</span>
+        </div>
+        <div class="field" style="border-top: 1px solid var(--color-border); padding-top: 24px">
+          <label for="{{w.p}}swap">Swap utilisée</label>
+          <div class="row row--wrap">
+            <input id="{{w.p}}swap" type="number" value="50" min="1" max="100"><span class="h3">%</span>
+            <span class="muted">seulement si la RAM disponible est sous</span>
+            <input id="{{w.p}}ram" type="number" value="15" min="1" max="100" aria-label="RAM disponible, en pourcentage" style="width: 96px"><span class="h3">%</span>
+          </div>
+          <span class="help">Une swap bien remplie n’est un problème que si la mémoire manque aussi. Par défaut : 50 % si la RAM disponible est sous 15 %.</span>
+        </div>
+        <div class="field" style="border-top: 1px solid var(--color-border); padding-top: 24px">
+          <label for="{{w.p}}temp">Température au repos</label>
+          <div class="row"><input id="{{w.p}}temp" type="number" value="80"><span class="h3">°C</span></div>
+          <span class="help">Au-delà, alors que le processeur travaille peu, Breathly parle de chauffe élevée. Par défaut : 80 °C.</span>
+        </div>
+      </div>
+
+      <div class="row row--between row--wrap">
+        <span class="small muted">Les changements sont enregistrés tout de suite.</span>
+        <button class="btn btn--secondary">Rétablir les valeurs par défaut</button>
+      </div>
+    </section>
+  </div>
+</figure>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2064,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const labels = ['Accueil', 'Diagnostic', 'Espace disque', 'Historique', 'Réglages'];
+    const icons = ['#i-home', '#i-activity', '#i-disk', '#i-history', '#i-sliders'];
+    const nav = labels.map((l, i) => ({ label: l, icon: icons[i], current: i === 4 ? 'page' : 'false' }));
+    return {
+      nav,
+      wins: [
+        { theme: 'light', p: 'a', caption: 'Clair' },
+        { theme: 'dark', p: 'b', caption: 'Sombre' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Y2 · Annulation</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./breathly.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="gal" style="width: 2064px; min-height: 2500px">
+<svg class="spr" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" style="fill:var(--color-accent)"/><circle cx="16" cy="16" r="4.5" style="fill:var(--color-on-accent)"/><circle cx="16" cy="16" r="9.5" style="fill:none;stroke:var(--color-on-accent);stroke-width:2;stroke-linecap:round;stroke-dasharray:44 16"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  <symbol id="i-disk" viewBox="0 0 24 24"><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M5.5 14 8 4h8l2.5 10"/><path d="M7 17.5h.01M11 17.5h.01"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/><path d="M12 8v4.5l3 2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2h.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8h.01"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2.5h8.5A1.5 1.5 0 0 1 21 10v8.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z"/></symbol>
+</svg>
+
+<h1 class="gal-title">Y2 · Annulation</h1>
+<p class="gal-note">US-041.2, parcours 5. Résultat d’une restauration : réussite, ou échec expliqué sans rien écraser. Deux échecs : l’emplacement d’origine est occupé, et l’élément n’est plus dans la corbeille (vidée entre-temps).</p>
+
+<div class="gal-grid">
+<sc-for list="{{wins}}" as="w" hint-placeholder-count="5">
+<figure class="gal-fig">
+  <figcaption class="gal-cap">{{w.caption}}</figcaption>
+  <div class="win" data-theme="{{w.theme}}" lang="fr">
+    <aside class="side">
+      <div class="brand"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span class="brand-name">Breathly</span></div>
+      <nav class="nav" aria-label="Navigation principale">
+        <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="#" aria-current="{{n.current}}" aria-label="{{n.label}}"><svg class="ic" aria-hidden="true"><use href="{{n.icon}}"/></svg><span class="nav-label">{{n.label}}</span></a>
+        </sc-for>
+      </nav>
+      <p class="side-foot">Tout reste sur votre ordinateur.</p>
+    </aside>
+
+    <section class="main main--center">
+      <div class="stack" style="align-items: center; gap: 16px; max-width: 480px">
+        <div class="dialog-icon" style="{{w.iconStyle}}; width: 64px; height: 64px"><svg class="ic ic--lg" aria-hidden="true"><use href="{{w.icon}}"/></svg></div>
+        <h1 class="h1">{{w.title}}</h1>
+        <p class="lead" style="text-align: center">{{w.lead}}</p>
+
+        <sc-if value="{{w.todo}}" hint-placeholder-val="{{ false }}">
+        <div class="card card--flat" style="text-align: left; width: 100%">
+          <div class="h3" style="margin-bottom: 4px">Que faire ?</div>
+          <p class="small muted" style="margin: 0">{{w.todo}}</p>
+        </div>
+        </sc-if>
+
+        <div class="row row--wrap" style="justify-content: center">
+          <sc-if value="{{w.retry}}" hint-placeholder-val="{{ false }}"><button class="btn btn--primary">Réessayer</button><button class="btn btn--secondary">Ouvrir l’emplacement</button><button class="btn btn--ghost">Retour à l’historique</button></sc-if>
+          <sc-if value="{{w.backOnly}}" hint-placeholder-val="{{ true }}"><button class="btn btn--primary">Retour à l’historique</button></sc-if>
+        </div>
+        <sc-if value="{{w.foot}}" hint-placeholder-val="{{ false }}"><p class="small muted" style="margin: 0">{{w.foot}}</p></sc-if>
+      </div>
+    </section>
+  </div>
+</figure>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2064,"height":2500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const labels = ['Accueil', 'Diagnostic', 'Espace disque', 'Historique', 'Réglages'];
+    const icons = ['#i-home', '#i-activity', '#i-disk', '#i-history', '#i-sliders'];
+    const OK = 'background: var(--color-success-bg); color: var(--color-success-fg)';
+    const WARN = 'background: var(--color-warn-bg); color: var(--color-warn-fg)';
+    const INFO = 'background: var(--color-accent-soft); color: var(--color-accent)';
+    const ok = { icon: '#i-check', iconStyle: OK, title: 'Élément restauré', lead: 'Le dossier de projet ancien est revenu à son emplacement d’origine. Rien d’autre n’a été touché.', todo: '', retry: false, backOnly: true, foot: 'L’entrée est maintenant marquée « Annulé » dans l’historique.' };
+    const busy = { icon: '#i-alert', iconStyle: WARN, title: 'Impossible de restaurer cet élément', lead: 'L’emplacement d’origine est déjà occupé par un dossier du même nom. Breathly n’écrase jamais rien : l’élément reste dans la corbeille.', todo: 'Renommez ou déplacez le dossier qui s’y trouve, puis réessayez.', retry: true, backOnly: false, foot: '' };
+    const gone = { icon: '#i-info', iconStyle: INFO, title: 'Cet élément n’est plus dans la corbeille', lead: 'La corbeille a été vidée depuis le nettoyage : il ne peut plus être restauré.', todo: '', retry: false, backOnly: true, foot: 'L’entrée passe en « Plus annulable ». Vos autres éléments ne sont pas concernés.' };
+    return {
+      nav: labels.map((l, i) => ({ label: l, icon: icons[i], current: i === 3 ? 'page' : 'false' })),
+      wins: [
+        Object.assign({ theme: 'light', caption: 'Clair · réussite' }, ok),
+        Object.assign({ theme: 'dark', caption: 'Sombre · réussite' }, ok),
+        Object.assign({ theme: 'light', caption: 'Clair · échec : emplacement occupé' }, busy),
+        Object.assign({ theme: 'dark', caption: 'Sombre · échec : emplacement occupé' }, busy),
+        Object.assign({ theme: 'light', caption: 'Clair · annulation impossible : corbeille vidée entre-temps' }, gone)
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
