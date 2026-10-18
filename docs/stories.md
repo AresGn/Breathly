@@ -181,10 +181,10 @@
 
 **US-072.** En tant qu'utilisateur, je veux que Breathly soit léger, afin qu'il ne ralentisse pas mon PC.
 - US-072.1 : fenêtre fermée, aucun processus de Breathly ne tourne en V0.1. [auto]
-- US-072.2 : un ADR de budgets fixe la RAM de la fenêtre et la taille de l'installeur d'après les mesures du prototype (étape 2.9) ; un contrôle de CI échoue quand la taille de l'installeur dépasse ce budget. [auto]
+- US-072.2 : l'ADR 0008 fixe les budgets d'après les mesures du prototype : fenêtre ≤ 350 Mo de PSS (re-mesurée à la main avant chaque version sur les machines de validation), installeurs `.deb` et `.rpm` < 15 Mo ; un contrôle de CI échoue quand la taille d'un installeur dépasse ce budget. [auto pour la taille, manuel pour la mémoire]
 
 **US-073.** En tant qu'utilisateur, je veux installer Breathly facilement, afin de l'essayer.
-- US-073.1 : un installeur par format est publié dans les GitHub Releases : `.msi` (Windows), `.deb`, `.rpm`, `.AppImage` (Linux). [manuel]
+- US-073.1 *(décision)* : un installeur par format est publié dans les GitHub Releases avec ses empreintes SHA-256 : `.msi` (Windows), `.deb`, `.rpm` (Linux) ; pas d'`.AppImage` en V0.1 (ADR 0008). [manuel]
 - US-073.2 : l'installation et la première ouverture réussissent sur les machines de validation Windows 11, Ubuntu et Linux Mint. [manuel]
 - US-073.3 : Windows 10 et Fedora sont pris en charge mais sans machine de validation : le `.rpm` et Windows 10 sont publiés marqués « non testé » dans les notes de version. [manuel]
 

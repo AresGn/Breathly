@@ -25,6 +25,12 @@ Méthode : le programme lance le binaire, attend l'apparition de la fenêtre (`x
 
 **Lecture.** Même vide, une fenêtre Tauri sous Linux dépasse de loin la cible de 150 Mo du PRD, parce que la page web tourne dans WebKitGTK (deux processus supplémentaires, 190 Mo de PSS à eux deux). Ce n'est pas un défaut de la coquille, c'est le coût du moteur web du système. L'ADR 0008 doit en tirer une décision : réviser la cible, ou reconsidérer le choix d'une interface web (ADR 0001). **Windows (WebView2) n'est pas mesuré.**
 
+## Comparaison : fenêtre native minimale (P6)
+
+Pour que la décision sur G5 repose sur un chiffre comparable, une fenêtre `egui` (`eframe` 0.37, réglages par défaut, version `release`, 960 × 640 logiques, un titre centré) a été mesurée sur la même machine avec la même méthode (source : `prototypes-2026-10-18/p6-egui.rs`, jetable) : **96 Mo de PSS (RSS 106 Mo), un seul processus**, fenêtre visible en 0,34 s, binaire de 27,3 Mo, aucun processus après la fermeture. Soit environ le tiers de la mémoire de la coquille Tauri. Ce que cette mesure **ne dit pas** : la fidélité à la maquette HTML/CSS, l'accessibilité (WCAG 2.2 AA), l'internationalisation, l'effort de refaire les 20 écrans, ni la mémoire avec de vrais écrans. La fenêtre mesurée utilise le moteur graphique par défaut d'`eframe` (non étudié).
+
+**Décision du propriétaire (2026-10-18, ADR 0008)** : conserver Tauri + Svelte pour la V0.1, plafond de 350 Mo de PSS re-mesuré à chaque version, pas d'AppImage en V0.1.
+
 ## Chaîne d'outils : ce qui marche, ce qui a surpris
 
 - **`make check` vert** sur le workspace avec Tauri : `fmt`, `clippy -D warnings` (le crate Tauri passe sous les lints pédantiques du workspace), `cargo deny` (aucune bibliothèque réseau sur les cibles Linux et Windows : SEC1 tient pour `tauri` 2.12), `check-rust`, `cargo test`, puis l'interface (`pnpm lint`, `typecheck`, `test`).
