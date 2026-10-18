@@ -228,7 +228,7 @@ rules ────┴─> system-tune ──────────────
 
 ### 7.2 `disk-scan` / `disk-clean`
 - **S1.** Analyse du dossier personnel (~500 000 fichiers) en **moins de 60 s** sur un SSD.
-- **S2.** Chaque élément proposé au nettoyage provient **d'une règle explicite** (fichier TOML). Aucune heuristique ne propose de supprimer un fichier.
+- **S2.** Chaque élément proposé au nettoyage provient **d'une règle explicite** (fichier TOML). Aucune heuristique ne propose de supprimer un fichier. Les gros fichiers 🔴 sont affichés pour information avec « Ouvrir le dossier » : Breathly ne les supprime pas (US-022). Les dossiers de projets recréables sont reconnus par une règle « nom + fichier marqueur » (US-023).
 - **S3.** Les fichiers de l'utilisateur vont dans la **corbeille** (crate `trash`) ; les caches 🟢 peuvent être supprimés définitivement, ce qui est indiqué à l'écran.
 - **S4.** **Liste d'exclusion** gérée par l'utilisateur, qui prime sur toutes les règles.
 - **S5.** **Garde-fous non désactivables :** jamais en dehors des emplacements prévus par une règle ; jamais les profils de navigateur, `Documents`, `Images`, `Vidéos`, `Musique`, `Bureau`, les conteneurs chiffrés (`.hc`, `.vc`, `.kdbx`…), les dossiers `.git`, les fichiers ouverts par un programme.
