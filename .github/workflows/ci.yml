@@ -67,6 +67,12 @@ jobs:
       matrix: ${{ fromJSON(needs.detect.outputs.matrix) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Paquets de développement de Tauri sous Linux (liste de https://v2.tauri.app/start/prerequisites/, lue le
+      # 2026-10-18) : sans eux, `cargo clippy` ne compile pas le crate de l'application (gobject-2.0.pc introuvable).
+      - if: matrix.stack == 'rust'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
       # La version de Rust vient de rust-toolchain.toml (ADR 0011), pas de « stable ». Les composants sont demandés ici
       # aussi : un toolchain installé en profil minimal n'a ni clippy ni rustfmt.
       - if: matrix.stack == 'rust'
