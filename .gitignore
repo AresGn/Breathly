@@ -19,11 +19,11 @@ graphify-out/
 #  (Rust)
 /target/
 
-# extension (Node / TypeScript)
-extension/node_modules/
-extension/.next/
-extension/dist/
-extension/coverage/
+# interface (Svelte / TypeScript)
+apps/desktop/ui/node_modules/
+apps/desktop/ui/.svelte-kit/
+apps/desktop/ui/build/
+apps/desktop/ui/coverage/
 
 # Exports de l'outil de maquettage (le contenu est extrait dans docs/design/maquettes/)
 docs/design/*.zip

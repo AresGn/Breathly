@@ -22,7 +22,7 @@ Svelte 5, en TypeScript. Raison : le critère déterminant est la facilité pour
 
 ## Conséquences
 
-- `apps/desktop/ui/` est une application Svelte 5 + TypeScript. Elle sera déclarée comme application du kit (`.kit.conf`) avec la pile `node-api` (pnpm) à l'ouverture du premier ticket de l'interface.
+- `apps/desktop/ui/` est une application Svelte 5 + TypeScript, en SvelteKit mode SPA (ADR 0010). Elle sera déclarée comme application du kit (`.kit.conf`) avec la pile `node-api` (pnpm) à l'ouverture du premier ticket de l'interface.
 - L'interface n'a aucune règle métier : elle appelle les modules par des commandes Tauri (PRD §5, AGENTS.md).
 - Le ticket du prototype d'un écran (accueil) porte la vérification : démarrage avec Tauri v2, taille du bundle, i18n FR/EN, thème clair/sombre. S'il échoue, cet ADR est remplacé.
 

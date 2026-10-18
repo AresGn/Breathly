@@ -348,7 +348,9 @@ command     = "npm cache clean --force"   # optionnel, informatif en V0.1 : affi
 
 ---
 
-## 11. Structure du dépôt (prévue)
+## 11. Structure du dépôt (prévue ; figée par l'ADR 0010)
+
+Seul ce que la version en cours utilise existe : en V0.1, le workspace, les crates `platform`, `rules`, `diagnose`, `disk` et `apps/desktop` ; les autres crates et `extension/` sont créés quand leur version démarre.
 
 ```
 breathly/
