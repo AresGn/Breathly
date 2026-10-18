@@ -1,0 +1,34 @@
+const out = [];
+const show = () => { document.getElementById('r').textContent = out.join('\n'); };
+(async () => {
+  const { invoke, Channel } = window.__TAURI__.core;
+  // 1. Canal : 20000 messages
+  for (const n of [20, 20000]) {
+    let recus = 0, ordreOk = true, finis = false, dernier = 0, t0 = performance.now(), fin = 0, tvu = null;
+    const ch = new Channel();
+    const done = new Promise((res) => {
+      ch.onmessage = (m) => {
+        recus++;
+        if (m.kind === 'step') { if (m.done !== dernier + 1) ordreOk = false; dernier = m.done; }
+        if (m.kind === 'finished') { finis = true; fin = performance.now(); res(); }
+      };
+    });
+    await invoke('start_disk_analysis', { onProgress: ch, n });
+    await Promise.race([done, new Promise((r) => setTimeout(r, 15000))]);
+    out.push(`canal n=${n}: recus=${recus} (attendu ${n + 2}), ordre=${ordreOk}, fin=${finis}, duree=${Math.round((fin || performance.now()) - t0)} ms`);
+    show();
+  }
+  // 2. Evenements : listen sans permission d'evenement dans la capacite
+  try {
+    let recus = 0;
+    const un = await window.__TAURI__.event.listen('progress', () => { recus++; });
+    out.push('evenements: listen ACCEPTE');
+    await invoke('emit_test', { n: 2000 });
+    await new Promise((r) => setTimeout(r, 2000));
+    out.push(`evenements: recus=${recus} sur 2001`);
+    un();
+  } catch (e) {
+    out.push('evenements: listen REFUSE : ' + String(e).slice(0, 160));
+  }
+  show();
+})().catch((e) => { out.push('ERREUR ' + e); show(); });
