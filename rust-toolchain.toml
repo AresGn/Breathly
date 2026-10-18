@@ -1,0 +1,5 @@
+# Version de Rust fixée (ADR 0011) : mise à jour par une PR volontaire, au moins une fois par trimestre.
+[toolchain]
+channel = "1.97.1"
+profile = "minimal"
+components = ["clippy", "rustfmt"]

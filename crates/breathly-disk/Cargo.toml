@@ -1,0 +1,12 @@
+[package]
+name = "breathly-disk"
+description = "analyse du disque, simulation, nettoyage, garde-fous et historique (design 0001 et 0002)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
