@@ -274,6 +274,9 @@ rules ────┴─> system-tune ──────────────
 - **E4.** Breathly ne reçoit, ne stocke ni ne transmet jamais un mot de passe : la saisie reste dans la fenêtre de l'OS.
 - **E5.** Les actions administrateur forment une liste fermée de règles (S2). Les garde-fous S5 s'appliquent aussi.
 
+### 7.9 Machines à états
+Les cycles de vie de l'analyse, du nettoyage et de l'entrée d'historique (V0.1) sont décrits, avec leurs conditions et leurs invariants, dans [`docs/design/0001-machines-a-etats.md`](design/0001-machines-a-etats.md). Les autres machines s'écrivent avant leur version.
+
 ---
 
 ## 8. Règles de nettoyage de départ (V0.1)
