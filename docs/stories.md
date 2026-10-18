@@ -12,7 +12,7 @@
 - **Détail** : V0.1 est détaillée (c'est la base du premier backlog). V0.2 à V1.0 sont des stories numérotées **sans critères détaillés** : ils s'écriront quand la version approche, après les prototypes de l'étape 2.9.
 - **Chiffres** : les durées et tailles du PRD §9 sont des cibles non mesurées ; les critères qui s'y rapportent sont marqués *(cible)*.
 - Les noms entre parenthèses (S2, D5, E3…) renvoient aux exigences du PRD §7.
-- Un critère marqué *(ajout)* est une précision que le PRD ne contient pas : à valider ou à retirer par le propriétaire. Un critère marqué *(décision)* applique une décision prise en relisant ce fichier (voir « Décisions prises »).
+- Les précisions que le PRD ne contenait pas ont été validées par le propriétaire le 2026-10-18 et sont reprises dans le PRD (§0, point 19). Un critère marqué *(décision)* applique une décision prise en relisant ce fichier (voir « Décisions prises »).
 
 ---
 
@@ -23,21 +23,21 @@
 **US-001.** En tant qu'utilisateur, je veux ouvrir Breathly et lancer « Analyser mon PC » en un clic, afin de savoir pourquoi mon PC est lent sans rien configurer.
 - US-001.1 : l'accueil affiche un seul bouton principal « Analyser mon PC » en mode simple. [manuel]
 - US-001.2 : l'analyse se lance sans demander de droits administrateur ni de compte. [auto]
-- US-001.3 *(ajout)* : pendant le diagnostic, un indicateur de progression est visible et l'utilisateur peut l'annuler ; l'annulation ne laisse aucun fichier modifié. [auto]
+- US-001.3 : pendant le diagnostic, un indicateur de progression est visible et l'utilisateur peut l'annuler ; l'annulation ne laisse aucun fichier modifié. [auto]
 
 **US-002.** En tant qu'utilisateur, je veux utiliser Breathly en français ou en anglais, afin de le comprendre.
-- US-002.1 *(ajout)* : la langue par défaut est celle du système si elle est prise en charge, sinon l'anglais. [auto]
-- US-002.2 *(ajout)* : changer de langue dans Réglages met à jour tous les textes sans redémarrer. [manuel]
+- US-002.1 : la langue par défaut est celle du système si elle est prise en charge, sinon l'anglais. [auto]
+- US-002.2 : changer de langue dans Réglages met à jour tous les textes sans redémarrer. [manuel]
 - US-002.3 : aucune chaîne affichée n'est écrite en dur dans le code ; une clé de traduction manquante fait échouer un test. [auto]
 
 **US-003.** En tant qu'utilisateur, je veux choisir le thème clair, sombre ou celui du système, afin de lire confortablement.
-- US-003.1 *(ajout)* : trois choix dans Réglages ; « système » suit le thème de l'OS au changement. [manuel]
+- US-003.1 : trois choix dans Réglages ; « système » suit le thème de l'OS au changement. [manuel]
 - US-003.2 : le contraste des deux thèmes respecte WCAG 2.2 AA. [auto]
 
 **US-004.** En tant qu'utilisateur, je veux passer du mode simple au mode avancé, afin de voir le détail technique seulement si je le veux.
 - US-004.1 : le mode simple est actif à la première ouverture et sur chaque écran. [auto]
 - US-004.2 : en mode simple, aucun chemin de fichier, nom de processus brut ni commande n'est affiché sans clic sur « Détails » ; seule exception, le mode guidé (E3) affiche un bouton « Copier la commande » et la commande exacte dans un bloc replié « Voir la commande » *(décision)*. [manuel]
-- US-004.3 *(ajout)* : le choix du mode est conservé à la réouverture. [auto]
+- US-004.3 : le choix du mode est conservé à la réouverture. [auto]
 
 ## Diagnostic
 
@@ -54,7 +54,7 @@
 **US-012.** En tant qu'utilisateur, je veux recevoir au plus 5 recommandations classées par impact, afin de savoir quoi faire en premier.
 - US-012.1 : au plus 5 recommandations, chacune avec titre en langage simple, gain estimé, niveau de risque et un bouton d'action ou d'explication (D2). [auto]
 - US-012.2 : s'il n'y a rien à recommander, l'écran le dit au lieu de rester vide. [auto]
-- US-012.3 *(ajout)* : les recommandations sont classées par gravité (alerte critique, alerte, conseil), puis, à gravité égale et pour une même ressource, par gain estimé dans son unité (Go de disque, Go de RAM) ; deux ressources différentes ne se comparent pas par le gain. [auto]
+- US-012.3 : les recommandations sont classées par gravité (alerte critique, alerte, conseil), puis, à gravité égale et pour une même ressource, par gain estimé dans son unité (Go de disque, Go de RAM) ; deux ressources différentes ne se comparent pas par le gain. [auto]
 
 **US-013.** En tant qu'utilisateur, je veux comprendre si mon PC chauffe à cause d'un logiciel ou du matériel, afin de savoir quoi faire.
 - US-013.1 : chaud sous forte charge → le texte dit que c'est normal ; chaud avec un logiciel gourmand → le logiciel est désigné ; chaud sans charge → « cause matérielle probable » et liste de vérifications (D5). [auto]
@@ -76,7 +76,7 @@
 **US-020.** En tant qu'utilisateur, je veux être alerté quand il me reste moins de 2 Go, afin de nettoyer avant que le PC bloque.
 - US-020.1 : à l'ouverture, un bandeau « moins de 2 Go libres » avec un bouton de nettoyage s'affiche quand l'espace libre du disque système est inférieur au seuil (2 Go par défaut, réglable) (G7). [auto]
 - US-020.2 : le bouton mène au nettoyage en un clic (G7, §15). [auto]
-- US-020.4 *(ajout)* : le bandeau disparaît quand l'espace libre repasse au-dessus du seuil. [auto]
+- US-020.4 : le bandeau disparaît quand l'espace libre repasse au-dessus du seuil. [auto]
 - US-020.3 : aucune notification système n'est envoyée en V0.1. [auto]
 
 **US-021.** En tant qu'utilisateur, je veux voir ce qui occupe mon disque, classé par niveau de risque, afin de choisir quoi nettoyer.
@@ -115,7 +115,7 @@
 
 **US-032.** En tant qu'utilisateur, je veux simuler un nettoyage, afin de voir ce qui se passerait sans rien faire.
 - US-032.1 : la simulation est disponible pour tout nettoyage et ne modifie aucun fichier ni l'historique réel. [auto]
-- US-032.2 *(ajout)* : le résultat de la simulation est identique à ce que fera le nettoyage sur le même état du disque. [auto]
+- US-032.2 : le résultat de la simulation est identique à ce que fera le nettoyage sur le même état du disque. [auto]
 
 **US-033.** En tant qu'utilisateur, je veux que mes fichiers aillent à la corbeille, afin de pouvoir les récupérer.
 - US-033.1 : les fichiers de l'utilisateur sont envoyés à la corbeille du système (S3). [auto]
@@ -125,7 +125,7 @@
 **US-034.** En tant qu'utilisateur, je veux la garantie que Breathly ne touche jamais à mes documents, afin de lui faire confiance.
 - US-034.1 : aucun nettoyage ne touche à un emplacement hors des règles, aux profils de navigateur, à `Documents`, `Images`, `Vidéos`, `Musique`, `Bureau`, aux conteneurs chiffrés (`.hc`, `.vc`, `.kdbx`), aux dossiers `.git` ni aux fichiers ouverts par un logiciel (S5). [auto, un test par garde-fou]
 - US-034.2 : aucun réglage ne désactive ces garde-fous. [auto]
-- US-034.3 *(ajout)* : un lien symbolique ou une jonction qui pointe vers un emplacement interdit n'est pas suivi. [auto]
+- US-034.3 : un lien symbolique ou une jonction qui pointe vers un emplacement interdit n'est pas suivi. [auto]
 
 **US-035.** En tant qu'utilisateur, je veux exclure des emplacements du nettoyage, afin de protéger ce que je choisis.
 - US-035.1 : la liste d'exclusion prime sur toutes les règles (S4). [auto]
@@ -145,10 +145,12 @@
 **US-040.** En tant qu'utilisateur, je veux consulter l'historique de ce que Breathly a fait, afin de vérifier qu'il n'a touché que ce qui était prévu.
 - US-040.1 : chaque action est inscrite : date, élément, taille, destination (corbeille ou définitive), y compris chaque annulation et chaque vidage de la corbeille (S6, invariant 5). [auto]
 - US-040.2 : l'historique est un fichier local ; aucune donnée n'en sort de la machine. [auto]
+- US-040.3 *(décision)* : l'utilisateur peut effacer les entrées qui ne sont plus annulables (suppression définitive, élément qui n'est plus dans la corbeille) ; les entrées annulables restent. [auto]
+- US-040.4 *(décision)* : les entrées de plus de 12 mois sont supprimées automatiquement ; cette durée est une valeur de départ à confirmer par l'ADR de l'historique. [auto]
 
 **US-041.** En tant qu'utilisateur, je veux annuler un nettoyage passé par la corbeille, afin de réparer une erreur.
 - US-041.1 : un élément envoyé à la corbeille est restauré à son emplacement d'origine depuis l'historique. [auto]
-- US-041.2 *(ajout)* : si l'emplacement d'origine est occupé ou la corbeille vidée, l'annulation échoue avec une explication, sans rien écraser. [auto]
+- US-041.2 : si l'emplacement d'origine est occupé ou la corbeille vidée, l'annulation échoue avec une explication, sans rien écraser. [auto]
 - US-041.3 : une suppression définitive n'a pas de bouton d'annulation et l'historique l'indique. [auto]
 
 ## Contribution et qualité
@@ -175,7 +177,7 @@
 **US-073.** En tant qu'utilisateur, je veux installer Breathly facilement, afin de l'essayer.
 - US-073.1 : un installeur par format est publié dans les GitHub Releases : `.msi` (Windows), `.deb`, `.rpm`, `.AppImage` (Linux). [manuel]
 - US-073.2 : l'installation et la première ouverture réussissent sur les machines de validation Windows 11, Ubuntu et Linux Mint. [manuel]
-- US-073.3 *(ajout)* : Windows 10 et Fedora sont pris en charge mais sans machine de validation : le `.rpm` et Windows 10 sont publiés marqués « non testé » dans les notes de version. [manuel]
+- US-073.3 : Windows 10 et Fedora sont pris en charge mais sans machine de validation : le `.rpm` et Windows 10 sont publiés marqués « non testé » dans les notes de version. [manuel]
 
 ---
 
@@ -224,8 +226,8 @@
 
 # Questions ouvertes
 
-1. **Historique** (US-040) : format, emplacement, durée de conservation, et possibilité de l'effacer. Effacer l'historique empêcherait de vérifier « aucun fichier hors règle touché » (§15) et d'annuler ce qui est à la corbeille : à trancher dans l'ADR « format de l'historique et des réglages ».
-2. **Seuil de persistance de la chauffe** (US-013.2) : 3 relevés consécutifs est une valeur de départ non vérifiée.
+1. **Format et emplacement de l'historique** (US-040) : à fixer dans l'ADR « format de l'historique et des réglages ». Conservation (12 mois) et effacement (entrées non annulables seulement) sont décidés ci-dessous.
+2. **Valeurs de départ non vérifiées** : 3 relevés consécutifs pour la persistance de la chauffe (US-013.2), 12 mois de conservation (US-040.4). Le prototype (étape 2.9) et l'ADR les confirment.
 
 ## Décisions prises en rédigeant ces stories (2026-10-18)
 
@@ -236,6 +238,9 @@
 - Mode simple : bouton « Copier la commande » et commande exacte repliée (US-004.2).
 - Règles : intégrées au binaire à la compilation, aucun dossier de règles modifiable en V0.1 ; l'éventuelle règle personnalisée de l'utilisateur relève d'un ADR ultérieur (US-060.1).
 - Champ `command` : informatif en V0.1, jamais exécuté (US-060.4).
+- Historique : effacement limité aux entrées non annulables (US-040.3) ; conservation 12 mois puis rotation (US-040.4).
+- Persistance de la chauffe : 3 relevés du même diagnostic (US-013.2).
+- Les 11 précisions ajoutées en rédigeant les stories (US-001.3, 002.1, 002.2, 003.1, 004.3, 012.3, 020.4, 032.2, 034.3, 041.2, 073.3) sont toutes conservées.
 
 ---
 

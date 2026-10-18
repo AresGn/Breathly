@@ -30,6 +30,8 @@ Ces points orientent tout le reste du document. Ils sont validés par le propri�
 16. **Gros fichiers 🔴 :** montrés avec « Ouvrir le dossier », jamais sélectionnables ni supprimés par Breathly (US-022).
 17. **Corbeille :** les éléments 🟡 vont à la corbeille ; vider la corbeille est un élément 🟡 distinct et confirmé (US-037) ; deux chiffres affichés, envoyé et libéré.
 18. **Règles :** intégrées au binaire à la compilation en V0.1, champ `command` informatif (US-060).
+19. **Précisions de comportement validées** (détail dans `docs/stories.md`) : annulation du diagnostic, langue et thème « système », mode mémorisé, tri des recommandations, bandeau qui disparaît, simulation fidèle, liens symboliques jamais suivis, annulation qui n'écrase rien, Windows 10 et Fedora publiés « non testé ».
+20. **Historique :** conservé 12 mois puis rotation ; l'utilisateur n'efface que les entrées non annulables (S6, US-040).
 
 ---
 
@@ -236,7 +238,7 @@ rules ────┴─> system-tune ──────────────
 - **S3.** Les fichiers de l'utilisateur vont dans la **corbeille** (crate `trash`). Les seules suppressions définitives sont les caches 🟢 et le **vidage confirmé de la corbeille** (US-037), qui liste et chiffre ce qu'il détruit ; l'écran l'indique.
 - **S4.** **Liste d'exclusion** gérée par l'utilisateur, qui prime sur toutes les règles.
 - **S5.** **Garde-fous non désactivables :** jamais en dehors des emplacements prévus par une règle ; jamais les profils de navigateur, `Documents`, `Images`, `Vidéos`, `Musique`, `Bureau`, les conteneurs chiffrés (`.hc`, `.vc`, `.kdbx`…), les dossiers `.git`, les fichiers ouverts par un programme.
-- **S6.** **Historique** : date, élément, taille, destination (corbeille ou suppression définitive), et annulation pour ce qui est passé par la corbeille.
+- **S6.** **Historique** : date, élément, taille, destination (corbeille ou suppression définitive), et annulation pour ce qui est passé par la corbeille. Conservation 12 mois (valeur de départ) ; l'utilisateur n'efface que les entrées qui ne sont plus annulables (US-040).
 
 ### 7.3 `browser-guard`
 - **B1.** Un navigateur lancé est détecté en **moins de 2 s**.
