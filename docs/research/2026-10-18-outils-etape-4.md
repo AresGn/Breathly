@@ -119,3 +119,12 @@ Les mêmes violations, rejouées sur une copie du dépôt avec les fichiers fina
 ## Rejouer les sondes
 
 `outils-etape-4/sondes/` contient les scripts d'essai (`probe.sh` et `mutations.sh` pour Rust, `uprobe.sh` et `umutations.sh` pour l'interface, `mkprobe.sh` et `run-make-probes.sh` pour `make check`). Ils supposent un dossier de travail avec `probe-rust/`, `probe-ui/` et `repo-copy/` ; ce sont des **scripts de référence**, pas des outils du dépôt (`make` ne les lance pas). `outils-etape-4/interface/` contient les configurations de l'interface (`package.reference.json` est le `package.json` de la sonde).
+
+## Revue de la PR (2026-10-18)
+
+Relecture indépendante avant fusion. Rien de bloquant (aucun invariant d'`AGENTS.md`, aucune faille, aucune exigence de la spec en défaut). Deux corrections appliquées dans la même PR :
+
+- **Garde `cfg` selon l'OS** : l'expression régulière de `tools/check-rust.py` laissait passer `cfg!(windows)`, `cfg!(unix)` et `#[cfg_attr(windows, …)]` (seul `#[cfg(...)]` et `target_os =` étaient couverts). Corrigée (`cfg`, `cfg_attr` et la forme macro avec `!`), puis rejouée sur un workspace d'essai : les sept formes violatrices sont refusées, `cfg!(feature = …)` et `#[cfg(test)]` passent, `cfg!(windows)` est accepté dans `breathly-platform`.
+- **CI, composants de Rust** : `rustup toolchain install --profile minimal` installe bien le toolchain désigné par `rust-toolchain.toml` (essai local avec rustup 1.29.0 : « overridden by … rust-toolchain.toml »), mais un profil minimal n'a ni `clippy` ni `rustfmt`. La CI les demande maintenant explicitement (`-c clippy,rustfmt`) et l'ADR 0011 impose les mêmes `components` dans `rust-toolchain.toml`. La documentation de rustup relue ce jour ne décrit pas la commande sans argument : le comportement vient de l'essai.
+
+Vérifié à la revue : `make check` vert, `tools/pin-actions.py --check` vert (l'action `actions/cache` est épinglée), liens de documentation sans erreur, `gate` vert sur la PR (les étapes Rust de `ci.yml` n'y tournent pas, l'application n'existant pas encore : première exécution réelle à l'étape 5).

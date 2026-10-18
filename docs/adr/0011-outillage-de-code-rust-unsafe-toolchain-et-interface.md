@@ -27,6 +27,7 @@ Les `CODING.md` du kit sont des gabarits écrits pour une API. Breathly a besoin
 - Les `CODING.md` du dépôt racine (Rust) et de `apps/desktop/ui` sont réécrits pour Breathly.
 - `Cargo.lints.fragment.toml` est remplacé, à l'initialisation, par `[workspace.lints]` dans le `Cargo.toml` racine.
 - La complexité cognitive est contrôlée par `clippy::cognitive_complexity`, qui est dans le groupe `nursery` : un lint du groupe `pedantic` ne l'active pas, il est donc activé nommément dans `[workspace.lints]` ; le seuil est dans `clippy.toml`.
+- `rust-toolchain.toml` contient `channel` (version précise), `profile = "minimal"` et `components = ["clippy", "rustfmt"]` : un toolchain en profil minimal n'a ni l'un ni l'autre, et la CI les demande aussi explicitement (relevé à la revue de l'étape 4).
 - Le chargeur de textes est du code du projet : il a ses tests et une taille bornée ; s'il grossit, on rouvre le choix par un ADR.
 
 ## Résultats de l'étape 4 (2026-10-18)

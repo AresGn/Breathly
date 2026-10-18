@@ -19,7 +19,8 @@ from pathlib import Path
 ROOT = Path(subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True, check=True).stdout.strip())
 PLATFORM = "crates/breathly-platform"
 IGNORE_ATTR = re.compile(r"#\s*\[\s*ignore\b")
-OS_CFG = re.compile(r"\b(?:target_os|target_family)\s*=|\b(?:cfg|any|all|not)\s*\(\s*(?:windows|unix)\s*[,)]")
+# « cfg(windows) », « cfg!(unix) », « cfg_attr(windows, …) », « any/all/not(windows) » et toute forme « target_os = … ».
+OS_CFG = re.compile(r"\b(?:target_os|target_family)\s*=|\b(?:cfg|cfg_attr|any|all|not)!?\s*\(\s*(?:windows|unix)\s*[,)]")
 
 
 def tracked(pattern: str) -> list[Path]:

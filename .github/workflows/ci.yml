@@ -67,9 +67,10 @@ jobs:
       matrix: ${{ fromJSON(needs.detect.outputs.matrix) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # La version de Rust vient de rust-toolchain.toml (ADR 0011), pas de « stable ».
+      # La version de Rust vient de rust-toolchain.toml (ADR 0011), pas de « stable ». Les composants sont demandés ici
+      # aussi : un toolchain installé en profil minimal n'a ni clippy ni rustfmt.
       - if: matrix.stack == 'rust'
-        run: rustup toolchain install --profile minimal
+        run: rustup toolchain install --profile minimal -c clippy,rustfmt
       # Versions des outils éprouvées le 2026-10-18 (docs/research/2026-10-18-outils-etape-4.md). Non vérifié sur un
       # exécuteur hébergé : le premier passage de la CI hébergée confirmera.
       - if: matrix.stack == 'rust'
