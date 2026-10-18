@@ -1,0 +1,24 @@
+[package]
+name = "breathly-platform"
+description = "abstraction du système d'exploitation (processus, mémoire, disques, températures, corbeille, chemins standard)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+# Table propre (et non `workspace = true`) : seul ce crate a le droit à `unsafe`, avec un `#[allow]` justifié par bloc.
+# Copie de celle du workspace, hors unsafe_code (tools/check-rust.py).
+[lints.rust]
+unsafe_code = "deny"
+
+[lints.clippy]
+all = { level = "deny", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+cognitive_complexity = "deny"
+excessive_nesting = "deny"
+unwrap_used = "deny"
+expect_used = "warn"
+wildcard_enum_match_arm = "deny"
+allow_attributes_without_reason = "deny"

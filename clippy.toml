@@ -1,4 +1,4 @@
-# Seuils de clippy (CODING.md §2) ; les lints eux-mêmes sont dans [workspace.lints] (Cargo.lints.fragment.toml).
+# Seuils de clippy (CODING.md §2) ; les lints eux-mêmes sont dans [workspace.lints] (Cargo.toml, [workspace.lints]).
 cognitive-complexity-threshold = 10
 # 4 et non 3 : le corps de la fonction compte pour un niveau (3 blocs imbriqués dans une fonction passent, 4 échouent)
 excessive-nesting-threshold = 4

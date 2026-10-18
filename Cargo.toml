@@ -1,0 +1,30 @@
+# Espace de travail Rust de Breathly (ADR 0010). Seul ce que la version en cours utilise existe : en V0.1, quatre
+# crates de bibliothèque ; l'application Tauri (apps/desktop/src-tauri) s'y ajoute avec sa coquille.
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.97"
+license = "MIT"
+repository = "https://github.com/AresGn/Breathly"
+publish = false
+
+# Lints communs (ADR 0011). Chaque crate déclare `[lints] workspace = true`, sauf breathly-platform (voir son
+# Cargo.toml) : tools/check-rust.py vérifie que les deux tables restent identiques hors unsafe_code.
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+# nursery : activé lint par lint, le groupe entier est trop bruyant
+cognitive_complexity = "deny"
+excessive_nesting = "deny"
+unwrap_used = "deny"
+expect_used = "warn"
+# restriction : « match » exhaustif sans cas par défaut (AGENTS.md), « #[allow] » toujours justifié
+wildcard_enum_match_arm = "deny"
+allow_attributes_without_reason = "deny"

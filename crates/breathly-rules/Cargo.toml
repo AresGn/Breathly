@@ -1,0 +1,12 @@
+[package]
+name = "breathly-rules"
+description = "format et chargement des règles de nettoyage (TOML intégré au binaire, ADR 0004)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
