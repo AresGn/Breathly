@@ -7,7 +7,7 @@ Références : `GLOSSARY.md` (vocabulaire), `docs/PRD.md` (exigences, brouillon 
 ## Stack
 
 - Cœur : Rust (édition 2024), workspace Cargo (`crates/`), PRD §10
-- Application : Tauri v2, interface web légère (framework **à décider**, PRD §17 question 1), `apps/desktop/`
+- Interface : Tauri v2, interface web légère (framework **à décider**, PRD §17 question 1), `apps/desktop/`
 - Extension navigateur : TypeScript, Manifest V3, une base de code pour Firefox et Chromium, `extension/`
 - Règles de nettoyage et définitions de navigateurs : fichiers TOML (`rules/`, `browsers/`), modifiables sans écrire de Rust
 - Aucun serveur, aucun compte, aucune télémétrie (PRD §0 point 4)
@@ -36,7 +36,7 @@ Breathly agit sur les fichiers de personnes non techniques : une violation est u
 7. Aucune donnée ne quitte la machine : pas de télémétrie, pas de requête réseau non demandée.
 8. Une action qui exige les droits administrateur passe par l'élévation standard de l'OS, une action à la fois, après une explication ; jamais l'application entière en administrateur ; Breathly ne manipule jamais un mot de passe ; en repli, mode guidé (commande à copier, rien d'exécuté) (PRD §7.8).
 9. Un navigateur se ferme proprement, jamais en tuant le processus (B3).
-10. Breathly n'est pas un antivirus : il ne dit jamais « virus » ni « sain » ; un processus inconnu est « à vérifier » (PRD D6). Il ne ferme jamais un logiciel sans clic de l'utilisateur (PRD §6 V0.2).
+10. Breathly n'est pas un antivirus : il ne dit jamais « virus » ni « sain » ; un processus inconnu est « à examiner » (PRD D6). Il ne ferme jamais un logiciel sans clic de l'utilisateur (PRD §6 V0.2).
 11. Aucune règle de nettoyage ou de réglage système n'est ajoutée sans explication en français et en anglais, niveau de risque et chemins par OS (validé par un test).
 
 ## Ports à implémenter (adapters remplaçables)

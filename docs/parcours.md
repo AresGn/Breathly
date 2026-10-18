@@ -48,9 +48,9 @@ flowchart TD
     classDef progress fill:#fff3cd,stroke:#b8860b,color:#111
     classDef todo fill:#eceff1,stroke:#607d8b,color:#111
     classDef na fill:#fafafa,stroke:#bbb,stroke-dasharray: 4 3,color:#888
-    class A0,A1 done
+    class A0,A1,B1 done
     class B2,B3,C progress
-    class B1,B4,B5,B7,B8,B9,D,E,F,G,H,I todo
+    class B4,B5,B7,B8,B9,D,E,F,G,H,I todo
     class B6 na
 ```
 
@@ -62,7 +62,7 @@ Protection de `main` : appliquée le 2026-10-18 (voir `CONTRIBUTING.md` §5).
 |---|---|---|
 | 0 · Prérequis | fait | |
 | 1 · Initialiser | fait (PR #1) | |
-| 2.1 Glossaire | à faire | termes du PRD : niveau de risque, règle, garde-fou, onglet du quotidien, hôte, daemon… |
+| 2.1 Glossaire | fait (PR de cette étape) | `GLOSSARY.md` : 7 ambiguïtés levées ; à compléter à chaque terme nouveau, dans la PR du code qui l'introduit |
 | 2.2 PRD | en cours | cadrage validé (PR #3) ; ajustements du 2026-10-18 faits (profils, G3 à G9, D5 à D7, §7.6 à §7.8) ; **stories numérotées et critères d'acceptation** à écrire ; risques ouverts à relire |
 | 2.3 ADR | en cours | ADR 0001 (Svelte 5) accepté sous réserve du prototype ; à écrire : format de l'historique et des réglages, protocole extension - hôte - daemon, élévation des droits administrateur (PRD §7.8), budgets de légèreté (après mesure), définition de « inutilisé » (après prototype) |
 | 2.4 États | à décider | peut-être : analyse, nettoyage, annulation |
