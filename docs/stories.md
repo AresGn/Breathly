@@ -24,6 +24,7 @@
 - US-001.1 : l'accueil affiche un seul bouton principal « Analyser mon PC » en mode simple. [manuel]
 - US-001.2 : l'analyse se lance sans demander de droits administrateur ni de compte. [auto]
 - US-001.3 : pendant le diagnostic, un indicateur de progression est visible et l'utilisateur peut l'annuler ; l'annulation ne laisse aucun fichier modifié. [auto]
+- US-001.4 *(décision)* : le bouton « Analyser mon PC » est désactivé tant qu'un diagnostic tourne ; le diagnostic et l'analyse du disque peuvent tourner en même temps. [auto]
 
 **US-002.** En tant qu'utilisateur, je veux utiliser Breathly en français ou en anglais, afin de le comprendre.
 - US-002.1 : la langue par défaut est celle du système si elle est prise en charge, sinon l'anglais. [auto]
@@ -134,6 +135,8 @@
 **US-036.** En tant qu'utilisateur, je veux qu'une erreur sur un élément n'arrête pas le reste, afin de ne pas devoir tout recommencer.
 - US-036.1 : une erreur pendant un nettoyage n'interrompt pas les autres éléments ; chaque erreur est affichée avec une explication (§9). [auto]
 - US-036.2 : le résumé final distingue éléments supprimés, ignorés et en erreur. [auto]
+- US-036.3 *(décision)* : « Arrêter » termine l'élément en cours puis s'arrête ; le résumé dit « arrêté par vous : X faits, Y non faits » ; ce qui est fait reste annulable depuis l'historique. [auto]
+- US-036.4 *(décision)* : les garde-fous sont revérifiés pour chaque élément au moment d'agir ; un élément devenu interdit est ignoré avec une explication. [auto]
 
 **US-037.** En tant qu'utilisateur, je veux vider la corbeille depuis Breathly après avoir vu ce qu'elle contient, afin de libérer réellement l'espace des fichiers déjà nettoyés.
 - US-037.1 : « Vider la corbeille » est un élément 🟡 distinct, jamais coché par défaut (règle « corbeille » du §8). [auto]
@@ -147,6 +150,9 @@
 - US-040.2 : l'historique est un fichier local ; aucune donnée n'en sort de la machine. [auto]
 - US-040.3 *(décision)* : l'utilisateur peut effacer les entrées qui ne sont plus annulables (suppression définitive, élément qui n'est plus dans la corbeille) ; les entrées annulables restent. [auto]
 - US-040.4 *(décision)* : les entrées de plus de 12 mois sont supprimées automatiquement ; cette durée est une valeur de départ à confirmer par l'ADR de l'historique. [auto]
+- US-040.5 *(décision)* : avant d'agir sur un élément, Breathly inscrit une entrée « pending » ; si l'historique n'est pas inscriptible, le nettoyage s'interrompt avant toute suppression. [auto]
+- US-040.6 *(décision)* : au démarrage suivant un arrêt brutal, une entrée « pending » est vérifiée et devient trashed, failed ou uncertain, avec un message pour « uncertain ». [auto]
+- US-040.7 *(décision)* : l'état « non annulable » d'une entrée n'est vérifié qu'à la demande (ouverture de l'historique, tentative d'annulation, effacement des non annulables) ; rien n'est surveillé en arrière-plan. [auto]
 
 **US-041.** En tant qu'utilisateur, je veux annuler un nettoyage passé par la corbeille, afin de réparer une erreur.
 - US-041.1 : un élément envoyé à la corbeille est restauré à son emplacement d'origine depuis l'historique. [auto]
@@ -240,6 +246,7 @@
 - Champ `command` : informatif en V0.1, jamais exécuté (US-060.4).
 - Historique : effacement limité aux entrées non annulables (US-040.3) ; conservation 12 mois puis rotation (US-040.4).
 - Persistance de la chauffe : 3 relevés du même diagnostic (US-013.2).
+- Machines à états (design 0001) : arrêt d'un nettoyage après l'élément en cours (US-036.3) ; une seule analyse à la fois par type (US-001.4) ; entrée `pending` avant l'action et vérifiée après un plantage (US-040.5, US-040.6) ; état « non annulable » vérifié à la demande seulement (US-040.7).
 - Les 11 précisions ajoutées en rédigeant les stories (US-001.3, 002.1, 002.2, 003.1, 004.3, 012.3, 020.4, 032.2, 034.3, 041.2, 073.3) sont toutes conservées.
 
 ---
