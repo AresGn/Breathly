@@ -26,6 +26,10 @@ Svelte 5, en TypeScript. Raison : le critère déterminant est la facilité pour
 - L'interface n'a aucune règle métier : elle appelle les modules par des commandes Tauri (PRD §5, AGENTS.md).
 - Le ticket du prototype d'un écran (accueil) porte la vérification : démarrage avec Tauri v2, taille du bundle, i18n FR/EN, thème clair/sombre. S'il échoue, cet ADR est remplacé.
 
+## Revue après mesure (2026-10-18)
+
+La coquille mesurée pèse 288 Mo de PSS en trois processus, contre 96 Mo pour une fenêtre native minimale (egui, un processus). Le propriétaire a décidé de **conserver Tauri + Svelte pour la V0.1** (ADR 0008) : l'interface ne parle au cœur que par des commandes et reste remplaçable.
+
 ## Impact sur l'architecture
 
 Module `app-ui` uniquement. Le cœur Rust et l'extension ne sont pas concernés ; changer de framework plus tard ne touche que `apps/desktop/ui/`.

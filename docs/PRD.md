@@ -25,7 +25,7 @@ Ces points orientent tout le reste du document. Ils sont validés par le propri�
 11. **Espace disque faible (< 2 Go libres) :** bandeau à l'ouverture en V0.1 ; notification système avec le service en V0.2.
 12. **Processus et services inconnus ou gourmands :** signalés « à examiner » sans prétendre détecter un virus ; Breathly n'est pas un antivirus (§3).
 13. **Réglages du système (zram, swappiness…) :** diagnostic et commande exacte en V0.1 ; application par Breathly en V0.4 (`system-tune`), après vérification de chaque paquet et de chaque distribution.
-14. **Légèreté (G5) :** budgets chiffrés **mesurés par le prototype** (étape 2.9 du parcours) et fixés par ADR ; le code est conçu dès le départ pour les tenir.
+14. **Légèreté (G5) :** budgets chiffrés **mesurés par le prototype** (étape 2.9 du parcours) et fixés par ADR ; le code est conçu dès le départ pour les tenir. Décidé le 2026-10-18 (ADR 0008) : Tauri + Svelte conservé, fenêtre ≤ 350 Mo de PSS re-mesurée par version, pas d'AppImage en V0.1.
 15. **Mises à jour avant la V1.0 :** téléchargement manuel depuis les GitHub Releases, sans connexion réseau de Breathly (US-071) ; mises à jour automatiques avec la V1.0 (US-401).
 16. **Gros fichiers 🔴 :** montrés avec « Ouvrir le dossier », jamais sélectionnables ni supprimés par Breathly (US-022).
 17. **Corbeille :** les éléments 🟡 vont à la corbeille ; vider la corbeille est un élément 🟡 distinct et confirmé (US-037) ; deux chiffres affichés, envoyé et libéré.
@@ -167,7 +167,7 @@ rules ────┴─> system-tune ──────────────
 | `disk-clean` | Nettoyage 🟢 en un clic, 🟡 élément par élément, simulation, corbeille, historique, annulation | Nettoyages système qui demandent des droits administrateur |
 | `app-ui` | Accueil (« Analyser mon PC ») avec **bandeau « moins de 2 Go libres » et bouton de nettoyage**, écran Diagnostic, écran Espace disque, écran Historique, Réglages, mode simple / avancé, FR/EN, thème clair/sombre | Icône dans la barre des tâches, notifications système (V0.2) |
 
-**Livrables :** installeur `.msi` (Windows), `.deb`, `.rpm` et `.AppImage` (Linux), publiés dans les *GitHub Releases*.
+**Livrables :** installeur `.msi` (Windows), `.deb` et `.rpm` (Linux), publiés dans les *GitHub Releases* avec leurs empreintes SHA-256. Pas d'`.AppImage` en V0.1 (ADR 0008).
 
 ### V0.2 « Un seul navigateur » : navigateurs, logiciels inutilisés et espace disque
 *Breathly prévient quand un deuxième navigateur s'ouvre, signale les logiciels gourmands oubliés et alerte quand l'espace disque devient critique.*
@@ -309,7 +309,7 @@ command     = "npm cache clean --force"   # optionnel, informatif en V0.1 : affi
 
 | Catégorie | Exigence |
 |---|---|
-| **Légèreté** | Cibles de départ : service Breathly < 15 Mo de RAM ; interface ouverte < 150 Mo ; installeur < 15 Mo ; aucun processus de l'interface quand la fenêtre est fermée. **Ces chiffres sont des cibles non mesurées** : le prototype (étape 2.9) mesure la fenêtre Tauri + Svelte et l'ADR de budgets les fixe, puis la CI les contrôle quand c'est possible. Conception : mesures échantillonnées, une seule boucle de surveillance, aucune activité quand la fenêtre est fermée en V0.1 |
+| **Légèreté** | Budgets de l'ADR 0008 : service Breathly < 15 Mo de RAM ; **fenêtre ouverte ≤ 350 Mo de PSS** (mesuré à 288 Mo avec une page vide ; la cible initiale de 150 Mo était hors de portée avec le moteur web, valeur de départ re-mesurée à chaque version) ; installeurs `.deb` et `.rpm` < 15 Mo ; aucun processus de l'interface quand la fenêtre est fermée. La CI contrôle la taille des installeurs ; la mémoire de la fenêtre se mesure à la main sur les machines de validation. Conception : mesures échantillonnées, une seule boucle de surveillance, aucune activité quand la fenêtre est fermée en V0.1 |
 | **Accessibilité** | WCAG 2.2 AA : contraste, navigation au clavier, lecteur d'écran, textes à taille réglable |
 | **Simplicité** | Un utilisateur non technique libère de l'espace **en 3 clics ou moins** depuis l'accueil. Mode simple par défaut, mode avancé à la demande |
 | **Langues** | Toutes les chaînes dans des fichiers de traduction (FR, EN au départ) ; aucun texte en dur dans le code |
