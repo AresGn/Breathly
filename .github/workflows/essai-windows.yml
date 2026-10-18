@@ -16,7 +16,7 @@ jobs:
       - run: rustup toolchain install --profile minimal
       - name: Essai
         working-directory: docs/research/essais-windows
-        run: cargo run --release --locked -- --essais 300 --delai-us 300 --corbeille
+        run: cargo run --release --locked -- --essais 300 --delai-us 10000 --corbeille
       - name: Rapport
         if: always()
         working-directory: docs/research/essais-windows

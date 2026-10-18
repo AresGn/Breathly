@@ -239,12 +239,7 @@ mod essai {
 
     struct Course { done: usize, refused: usize, lost: usize, vue: usize, ms: u128 }
 
-    fn spin(us: u64) {
-        let end = std::time::Instant::now() + std::time::Duration::from_micros(us);
-        while std::time::Instant::now() < end { std::hint::spin_loop(); }
-    }
-
-    /// `vue` : nombre d'essais où, juste avant l'action, `slot` était bien la jonction (le banc a donc déclenché l'échange).
+    /// `vue` : nombre d'essais où `slot` a été observé comme la jonction au moins une fois pendant la fenêtre (échange déclenché).
     fn course(t: &Path, tag: &str, trials: usize, delai_us: u64, nom: &str, variant: fn(&Path, &Path, Hook) -> Out) -> Course {
         use std::cell::{Cell, RefCell};
         let allowed = t.join(format!("allowed_{tag}"));
@@ -276,8 +271,12 @@ mod essai {
                         }
                     }
                 }));
-                spin(delai_us);
-                if is_reparse(&slot) { vue.set(vue.get() + 1); }
+                // Pendant toute la fenêtre, on échantillonne l'état de `slot` : « vue » compte les essais où l'on a
+                // observé au moins une fois la jonction à sa place (le fil perturbateur a donc bien agi dans la fenêtre).
+                let end = std::time::Instant::now() + std::time::Duration::from_micros(delai_us);
+                let mut vu = false;
+                while std::time::Instant::now() < end { if !vu && is_reparse(&slot) { vu = true; } }
+                if vu { vue.set(vue.get() + 1); }
             };
             let out = variant(&target, &allowed, &hook);
             stop.store(true, Ordering::Relaxed);
@@ -326,7 +325,7 @@ mod essai {
         let libre = fs::rename(&slot, allowed.join("slot_renomme2"));
         r.push(format!("B4 même renommage sans handle ouvert : {}", libre.as_ref().map_or_else(err, |_| "AUTORISÉ (attendu)".into())));
         // B5 : course (sans échange atomique sous Windows : trois renommages successifs, lancés entre vérification et action)
-        r.push(format!("B5 course, {trials} essais par variante : entre sa vérification et son action, chaque variante laisse un fil alterner « slot » (dossier réel) et « slot_alt » (jonction vers un dossier protégé) pendant {delai_us} µs. « vue » = essais où la jonction était en place juste avant l'action. Fichiers protégés perdus :"));
+        r.push(format!("B5 course, {trials} essais par variante : entre sa vérification et son action, chaque variante laisse un fil alterner « slot » (dossier réel) et « slot_alt » (jonction vers un dossier protégé) pendant {delai_us} µs. « vue » = essais où la jonction a été observée en place au moins une fois pendant la fenêtre. Fichiers protégés perdus :"));
         let variantes: [(&str, fn(&Path, &Path, Hook) -> Out); 3] = [("naïf (canonicalize puis remove_file)", naive), ("par handle (vérification et suppression par le même handle)", par_handle), ("chaîne verrouillée (dossiers tenus ouverts)", chaine_verrouillee)];
         for (name, f) in variantes {
             let c = course(t, "c", trials, delai_us, "target.bin", f);
@@ -369,7 +368,7 @@ mod essai {
         let args: Vec<String> = std::env::args().collect();
         let corbeille = args.iter().any(|a| a == "--corbeille");
         let trials = args.iter().position(|a| a == "--essais").and_then(|i| args.get(i + 1)).and_then(|s| s.parse().ok()).unwrap_or(300usize);
-        let delai_us = args.iter().position(|a| a == "--delai-us").and_then(|i| args.get(i + 1)).and_then(|s| s.parse().ok()).unwrap_or(300u64);
+        let delai_us = args.iter().position(|a| a == "--delai-us").and_then(|i| args.get(i + 1)).and_then(|s| s.parse().ok()).unwrap_or(10_000u64);
         let t = std::env::temp_dir().join(format!("breathly-essai-{}", std::process::id()));
         let _ = fs::remove_dir_all(&t);
         fs::create_dir_all(&t).expect("création du dossier temporaire");
