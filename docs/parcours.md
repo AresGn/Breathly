@@ -49,7 +49,7 @@ flowchart TD
     classDef todo fill:#eceff1,stroke:#607d8b,color:#111
     classDef na fill:#fafafa,stroke:#bbb,stroke-dasharray: 4 3,color:#888
     class A0,A1,B1,B2,B3,B4,B5,B7,B8 done
-    class C progress
+    class C done
     class D,E,F,G,H,I todo
     class B9 progress
     class B6 na
@@ -72,7 +72,7 @@ Protection de `main` : appliquée le 2026-10-18 (voir `CONTRIBUTING.md` §5).
 | 2.7 Maquettes | fait (écarts à traiter) | 20 écrans livrés le 2026-10-18 dans `docs/design/maquettes/` (clair et sombre, jetons `breathly.css`) ; reste : libellés anglais appliqués, logo à vectoriser, texte à 200 %, polices à embarquer en WOFF2 |
 | 2.8 Sécurité | fait | `docs/policies/modele-de-menaces.md` (5 flux, 16 tests de sécurité TS-01 à TS-16) ; `securite.md` réécrit pour un outil local (SEC1 à SEC11) ; points ouverts : suppression sûre, CSP Tauri, attestation de provenance |
 | 2.9 Prototype | en cours | P1 corbeille et suppression sûre, P2 mesures, P3 native messaging (Chromium, Firefox), P5 inactivité X11 : faits sous Linux le 2026-10-18 (`docs/research/2026-10-18-prototypes-2-9.md`). **Reste** : P4 Tauri + Svelte (paquets WebKitGTK à installer par le propriétaire), Windows, Wayland, Zen/Brave/snap/Flatpak en exécution, ADR 0008 et 0009 à finaliser |
-| 3 · Règles | en cours | structure du dépôt figée (ADR 0010) ; `.kit.conf` mis à jour ; `AGENTS.md` rempli ; reste : `CODING.md` de l'interface Svelte à adapter, `CODING.md` Rust à relire, `make kit-todo` à vider |
+| 3 · Règles | fait (à prouver à l'étape 4) | structure (ADR 0010), outillage (ADR 0011) ; `CODING.md` Rust et `CODING.md` de l'interface réécrits pour Breathly ; `AGENTS.md` rempli ; reste `make kit-todo` (guide de démarrage, modèle de menaces, README de l'interface) |
 | 4 · Outils | à faire | pack `rust` non éprouvé : exécuter chaque commande sur un workspace vide, sondes négatives, `pin-actions.py` |
 | 5 · Applications | à faire | `Cargo.toml` racine et 4 crates V0.1 ; `apps/desktop` (Tauri + SvelteKit SPA, scripts `lint`, `typecheck`, `test`) ; mesure de la RAM de la fenêtre et de l'installeur (P4, ADR 0008) ; identifiant d'application Tauri à décider |
 | 6 · Backlog | à faire | après la porte des étapes 2 à 5 |
