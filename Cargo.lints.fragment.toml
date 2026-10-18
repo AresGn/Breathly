@@ -1,9 +1,12 @@
-# À fusionner dans le Cargo.toml de l'application. Non éprouvé : vérifier dans la documentation de Cargo (table [lints]).
-[lints.rust]
+# À fusionner dans le Cargo.toml racine à l'initialisation (étape 5), puis ce fichier est supprimé. ADR 0011.
+# Chaque crate : `[lints] workspace = true`. EXCEPTION breathly-platform : table [lints] propre (copie de celle-ci),
+# avec unsafe_code = "deny" ; `workspace = true` ne se combine pas avec une clé locale (essai du 2026-10-18).
+[workspace.lints.rust]
 unsafe_code = "forbid"
 
-[lints.clippy]
+[workspace.lints.clippy]
 all = { level = "deny", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
 unwrap_used = "deny"
 expect_used = "warn"
+# nursery : cognitive_complexity (seuil dans clippy.toml) — activation à prouver à l'étape 4

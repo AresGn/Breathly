@@ -1,62 +1,68 @@
-# apps/desktop/ui : écrire le code (interface Svelte 5 + TypeScript)
+# Écrire le code de l'interface (Svelte 5 + TypeScript)
 
-> Gabarit du kit, **à adapter à une interface Svelte** (étape 3 du parcours) : les sections propres à une API Node.js ne s'appliquent pas. Structure du dépôt : ADR 0010.
+Règles d'écriture de `apps/desktop/ui` (SvelteKit en mode SPA, ADR 0010). Elles complètent `AGENTS.md`, `docs/policies/securite.md` (SEC1 à SEC11), l'ADR 0011 et les maquettes de `docs/design/maquettes/`. **[machine]** casse `make check` ; **[relecture]** engage le relecteur.
 
-Règles d'écriture d'une API Node.js en TypeScript (NestJS ou Express). Elles complètent `AGENTS.md`, `docs/guides/principes-de-conception.md` et l'ADR d'architecture. **[machine]** casse `make check` ; **[relecture]** engage le relecteur.
+> Les outils de cette page (ESLint, Prettier, svelte-check, Vitest) sont décidés par l'ADR 0011 mais **restent à prouver à l'étape 4** : chaque garde marquée [machine] doit échouer sur une violation volontaire avant de compter.
 
-> Pack **de départ, non éprouvé** : écrit à partir des règles du projet de référence (API Laravel) traduites pour Node/TypeScript. **Vérifier chaque outil et chaque option dans sa documentation officielle à l'adoption** (skill `source-driven-development`), puis marquer ce qui est vérifié, comme le font les packs éprouvés.
-
-Mot-guide : **frontière**. Tout ce qui entre (requête, message, variable d'environnement) est validé et typé à la frontière ; le cœur ne voit que des types précis.
+Mot-guide : **l'interface affiche et déclenche, elle ne décide pas.** Toute règle métier vit dans les crates Rust.
 
 ## 1. Où va quoi
 
-Quatre couches par module, comme dans les autres packs : `domain/` (règles, entités, ports), `application/` (un cas d'usage par classe ou fonction), `infrastructure/` (base de données, clients tiers, adapters), `http/` (contrôleurs ou routes, schémas de validation, sérialiseurs).
+| Dossier | Contenu |
+|---|---|
+| `src/routes/` | une route par écran (SvelteKit) ; `+layout.ts` avec `export const ssr = false;` |
+| `src/lib/components/` | composants de présentation purs : propriétés en entrée, événements en sortie, aucune logique métier |
+| `src/lib/api/` | **le seul endroit** qui appelle les commandes Tauri (`invoke`), avec des types |
+| `src/lib/generated/` | types générés depuis Rust, jamais écrits à la main **[machine]** (la CI vérifie qu'ils sont à jour) |
+| `src/lib/state/` | états partagés en `.svelte.ts` (runes) |
+| `src/lib/i18n/` | chargeur de textes typé ; les textes sont dans `locales/` |
+| `src/lib/styles/` | jetons de design (`breathly.css` des maquettes) |
 
-- `domain/` n'importe ni framework (NestJS, Express), ni ORM, ni SDK tiers **[machine : règle d'import ESLint ou test d'architecture]**.
-- Un module n'importe pas les classes internes d'un autre : cas d'usage public ou événement.
-- Un port (interface) se lie à son adapter dans la composition (module NestJS ou fonction de câblage), pas dans le domaine.
+## 2. Composants
 
-## 2. Écrire une fonction
+Un composant = un fichier, ≤ 250 lignes. Présentation pure : il reçoit des données et émet des événements. Pas de `invoke` dans un composant : il passe par `src/lib/api/`. Pas de calcul de chemin, d'espace libéré ou de niveau de risque : ces valeurs viennent du cœur.
 
-Seuils : fonction ≤ 40 lignes, imbrication ≤ 3, ≤ 3 paramètres positionnels (objet nommé au-delà), fichier ≤ 250 à 300 lignes. Garde d'abord, un verbe une chose, nommage métier du `GLOSSARY.md`, booléens `is/has/can/should`.
+## 3. État
 
-## 3. Types et validation
+Svelte 5 : `$state` et `$derived` dans des modules `.svelte.ts`, **aucune bibliothèque d'état** de plus. La vérité est dans le cœur Rust : l'interface garde une copie de lecture. L'état d'une tâche est une union discriminée qui reprend le design 0001 (`idle`, `running`, `done`, `cancelled`, `failed`), avec un `switch` **exhaustif** terminé par `assertNever` **[machine]**.
 
-- TypeScript `strict`, pas de `any` ni de `@ts-ignore` sans raison écrite **[machine]**.
-- Chaque entrée est validée par un schéma (Zod, class-validator…) **avant** d'entrer dans `application/` ; les variables d'environnement aussi, au démarrage (échec rapide).
-- Identifiants et valeurs métier en types brandés ; états en unions fermées avec `assertNever`.
-- Les DTO de transport ne sont pas les entités du domaine ; la conversion se fait à la frontière.
+## 4. Types
 
-## 4. Erreurs
+TypeScript strict **[machine]** ; `any` interdit (`@typescript-eslint/no-explicit-any`) **[machine]** ; `@ts-ignore` interdit sans raison écrite sur la ligne. Les données qui arrivent de Rust sont typées par les types générés, jamais par un `as`.
 
-- Échec métier attendu = valeur de retour typée (union discriminée ou `Result`), pas exception ; exception seulement pour un invariant violé.
-- Un gestionnaire d'erreurs global traduit les exceptions en réponses d'erreur à enveloppe unique, sans détail interne.
-- Jamais de `catch` vide ; une erreur avalée est un défaut. Les journaux ne contiennent aucune donnée personnelle (liste blanche, JSON structuré avec identifiant de requête).
+## 5. Textes
 
-## 5. Données et sécurité
+Aucune chaîne affichée n'est écrite dans un composant : tout passe par une **clé typée** du chargeur (`t('home.analyze')`). Nombres, pluriels et unités par `Intl` (Go/Mo en français, GB/MB en anglais). Un test vérifie que chaque clé existe en FR et en EN et qu'aucune clé n'est orpheline (US-002.3) **[machine]**. Vocabulaire du `GLOSSARY.md` : « logiciel », jamais « application ».
 
-- Authentification sur toute route sauf la santé et les routes publiques déclarées ; un test parcourt l'inventaire des routes.
-- Autorisation par permission (`canUser`), jamais par nom de rôle ; cloisonnement appliqué dans le dépôt de données, jamais seulement dans le contrôleur.
-- Limite de débit nommée sur les routes sensibles ; en-têtes de sécurité ; CORS restreint aux origines connues.
-- Requêtes SQL paramétrées uniquement ; transactions explicites ; écriture d'audit dans la même transaction que la transition.
-- Fichiers : stockage privé, type vérifié sur le contenu, nom généré, URL signée courte.
-- Aucun secret dans le code ni dans l'image : variables d'environnement validées au démarrage.
+## 6. Styles et thèmes
 
-## 6. Tests
+Uniquement les **jetons** de `breathly.css` : aucune couleur, taille ou ombre en dur dans un composant **[relecture, règle ESLint à prouver]**. Les deux thèmes (`data-theme="light"` et `"dark"`) sont toujours testés. Aucune animation lourde (WebKitGTK) ; l'anneau de l'écran H2 tourne seulement si `prefers-reduced-motion` n'est pas demandé.
 
-- Vitest (ou Jest). Tests du domaine sans I/O ; tests d'API en boîte noire contre une vraie base ; l'heure passe par un port `Clock`.
-- Pour chaque route : un test nominal et un test d'intrusion croisée (acteur hors périmètre).
-- Aucun test sauté, supprimé, affaibli pour passer au vert.
+## 7. Accessibilité (WCAG 2.2 AA)
 
-## 7. Code verbeux : ce qu'on retire
+Chaque action est atteignable au clavier avec un focus visible ; chaque contrôle a un nom accessible ; le texte reste lisible à 200 % ; **le niveau de risque n'est jamais indiqué par la couleur seule** (icône, libellé et couleur) **[relecture + test]**.
 
-Commentaire qui répète le code, couche de délégation sans valeur, interface à une seule implémentation sans besoin de test, abstraction « au cas où » (YAGNI), règle métier écrite deux fois.
+## 8. Sécurité
 
-## 8. Définition de « terminé »
+- Aucun contenu distant : pas de police, d'image, de script ni de feuille de style chargés depuis Internet (SEC1) ; polices et icônes embarquées.
+- Pas de `{@html ...}` avec une donnée dynamique, pas d'`eval`.
+- **L'interface n'envoie jamais un chemin** à une commande : seulement des identifiants d'éléments et un jeton de confirmation (SEC3).
+- Aucun titre de fenêtre, chemin ni URL dans `console.*` (SEC9).
+- Toute nouvelle commande Tauri est ajoutée aux capacités de la fenêtre principale seulement, avec le cœur.
 
-- [ ] `make ci-local` vert
-- [ ] Entrées validées à la frontière, aucun `any`
-- [ ] Chaque échec métier attendu est une valeur de retour
-- [ ] Chaque route : authentifiée, permission vérifiée, test d'intrusion croisée, limite de débit si sensible
-- [ ] Aucune donnée personnelle dans les journaux
+## 9. Tests
+
+Vitest et Testing Library : un test par état affiché (chargement, vide, erreur, « non disponible », mode simple et avancé), un test des clés de traduction, un test d'accessibilité de base (noms des contrôles). Pas de test de bout en bout en V0.1 : essais manuels sur les machines de validation (PRD §13). Aucun test ignoré, supprimé ou affaibli.
+
+## 10. Scripts attendus par le kit
+
+`pnpm lint` (ESLint et `prettier --check`), `pnpm typecheck` (svelte-check), `pnpm test` (Vitest).
+
+## 11. Définition de « terminé »
+
+- [ ] `make check` vert (`pnpm lint`, `pnpm typecheck`, `pnpm test`)
+- [ ] Aucun `any`, aucune couleur en dur, aucune chaîne affichée en dur
+- [ ] Les deux thèmes et les deux langues fonctionnent
+- [ ] Mode simple : aucun chemin ni nom de processus brut sans clic sur « Détails »
+- [ ] Le composant correspond à la maquette (`docs/design/maquettes/`)
 - [ ] Un test échoue sans le changement

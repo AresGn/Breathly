@@ -2,7 +2,7 @@
 
 Pour qu'une personne qui rejoint le projet (ou un agent) puisse initialiser son poste, comprendre où mettre le code et savoir quoi lire. Court par conception : chaque application a son propre `README.md` pour le détail.
 
-Dernière vérification des versions : <!-- À REMPLIR: date -->.
+Dernière vérification des versions : 2026-10-18 (poste du propriétaire : Linux Mint, Rust 1.97.1, Node 24.16.0, pnpm 11.5.3). Les versions exactes du projet se fixent à l'étape 5 (`rust-toolchain.toml`, `packageManager`).
 
 ## 1. Où lire quoi
 
@@ -19,9 +19,13 @@ Dernière vérification des versions : <!-- À REMPLIR: date -->.
 |---|---|---|
 | Git, `make`, `bash`, Python 3 | récents | tout (hooks, outils de `tools/`) |
 | `gh` (CLI GitHub), authentifié | récent | tickets, `make ci-local`, `make backlog` |
-| <!-- À REMPLIR: chaînes d'outils des piles (PHP/Composer, Flutter, Node/pnpm, Go, Rust, Python…) --> | | |
+| Rust (via `rustup`) | version fixée par `rust-toolchain.toml` (1.97.1 à ce jour) | cœur, application Tauri |
+| Node.js (LTS) et pnpm | à fixer à l'étape 5 | interface Svelte (et extension en V0.3) |
+| Linux : paquets de développement de Tauri | `sudo apt update` puis `sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev` | construire l'application (liste de la page officielle Tauri v2 pour Debian, lue le 2026-10-18) |
+| Windows : Microsoft C++ Build Tools (« Desktop development with C++ ») et WebView2 | WebView2 est déjà présent sur Windows 10 (1803) et suivants | construire l'application |
+| `cargo-audit` | à vérifier à l'étape 4 | `make check` |
 
-Windows : travailler sous WSL 2 (les scripts et le `Makefile` sont en bash).
+Windows : l'application se compile avec les outils **natifs** (MSVC, WebView2) ; les scripts et le `Makefile` sont en bash (Git Bash ou WSL 2). Compilation sous Windows : non vérifiée à ce jour, à essayer sur la machine de validation. Ajouter une règle TOML ou une traduction ne demande **aucun** outil de compilation.
 
 ## 3. Cloner et préparer
 
@@ -38,7 +42,8 @@ Les applications sont indépendantes. **Une personne initialise, ouvre une PR co
 
 | Application | État aujourd'hui | Qui fait quoi | Détail |
 |---|---|---|---|
-| <!-- À REMPLIR: une ligne par application de .kit.conf --> | | | son `README.md` |
+| `.` (cœur Rust, `crates/`) | pas encore initialisé | une personne crée le workspace et les 4 crates de la V0.1 (étape 5) | `CODING.md` |
+| `apps/desktop/ui` (interface Svelte) | pas encore initialisé | après le workspace : coquille Tauri + SvelteKit (étape 5) | `apps/desktop/ui/README.md` |
 
 ## 5. Conventions communes
 
