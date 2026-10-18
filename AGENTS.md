@@ -7,8 +7,9 @@ Références : `GLOSSARY.md` (vocabulaire), `docs/PRD.md` (exigences, brouillon 
 ## Stack
 
 - Cœur : Rust (édition 2024), workspace Cargo (`crates/`), PRD §10
-- Interface : Tauri v2, interface web légère (Svelte 5, ADR 0001), `apps/desktop/`
-- Extension navigateur : TypeScript, Manifest V3, une base de code pour Firefox et Chromium, `extension/`
+- Interface : Tauri v2 + Svelte 5 en SvelteKit mode SPA (ADR 0001, ADR 0010), `apps/desktop/` (`src-tauri/` pour le Rust, `ui/` pour Svelte)
+- Extension navigateur : TypeScript, Manifest V3, une base de code pour Firefox et Chromium, `extension/` (créée en V0.3)
+- Structure du dépôt : ADR 0010 (workspace Cargo à la racine, `crates/`, `apps/desktop/`, `rules/`, `browsers/`, `locales/`) ; **seul ce que la version en cours utilise existe**
 - Règles de nettoyage et définitions de navigateurs : fichiers TOML (`rules/`, `browsers/`), modifiables sans écrire de Rust
 - Aucun serveur, aucun compte, aucune télémétrie (PRD §0 point 4)
 

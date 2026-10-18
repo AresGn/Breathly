@@ -16,7 +16,7 @@ updates:
     cooldown:
       default-days: 7
   - package-ecosystem: npm
-    directory: /extension
+    directory: /apps/desktop/ui
     schedule:
       interval: weekly
     cooldown:

@@ -1,4 +1,6 @@
-# extension : écrire le code (API Node.js / TypeScript)
+# apps/desktop/ui : écrire le code (interface Svelte 5 + TypeScript)
+
+> Gabarit du kit, **à adapter à une interface Svelte** (étape 3 du parcours) : les sections propres à une API Node.js ne s'appliquent pas. Structure du dépôt : ADR 0010.
 
 Règles d'écriture d'une API Node.js en TypeScript (NestJS ou Express). Elles complètent `AGENTS.md`, `docs/guides/principes-de-conception.md` et l'ADR d'architecture. **[machine]** casse `make check` ; **[relecture]** engage le relecteur.
 
