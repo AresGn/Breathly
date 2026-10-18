@@ -1,0 +1,31 @@
+use serde::Serialize;
+use tauri::{ipc::Channel, AppHandle, Emitter};
+
+#[derive(Clone, Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+enum Progress { Started, Step { done: u32, total: u32 }, Finished }
+
+#[tauri::command]
+fn start_disk_analysis(on_progress: Channel<Progress>, n: u32) -> u32 {
+    let (tx, rx) = std::sync::mpsc::channel::<Progress>();
+    std::thread::Builder::new().name("breathly-essai-tache".into()).spawn(move || {
+        let _ = tx.send(Progress::Started);
+        for i in 1..=n { let _ = tx.send(Progress::Step { done: i, total: n }); }
+        let _ = tx.send(Progress::Finished);
+    }).expect("fil");
+    std::thread::Builder::new().name("breathly-essai-relais".into()).spawn(move || {
+        while let Ok(p) = rx.recv() { let _ = on_progress.send(p); }
+    }).expect("fil");
+    n
+}
+
+#[tauri::command]
+fn emit_test(app: AppHandle, n: u32) {
+    std::thread::spawn(move || { for i in 1..=n { let _ = app.emit("progress", i); } let _ = app.emit("progress", 0u32); });
+}
+
+fn main() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![start_disk_analysis, emit_test])
+        .run(tauri::generate_context!()).expect("run");
+}
