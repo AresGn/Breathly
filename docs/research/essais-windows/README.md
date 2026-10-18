@@ -15,10 +15,10 @@ Seulement un dossier temporaire `%TEMP%\breathly-essai-<n>`, qu'il supprime à l
 ```
 git clone https://github.com/AresGn/Breathly.git
 cd Breathly\docs\research\essais-windows
-cargo run --release -- --essais 300 --corbeille
+cargo run --release -- --essais 300 --delai-us 300 --corbeille
 ```
 
-Le programme affiche le rapport et l'écrit dans `rapport-essai-windows.txt` (dans ce dossier). Le coller dans la conversation, ou l'ajouter à `docs/research/` par une PR. `--essais N` règle le nombre d'essais de course par variante (300 par défaut, environ une minute) ; sans `--corbeille`, la vraie corbeille n'est pas utilisée.
+Le programme affiche le rapport et l'écrit dans `rapport-essai-windows.txt` (dans ce dossier). Le coller dans la conversation, ou l'ajouter à `docs/research/` par une PR. `--essais N` règle le nombre d'essais de course par variante (300 par défaut, environ une minute) ; `--delai-us N` règle le délai, en microsecondes, que chaque variante laisse au fil perturbateur entre sa vérification et son action (300 par défaut ; une valeur plus grande élargit la fenêtre) ; sans `--corbeille`, la vraie corbeille n'est pas utilisée.
 
 ## Variantes de course comparées
 
@@ -26,4 +26,4 @@ Le programme affiche le rapport et l'écrit dans `rapport-essai-windows.txt` (da
 2. **par handle** : ouverture de l'objet sans suivre un point d'analyse final, chemin réel lu **par le handle**, comparaison à la racine autorisée, suppression **par le même handle** (`SetFileInformationByHandle`) ;
 3. **chaîne verrouillée** : chaque dossier du chemin est tenu ouvert sans partage de suppression, de sorte qu'un autre processus ne peut pas le renommer.
 
-Sous Windows il n'existe pas d'échange atomique de deux entrées : le fil perturbateur alterne trois renommages, ce qui crée des moments où le composant est la jonction, mais d'autres où il n'existe pas (refus).
+Sous Windows il n'existe pas d'échange atomique de deux entrées : le fil perturbateur alterne trois renommages, ce qui crée des moments où le composant est la jonction, mais d'autres où il n'existe pas (refus). Chaque variante appelle un crochet entre sa vérification et son action : le banc y lance le fil et attend le délai, la fenêtre est donc la même pour toutes. Le rapport donne, par variante, le nombre d'essais où la jonction était réellement en place juste avant l'action (« vue ») : si ce nombre est nul, l'essai n'a rien prouvé.

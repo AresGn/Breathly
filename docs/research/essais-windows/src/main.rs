@@ -183,21 +183,34 @@ mod essai {
     #[derive(Clone, Copy, PartialEq)]
     enum Out { Done, Refused }
 
-    fn naive(path: &Path, allowed: &Path) -> Out {
+    /// Chaque variante appelle `hook` UNE fois, entre sa vérification et son action : c'est là que le banc lance le fil
+    /// qui échange le dossier et la jonction, puis attend `delai` microsecondes. La fenêtre est la même pour toutes.
+    type Hook<'a> = &'a dyn Fn();
+
+    fn naive(path: &Path, allowed: &Path, hook: Hook) -> Out {
         let Ok(c) = fs::canonicalize(path) else { return Out::Refused };
         if !inside(&c, &fs::canonicalize(allowed).unwrap_or_default()) { return Out::Refused; }
+        hook();
         if fs::remove_file(path).is_ok() { Out::Done } else { Out::Refused }
+    }
+
+    fn trash_naif(path: &Path, allowed: &Path, hook: Hook) -> Out {
+        let Ok(c) = fs::canonicalize(path) else { return Out::Refused };
+        if !inside(&c, &fs::canonicalize(allowed).unwrap_or_default()) { return Out::Refused; }
+        hook();
+        if trash::delete(path).is_ok() { Out::Done } else { Out::Refused }
     }
 
     /// On ouvre l'objet lui-même (sans suivre un point d'analyse final), on lit son chemin réel PAR LE HANDLE, on le
     /// compare à la racine autorisée, puis on supprime PAR LE MÊME HANDLE : il n'y a plus d'écart entre vérification et action.
-    fn par_handle(path: &Path, allowed: &Path) -> Out {
+    fn par_handle(path: &Path, allowed: &Path, hook: Hook) -> Out {
         let Ok(f) = OpenOptions::new().access_mode(DELETE | FILE_READ_ATTRIBUTES).share_mode(SHARE_ALL)
             .custom_flags(FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS).open(path) else { return Out::Refused };
         let h = f.as_raw_handle();
         let Some(real) = final_path(h) else { return Out::Refused };
         if !inside(&real, &fs::canonicalize(allowed).unwrap_or_default()) { return Out::Refused; }
         if f.metadata().map(|m| m.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0).unwrap_or(true) { return Out::Refused; }
+        hook();
         let info: u8 = 1; // FILE_DISPOSITION_INFO { DeleteFile: TRUE }
         let ok = unsafe { SetFileInformationByHandle(h, 4, &info as *const u8 as *const c_void, 1) } != 0;
         drop(f);
@@ -206,7 +219,7 @@ mod essai {
 
     /// On garde ouvert chaque dossier du chemin sans partage de suppression : un autre processus ne peut ni les renommer
     /// ni les remplacer tant que le verrou est tenu. Puis on vérifie qu'aucun n'est un point d'analyse, puis on agit.
-    fn chaine_verrouillee(path: &Path, allowed: &Path) -> Out {
+    fn chaine_verrouillee(path: &Path, allowed: &Path, hook: Hook) -> Out {
         let Ok(rel) = path.strip_prefix(allowed) else { return Out::Refused };
         let mut cur = allowed.to_path_buf();
         let mut handles = vec![];
@@ -218,50 +231,64 @@ mod essai {
             if h.metadata().map(|m| m.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0).unwrap_or(true) { return Out::Refused; }
             handles.push(h);
         }
+        hook();
         let out = if fs::remove_file(path).is_ok() { Out::Done } else { Out::Refused };
         drop(handles);
         out
     }
 
-    struct Course { done: usize, refused: usize, lost: usize, ms: u128 }
+    struct Course { done: usize, refused: usize, lost: usize, vue: usize, ms: u128 }
 
-    fn course(t: &Path, trials: usize, variant: fn(&Path, &Path) -> Out) -> Course {
-        let allowed = t.join("allowed_c");
-        let protected = t.join("protected_c");
+    fn spin(us: u64) {
+        let end = std::time::Instant::now() + std::time::Duration::from_micros(us);
+        while std::time::Instant::now() < end { std::hint::spin_loop(); }
+    }
+
+    /// `vue` : nombre d'essais où, juste avant l'action, `slot` était bien la jonction (le banc a donc déclenché l'échange).
+    fn course(t: &Path, tag: &str, trials: usize, delai_us: u64, nom: &str, variant: fn(&Path, &Path, Hook) -> Out) -> Course {
+        use std::cell::{Cell, RefCell};
+        let allowed = t.join(format!("allowed_{tag}"));
+        let protected = t.join(format!("protected_{tag}"));
         let slot = allowed.join("slot");
         let alt = allowed.join("slot_alt");
         let tmp = allowed.join("slot_tmp");
         let _ = fs::create_dir_all(&allowed);
         let _ = fs::create_dir_all(&protected);
-        let target = slot.join("target.bin");
+        let target = slot.join(nom);
         let (mut done, mut refused, mut lost) = (0, 0, 0);
+        let vue = Cell::new(0usize);
         let start = std::time::Instant::now();
         for i in 0..trials {
             rm_any(&slot); rm_any(&alt); rm_any(&tmp);
             let _ = fs::create_dir_all(&slot);
             let _ = fs::write(&target, format!("cache {i}"));
-            let _ = fs::write(protected.join("target.bin"), format!("protégé {i}"));
+            let _ = fs::write(protected.join(nom), format!("protégé {i}"));
             if !mklink_j(&alt, &protected) { continue; }
             let stop = Arc::new(AtomicBool::new(false));
-            let (s2, a, b, c) = (stop.clone(), slot.clone(), alt.clone(), tmp.clone());
-            let h = std::thread::spawn(move || {
-                while !s2.load(Ordering::Relaxed) {
-                    if fs::rename(&a, &c).is_ok() {
-                        let _ = fs::rename(&b, &a);
-                        let _ = fs::rename(&c, &b);
+            let swapper: RefCell<Option<std::thread::JoinHandle<()>>> = RefCell::new(None);
+            let hook = || {
+                let (s2, a, b, c) = (stop.clone(), slot.clone(), alt.clone(), tmp.clone());
+                *swapper.borrow_mut() = Some(std::thread::spawn(move || {
+                    while !s2.load(Ordering::Relaxed) {
+                        if fs::rename(&a, &c).is_ok() {
+                            let _ = fs::rename(&b, &a);
+                            let _ = fs::rename(&c, &b);
+                        }
                     }
-                }
-            });
-            let out = variant(&target, &allowed);
+                }));
+                spin(delai_us);
+                if is_reparse(&slot) { vue.set(vue.get() + 1); }
+            };
+            let out = variant(&target, &allowed, &hook);
             stop.store(true, Ordering::Relaxed);
-            let _ = h.join();
+            if let Some(h) = swapper.borrow_mut().take() { let _ = h.join(); }
             if out == Out::Done { done += 1 } else { refused += 1 }
-            if !protected.join("target.bin").exists() { lost += 1; }
+            if !protected.join(nom).exists() { lost += 1; }
         }
-        Course { done, refused, lost, ms: start.elapsed().as_millis() }
+        Course { done, refused, lost, vue: vue.get(), ms: start.elapsed().as_millis() }
     }
 
-    fn section_suppression(r: &mut Report, t: &Path, trials: usize, corbeille: bool) {
+    fn section_suppression(r: &mut Report, t: &Path, trials: usize, delai_us: u64, corbeille: bool) {
         r.push("== B. Suppression sûre (ticket #69) ==");
         let allowed = t.join("allowed_b");
         let protected = t.join("protected_b");
@@ -298,16 +325,17 @@ mod essai {
         let _ = fs::rename(allowed.join("slot_renomme"), &slot);
         let libre = fs::rename(&slot, allowed.join("slot_renomme2"));
         r.push(format!("B4 même renommage sans handle ouvert : {}", libre.as_ref().map_or_else(err, |_| "AUTORISÉ (attendu)".into())));
-        // B5 : course (sans échange atomique sous Windows : trois renommages successifs)
-        r.push(format!("B5 course, {trials} essais par variante, un fil alterne en boucle « slot » (dossier réel) et « slot_alt » (jonction vers un dossier protégé) par trois renommages ; fichiers protégés perdus :"));
-        for (name, f) in [("naïf (canonicalize puis remove_file)", naive as fn(&Path, &Path) -> Out), ("par handle (vérification et suppression par le même handle)", par_handle), ("chaîne verrouillée (dossiers tenus ouverts)", chaine_verrouillee)] {
-            let c = course(t, trials, f);
-            r.push(format!("   - {name} : {} perdus sur {trials} (faits {}, refus {}), {} ms", c.lost, c.done, c.refused, c.ms));
+        // B5 : course (sans échange atomique sous Windows : trois renommages successifs, lancés entre vérification et action)
+        r.push(format!("B5 course, {trials} essais par variante : entre sa vérification et son action, chaque variante laisse un fil alterner « slot » (dossier réel) et « slot_alt » (jonction vers un dossier protégé) pendant {delai_us} µs. « vue » = essais où la jonction était en place juste avant l'action. Fichiers protégés perdus :"));
+        let variantes: [(&str, fn(&Path, &Path, Hook) -> Out); 3] = [("naïf (canonicalize puis remove_file)", naive), ("par handle (vérification et suppression par le même handle)", par_handle), ("chaîne verrouillée (dossiers tenus ouverts)", chaine_verrouillee)];
+        for (name, f) in variantes {
+            let c = course(t, "c", trials, delai_us, "target.bin", f);
+            r.push(format!("   - {name} : {} perdus sur {trials} (jonction vue {}, faits {}, refus {}), {} ms", c.lost, c.vue, c.done, c.refused, c.ms));
         }
-        if corbeille { section_corbeille(r, t, trials.min(200)); }
+        if corbeille { section_corbeille(r, t, trials.min(200), delai_us); }
     }
 
-    fn section_corbeille(r: &mut Report, t: &Path, trials: usize) {
+    fn section_corbeille(r: &mut Report, t: &Path, trials: usize, delai_us: u64) {
         r.push("== C. Vraie corbeille de Windows (option --corbeille) ==");
         let allowed = t.join("allowed_t");
         let protected = t.join("protected_t");
@@ -320,39 +348,15 @@ mod essai {
             r.push(format!("C1 trash::delete(chemin qui traverse une jonction) : {} ; le fichier protégé a quitté son dossier : {}",
                 res.map_or_else(|e| format!("ERREUR {e}"), |_| "OK".into()), !protected.join("breathly-essai-protege.bin").exists()));
         }
-        let (mut lost, mut done) = (0, 0);
-        let slot = allowed.join("slot");
-        let alt = allowed.join("slot_alt");
-        let tmp = allowed.join("slot_tmp");
-        for i in 0..trials {
-            rm_any(&slot); rm_any(&alt); rm_any(&tmp);
-            let _ = fs::create_dir_all(&slot);
-            let _ = fs::write(slot.join("breathly-essai-cible.bin"), format!("cache {i}"));
-            let _ = fs::write(protected.join("breathly-essai-protege.bin"), format!("protégé {i}"));
-            if !mklink_j(&alt, &protected) { continue; }
-            let stop = Arc::new(AtomicBool::new(false));
-            let (s2, a, b, c) = (stop.clone(), slot.clone(), alt.clone(), tmp.clone());
-            let h = std::thread::spawn(move || {
-                while !s2.load(Ordering::Relaxed) {
-                    if fs::rename(&a, &c).is_ok() { let _ = fs::rename(&b, &a); let _ = fs::rename(&c, &b); }
-                }
-            });
-            let target = slot.join("breathly-essai-cible.bin");
-            if fs::canonicalize(&target).map(|p| inside(&p, &fs::canonicalize(&allowed).unwrap_or_default())).unwrap_or(false) {
-                if trash::delete(&target).is_ok() { done += 1; }
-            }
-            stop.store(true, Ordering::Relaxed);
-            let _ = h.join();
-            if !protected.join("breathly-essai-protege.bin").exists() { lost += 1; }
-        }
-        r.push(format!("C2 course avec trash::delete naïf : {lost} fichiers protégés perdus sur {trials} essais ({done} suppressions faites)"));
+        rm_any(&lien);
+        let c = course(t, "t", trials, delai_us, "breathly-essai-cible.bin", trash_naif);
+        r.push(format!("C2 course avec trash::delete naïf, {delai_us} µs entre vérification et action : {} fichiers protégés perdus sur {trials} essais (jonction vue {}, suppressions faites {}, refus {}), {} ms",
+            c.lost, c.vue, c.done, c.refused, c.ms));
         // nettoyage de la corbeille : seulement les éléments d'essai
-        let racine = fs::canonicalize(t).unwrap_or_else(|_| t.to_path_buf());
         match trash::os_limited::list() {
             Ok(items) => {
                 let a_purger: Vec<_> = items.into_iter()
-                    .filter(|i| i.name.to_string_lossy().starts_with("breathly-essai-")
-                        && inside(&i.original_parent, &racine) || lower(&i.original_parent).contains("breathly-essai-"))
+                    .filter(|i| i.name.to_string_lossy().starts_with("breathly-essai-"))
                     .collect();
                 let n = a_purger.len();
                 r.push(format!("C3 nettoyage : {n} éléments d'essai retirés de la corbeille : {}", trash::os_limited::purge_all(a_purger).map_or_else(|e| format!("ERREUR {e}"), |_| "OK".into())));
@@ -365,15 +369,16 @@ mod essai {
         let args: Vec<String> = std::env::args().collect();
         let corbeille = args.iter().any(|a| a == "--corbeille");
         let trials = args.iter().position(|a| a == "--essais").and_then(|i| args.get(i + 1)).and_then(|s| s.parse().ok()).unwrap_or(300usize);
+        let delai_us = args.iter().position(|a| a == "--delai-us").and_then(|i| args.get(i + 1)).and_then(|s| s.parse().ok()).unwrap_or(300u64);
         let t = std::env::temp_dir().join(format!("breathly-essai-{}", std::process::id()));
         let _ = fs::remove_dir_all(&t);
         fs::create_dir_all(&t).expect("création du dossier temporaire");
         let mut r = Report { lines: vec![], root: t.to_string_lossy().to_string(), user: std::env::var("USERNAME").unwrap_or_default() };
         r.push(format!("Essai Windows, {}", std::env::consts::ARCH));
         r.push(format!("Windows : {}", Command::new("cmd").args(["/C", "ver"]).output().map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string()).unwrap_or_default()));
-        r.push(format!("Dossier de travail : <TEMP> ({} essais par variante de course ; option --corbeille : {})", trials, corbeille));
+        r.push(format!("Dossier de travail : <TEMP> ({} essais par variante de course, délai de {} µs entre vérification et action ; option --corbeille : {})", trials, delai_us, corbeille));
         section_chemins(&mut r, &t);
-        section_suppression(&mut r, &t, trials, corbeille);
+        section_suppression(&mut r, &t, trials, delai_us, corbeille);
         let _ = fs::remove_dir_all(&t);
         r.push(format!("Dossier temporaire supprimé : {}", !t.exists()));
         let _ = fs::write("rapport-essai-windows.txt", r.lines.join("\n") + "\n");
