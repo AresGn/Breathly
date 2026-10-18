@@ -27,3 +27,6 @@ apps/desktop/ui/coverage/
 
 # Exports de l'outil de maquettage (le contenu est extrait dans docs/design/maquettes/)
 docs/design/*.zip
+
+# pnpm : le dossier node_modules de la racine (espace de travail)
+node_modules/

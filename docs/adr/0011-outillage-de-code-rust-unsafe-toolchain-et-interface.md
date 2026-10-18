@@ -1,6 +1,6 @@
 # ADR 0011 : Outillage de code (Rust, unsafe, toolchain, interface)
 
-- **Statut** : accepté ; versions et configurations à prouver à l'étape 4 du parcours
+- **Statut** : accepté ; outillage prouvé par sondes négatives le 2026-10-18 (étape 4), voir « Résultats de l'étape 4 » ci-dessous
 - **Date** : 2026-10-18
 - **Décideurs** : propriétaire du dépôt (AresGn)
 
@@ -20,11 +20,21 @@ Les `CODING.md` du kit sont des gabarits écrits pour une API. Breathly a besoin
 - Textes : un petit **chargeur typé** qui lit `locales/*` et s'appuie sur `Intl` (pluriels, nombres, unités) ; aucune bibliothèque d'internationalisation. Les clés sont vérifiées par un test (US-002.3).
 - Tests : **Vitest** et **Testing Library** pour les composants ; pas de test de bout en bout en V0.1 (essais manuels sur les machines de validation).
 - Qualité : **ESLint**, **Prettier** et **svelte-check** (typage). Scripts attendus par le kit dans `apps/desktop/ui/package.json` : `lint` (ESLint et `prettier --check`), `typecheck` (svelte-check), `test` (Vitest).
-- Versions et configurations de ces outils : **non vérifiées**, à lire dans leur documentation et à prouver par sonde négative à l'étape 4.
+- Versions et configurations de ces outils : prouvées à l'étape 4 (voir « Résultats de l'étape 4 »).
 
 ## Conséquences
 
 - Les `CODING.md` du dépôt racine (Rust) et de `apps/desktop/ui` sont réécrits pour Breathly.
 - `Cargo.lints.fragment.toml` est remplacé, à l'initialisation, par `[workspace.lints]` dans le `Cargo.toml` racine.
-- La complexité cognitive est contrôlée par `clippy::cognitive_complexity`, qui est dans le groupe `nursery` : son activation et son seuil sont à prouver à l'étape 4 (un lint du groupe `pedantic` ne l'active pas).
+- La complexité cognitive est contrôlée par `clippy::cognitive_complexity`, qui est dans le groupe `nursery` : un lint du groupe `pedantic` ne l'active pas, il est donc activé nommément dans `[workspace.lints]` ; le seuil est dans `clippy.toml`.
+- `rust-toolchain.toml` contient `channel` (version précise), `profile = "minimal"` et `components = ["clippy", "rustfmt"]` : un toolchain en profil minimal n'a ni l'un ni l'autre, et la CI les demande aussi explicitement (relevé à la revue de l'étape 4).
 - Le chargeur de textes est du code du projet : il a ses tests et une taille bornée ; s'il grossit, on rouvre le choix par un ADR.
+
+## Résultats de l'étape 4 (2026-10-18)
+
+Preuves, sondes rejouables et versions : `docs/research/2026-10-18-outils-etape-4.md`. Écarts avec le texte ci-dessus, tous constatés par essai :
+
+- **Le gabarit officiel de Vitest ne convient pas.** Le complément Vitest de `sv create` utilise un navigateur Playwright (téléchargement d'un navigateur entier). Remplacé par **jsdom** et `@testing-library/svelte`, ce que l'ADR prévoyait (Vitest et Testing Library). Aucun navigateur à installer pour `make check`.
+- **Lints Rust ajoutés** aux lints de départ : `excessive_nesting`, `cognitive_complexity`, `wildcard_enum_match_arm`, `allow_attributes_without_reason` (tous hors des groupes `all` et `pedantic`, donc à nommer un par un) ; seuils dans `clippy.toml`.
+- **`cargo-deny` est ajouté** (outil de développement, pas une dépendance du produit) : il porte la garde « aucune bibliothèque réseau » (SEC1) et le **sens des dépendances entre crates**, que le compilateur n'impose pas. Il ne contrôle que les cibles Windows et Linux : sans cela, `tauri` tire `reqwest` pour Android et iOS (constaté avec tauri 2.12.4).
+- **`tools/check-rust.py`** (script du projet, sans dépendance) couvre ce que ni `rustc` ni `clippy` ne contrôlent : table `[lints]` de chaque crate, table de `breathly-platform` identique hors `unsafe_code`, aucun `#[ignore]`, aucun `cfg` selon l'OS hors de `breathly-platform`.

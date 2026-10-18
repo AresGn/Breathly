@@ -1,0 +1,14 @@
+# Seuils de clippy (CODING.md §2) ; les lints eux-mêmes sont dans [workspace.lints] (Cargo.lints.fragment.toml).
+cognitive-complexity-threshold = 10
+# 4 et non 3 : le corps de la fonction compte pour un niveau (3 blocs imbriqués dans une fonction passent, 4 échouent)
+excessive-nesting-threshold = 4
+too-many-lines-threshold = 40
+too-many-arguments-threshold = 3
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+disallowed-methods = [
+    { path = "std::process::Command::new", reason = "aucun lancement de programme hors breathly-platform (SEC6)" },
+]
+disallowed-types = [
+    { path = "std::process::Command", reason = "aucun lancement de programme hors breathly-platform (SEC6)" },
+]

@@ -12,7 +12,7 @@
 
 | # | Règle | Garant |
 |---|---|---|
-| SEC1 | **Aucune connexion réseau en V0.1.** Aucune bibliothèque réseau (client HTTP, TLS) dans l'arbre de dépendances du cœur et de l'interface. Pas de compte, pas de télémétrie. | contrôle de CI sur l'arbre de dépendances (à prouver par sonde négative, étape 4) ; test d'absence de connexion (US-071) |
+| SEC1 | **Aucune connexion réseau en V0.1.** Aucune bibliothèque réseau (client HTTP, TLS) dans l'arbre de dépendances du cœur et de l'interface. Pas de compte, pas de télémétrie. | `cargo deny check bans` sur l'arbre de dépendances (`deny.toml`), prouvé par sonde négative le 2026-10-18 (étape 4) ; test d'absence de connexion (US-071) |
 | SEC2 | **Suppression : seulement par une règle, jamais hors des garde-fous.** Le chemin est résolu et normalisé, les liens symboliques et jonctions ne sont pas suivis, les garde-fous S5 du PRD sont **revérifiés pour chaque élément au moment d'agir**. | un test par garde-fou, tests de liens symboliques et de jonctions, relecture |
 | SEC3 | **L'interface n'envoie jamais un chemin.** Elle envoie des identifiants d'éléments de la dernière analyse et un jeton de confirmation lié à une simulation, à usage unique. Chaque commande Tauri est enregistrée explicitement et restreinte à la fenêtre principale. | test sur l'inventaire des commandes, test du jeton, relecture |
 | SEC4 | **Historique avant action.** Une entrée « pending » est écrite avant chaque action ; si l'historique n'est pas inscriptible, aucune suppression n'a lieu. L'interface est l'unique écrivain. | tests du design 0001 (invariant 2) |

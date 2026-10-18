@@ -20,7 +20,7 @@ Option 1. Un workspace Cargo à la racine : `crates/breathly-platform`, `-rules`
 
 ## Conséquences
 
-- Les dépendances interdites sont des erreurs de compilation : un crate ne déclare dans son `Cargo.toml` que ce que le tableau du PRD §5 autorise. La CI le contrôle (étape 4 du parcours : outil à choisir et à prouver par sonde négative).
+- Un crate ne déclare dans son `Cargo.toml` que ce que le tableau du PRD §5 autorise. **Le compilateur ne l'impose pas** (il n'interdit qu'un cycle) : c'est `cargo-deny` (`deny.toml`, option `wrappers`) qui échoue sur une dépendance dans le mauvais sens. Prouvé par sonde négative le 2026-10-18 (étape 4, `docs/research/2026-10-18-outils-etape-4.md`).
 - Tout ce qui diffère selon l'OS vit derrière un trait dans `breathly-platform` (`ProcessInspector`, `DiskInspector`, `TrashProvider`, `StartupManager`, `Clock`), avec un faux pour les tests ; aucun `cfg(target_os)` ailleurs.
 - Pour Tauri v2, les capacités (`capabilities`) limitent ce que l'interface web peut appeler ; la documentation indique que **par défaut toute commande enregistrée est appelable depuis toute fenêtre** : chaque commande est donc enregistrée explicitement et restreinte (source : https://v2.tauri.app/security/capabilities/, lue le 2026-10-18).
 - Les crates `sysinfo`, `jwalk` et `trash` sont les dépendances prévues (PRD §10) ; l'ajout de toute autre dépendance se demande d'abord (PRD §14).

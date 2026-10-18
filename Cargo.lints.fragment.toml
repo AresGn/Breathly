@@ -1,12 +1,20 @@
 # À fusionner dans le Cargo.toml racine à l'initialisation (étape 5), puis ce fichier est supprimé. ADR 0011.
-# Chaque crate : `[lints] workspace = true`. EXCEPTION breathly-platform : table [lints] propre (copie de celle-ci),
-# avec unsafe_code = "deny" ; `workspace = true` ne se combine pas avec une clé locale (essai du 2026-10-18).
+# Prouvé par sondes négatives le 2026-10-18 (docs/research/2026-10-18-outils-etape-4.md).
+# Chaque crate : `[lints] workspace = true`. EXCEPTION breathly-platform : table [lints] propre, copie de celle-ci
+# avec unsafe_code = "deny" ; `workspace = true` ne se combine pas avec une clé locale. tools/check-rust.py
+# vérifie que les deux tables restent identiques hors unsafe_code. Les seuils (complexité, lignes, paramètres)
+# sont dans clippy.toml.
 [workspace.lints.rust]
 unsafe_code = "forbid"
 
 [workspace.lints.clippy]
 all = { level = "deny", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
+# nursery : activé lint par lint, le groupe entier est trop bruyant
+cognitive_complexity = "deny"
+excessive_nesting = "deny"
 unwrap_used = "deny"
 expect_used = "warn"
-# nursery : cognitive_complexity (seuil dans clippy.toml) — activation à prouver à l'étape 4
+# restriction : « match » exhaustif sans cas par défaut (AGENTS.md), « #[allow] » toujours justifié
+wildcard_enum_match_arm = "deny"
+allow_attributes_without_reason = "deny"

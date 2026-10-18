@@ -1,0 +1,32 @@
+# cargo-deny : bibliothèques réseau interdites (SEC1), sens des dépendances entre crates (PRD §5), sources connues.
+# Lancé par `make check` (tools/stacks/rust.sh, action arch). Prouvé par sondes négatives le 2026-10-18 :
+# docs/research/2026-10-18-outils-etape-4.md. Les avis de sécurité sont contrôlés par `cargo audit`, pas ici.
+
+[graph]
+all-features = true
+# Breathly cible Windows et Linux. Sans cette liste, cargo-deny parcourt aussi Android et iOS, où `tauri`
+# dépend de `reqwest` (constaté avec tauri 2.12.4) : SEC1 serait faussement violée.
+targets = ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+allow-wildcard-paths = true
+deny = [
+    # SEC1 : aucune bibliothèque réseau (client HTTP, TLS, WebSocket) dans l'arbre de dépendances.
+    { crate = "reqwest" }, { crate = "ureq" }, { crate = "isahc" }, { crate = "surf" }, { crate = "attohttpc" },
+    { crate = "minreq" }, { crate = "curl" }, { crate = "curl-sys" }, { crate = "hyper" }, { crate = "hyper-util" },
+    { crate = "h2" }, { crate = "openssl" }, { crate = "openssl-sys" }, { crate = "native-tls" },
+    { crate = "rustls" }, { crate = "tokio-rustls" }, { crate = "tungstenite" }, { crate = "tokio-tungstenite" },
+    # Sens des dépendances (PRD §5, design 0002 §3) : `wrappers` liste les seuls crates qui ont le droit de
+    # dépendre du crate nommé. Un avertissement « unused-wrapper » est normal tant qu'un crate n'existe pas.
+    # Les crates des versions suivantes (daemon, guard, watch, startup, tune…) s'ajoutent avec leur version.
+    { crate = "breathly-platform", wrappers = ["breathly-diagnose", "breathly-disk", "breathly-desktop"] },
+    { crate = "breathly-rules", wrappers = ["breathly-disk", "breathly-desktop"] },
+    { crate = "breathly-diagnose", wrappers = ["breathly-desktop"] },
+    { crate = "breathly-disk", wrappers = ["breathly-desktop"] },
+]
