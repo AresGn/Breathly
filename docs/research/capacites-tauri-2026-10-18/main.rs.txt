@@ -1,0 +1,33 @@
+#[tauri::command] fn start_disk_analysis() -> u32 { 1 }
+#[tauri::command] fn cancel_task() {}
+#[tauri::command] fn pas_dans_le_manifeste() -> u32 { 7 }
+fn main() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![start_disk_analysis, cancel_task, pas_dans_le_manifeste])
+        .run(tauri::generate_context!()).expect("run");
+}
+
+#[cfg(test)]
+mod tests {
+    use tauri::test::{get_ipc_response, mock_builder, INVOKE_KEY};
+    use tauri::webview::InvokeRequest;
+    use tauri::{WebviewWindowBuilder, ipc::CallbackFn};
+
+    fn appel(cmd: &str) -> String {
+        let app = mock_builder()
+            .invoke_handler(tauri::generate_handler![start_disk_analysis, cancel_task, pas_dans_le_manifeste])
+            .build(tauri::generate_context!()).expect("app");
+        let w = WebviewWindowBuilder::new(&app, "main", Default::default()).build().expect("w");
+        let req = InvokeRequest {
+            cmd: cmd.into(), callback: CallbackFn(0), error: CallbackFn(1),
+            url: "tauri://localhost".parse().unwrap(),
+            body: tauri::ipc::InvokeBody::default(), headers: Default::default(),
+            invoke_key: INVOKE_KEY.to_string(),
+        };
+        format!("{:?}", get_ipc_response(&w, req))
+    }
+    use super::*;
+    #[test] fn autorisee() { println!("AUTORISEE {}", appel("start_disk_analysis")); }
+    #[test] fn non_listee_dans_capacite() { println!("NON_LISTEE {}", appel("cancel_task")); }
+    #[test] fn hors_manifeste() { println!("HORS_MANIFESTE {}", appel("pas_dans_le_manifeste")); }
+}
