@@ -35,11 +35,11 @@ Méthode : le programme lance le binaire, attend l'apparition de la fenêtre (`x
 - **`tauri` cherche `src-tauri/` dans le dossier courant et ses sous-dossiers, pas dans les parents** : l'outil (`@tauri-apps/cli`) est donc dans `apps/desktop/package.json`, pas dans celui de l'interface.
 - **SvelteKit 3** : l'alias `$lib` n'existe plus ; les imports internes passent par `#lib/…` (champ `imports` de `package.json`).
 - **CI** : `pnpm/action-setup` lisait la version de pnpm dans le `package.json` de l'application ; elle est dans celui de la racine (champ `packageManager`). Corrigé dans `ci.yml`. Le gabarit du kit a le même défaut : à rapporter dans le kit.
+- **CI hébergée** : le job Rust a échoué une première fois, `ubuntu-latest` n'ayant pas les paquets de développement de Tauri (`gobject-2.0.pc` introuvable) ; la CI les installe maintenant (liste officielle). Avec cela, les jobs Rust et interface passent sur l'exécuteur GitHub : c'est la première exécution réelle des étapes ajoutées à l'étape 4 (`cargo-audit` et `cargo-deny` installés, toolchain lue dans `rust-toolchain.toml`, pnpm lu dans la racine).
 - **Icônes** : générées par `tauri icon` à partir du logo provisoire des maquettes ; les dossiers Android et iOS sont supprimés (pas d'application mobile, PRD §3).
 
 ## Non vérifié
 
 - Windows : rien compilé ni mesuré (installeur `.msi`, WebView2).
-- La première exécution de la CI hébergée sur l'interface (job `app (apps/desktop/ui, node-api)`) et sur la nouvelle coquille Rust : confirmée par la PR elle-même.
 - La CSP est une proposition stricte (`default-src 'self'`, rien de distant) dont le rendu est vérifié sur cette page seule : chaque écran futur peut demander de l'ajuster.
 - La mémoire d'une fenêtre qui affiche de vrais écrans (listes, graphiques) : elle sera plus haute que celle de la coquille.
