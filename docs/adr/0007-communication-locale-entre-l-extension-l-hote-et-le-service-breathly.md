@@ -25,4 +25,12 @@ Option 1. Messages JSON avec un champ de version, un type et un identifiant de r
 - Aucun port réseau n'est ouvert ; le service refuse les connexions d'un autre utilisateur.
 - Les messages de l'hôte vers le navigateur restent bien sous 1 Mo (statistiques et décisions de veille, pas de listes d'onglets complètes). Les URL ne sortent jamais du navigateur : seuls le domaine et des compteurs transitent (T3).
 - Le champ de version permet de faire évoluer le protocole sans casser une extension plus ancienne.
-- Le prototype 2.9 vérifie : démarrage de l'hôte par Firefox, Zen, LibreWolf, Chrome, Brave, Edge ; navigateurs en snap et flatpak ; plan B du PRD (mode autonome de l'extension).
+- Le prototype 2.9 (P3) a vérifié, sous Linux : démarrage de l'hôte par **Chromium 147** et **Firefox 150**, relais vers une socket locale en 0600, tailles de messages. À vérifier encore : Zen, LibreWolf, Brave, Chrome, Edge, Windows, navigateurs en snap et en Flatpak, plan B du PRD (mode autonome de l'extension).
+
+## Résultats du prototype P3 (2026-10-18)
+
+Détail dans `docs/research/2026-10-18-prototypes-2-9.md`.
+
+- **Confirmé** : Chromium et Firefox lancent l'hôte, lui passent l'origine de l'extension (Chromium) ou le chemin du manifeste puis l'identifiant (Firefox). Du navigateur vers l'hôte, 2 Mo passent sur Chromium. De l'hôte vers le navigateur, 500 Ko passent et **1,2 Mo est refusé par Chromium** : le protocole garde donc les messages de l'hôte nettement sous 1 Mo.
+- **Manifeste par profil (Chromium)** : l'hôte est cherché dans le dossier du profil du navigateur ; l'installation doit écrire le manifeste pour chaque navigateur et profil visés, ou à l'emplacement système.
+- **Risque confirmé pour les Flatpak** : un navigateur en Flatpak comme Zen n'a, par défaut, ni accès au dossier personnel ni la possibilité de lancer un programme de l'hôte ; un hôte installé sur le système ne peut pas y être lancé. Non exécuté, déduit des permissions. Plan B : mode autonome de l'extension, ou hôte fourni dans le bac à sable, à étudier.

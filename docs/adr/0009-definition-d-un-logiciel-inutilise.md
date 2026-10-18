@@ -16,6 +16,10 @@ Un logiciel est inutilisé quand il n'a pas de fenêtre au premier plan, ne prod
 
 Les signaux réellement accessibles par OS : fenêtre au premier plan (X11, Wayland, Windows), son en cours, enregistrement, appel, partage d'écran. Le prototype dit lesquels sont fiables ; l'ADR fixe la définition par OS et l'exclusion explicite de ce qui ne peut pas être détecté (par exemple, pas d'alerte du tout sous Wayland si aucun signal fiable n'existe).
 
+## Résultats partiels du prototype P5 (X11, 2026-10-18)
+
+Détail dans `docs/research/2026-10-18-prototypes-2-9.md`. Sous X11, la fenêtre au premier plan, la liste des fenêtres avec leur PID, l'état masqué et les flux sonores en lecture par logiciel sont disponibles. **Échecs** : une fenêtre d'un logiciel en Flatpak annonce `_NET_WM_PID = 0` (impossible de la relier à un processus) ; l'inactivité clavier et souris n'est pas disponible avec les outils testés. Les titres de fenêtres contiennent des données privées et ne sont jamais journalisés (SEC9). Wayland et Windows : non testés ; la fonction y reste désactivée tant qu'aucun signal fiable n'est établi.
+
 ## Conséquences attendues
 
 US-120 et US-121 s'écrivent après cet ADR. Le module `app-watch` reste en V0.2 ; si la définition n'est pas fiable sur un OS, la fonction y est désactivée plutôt qu'imprécise.

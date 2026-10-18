@@ -23,6 +23,6 @@ L'espace « libéré maintenant » est la somme des tailles des éléments réel
 ## Conséquences
 
 - Vider la corbeille détruit des fichiers de l'utilisateur : confirmation obligatoire, nombre d'éléments et taille affichés, jamais coché par défaut, inscrit dans l'historique comme suppression définitive (US-037).
-- Purger concerne la corbeille du système, qui peut contenir des éléments que Breathly n'a pas mis lui-même : l'écran le dit et ne purge que les éléments listés et confirmés. Vérifier à l'implémentation que `purge_all` accepte une sélection (la documentation lue décrit « les éléments donnés »).
+- Purger concerne la corbeille du système, qui peut contenir des éléments que Breathly n'a pas mis lui-même : l'écran le dit et ne purge que les éléments listés et confirmés. **Vérifié par le prototype P1 (Linux, 2026-10-18, voir `docs/research/2026-10-18-prototypes-2-9.md`)** : `purge_all` détruit seulement les éléments donnés, même avec un élément étranger dans la corbeille ; `restore_all` sur un emplacement occupé renvoie `RestoreCollision` sans rien écraser ; l'identifiant d'un élément est le chemin de son fichier `.trashinfo`. **Windows : non testé.**
 - L'annulation échoue sans rien écraser si l'emplacement d'origine est occupé (US-041.2).
 - Le critère de réussite de la V0.1 compte l'espace réellement libéré, corbeille vidée comprise (PRD §15).

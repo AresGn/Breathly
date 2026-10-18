@@ -1,0 +1,1 @@
+{"manifest_version":3,"name":"Breathly proto","version":"0.0.2","permissions":["nativeMessaging"],"background":{"service_worker":"bg.js"}}

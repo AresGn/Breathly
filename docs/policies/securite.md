@@ -37,7 +37,7 @@
 
 ## 3. Décisions à prendre par un ADR avant le premier code sensible
 
-- **Suppression sûre** : stratégie contre l'écart entre vérification et action (le chemin change entre les deux), normalisation sous Windows (chemins longs, jonctions) et Linux (liens symboliques, montages).
+- **Suppression sûre** : stratégie contre l'écart entre vérification et action. **Le prototype P1 (2026-10-18) a démontré la faille** : si un dossier du chemin devient un lien symbolique entre la vérification et l'action, `trash::delete` suit le lien et atteint un fichier protégé ; recanoniser juste avant d'agir la détecte sans fermer la fenêtre. À décider : comparaison d'identité du dossier parent avant et après, ou opérations relatives à un descripteur pour la suppression définitive. Normalisation sous Windows (chemins longs, jonctions) non étudiée.
 - **Configuration Tauri** : politique de contenu (CSP) de l'interface, liste des capacités, interdiction de tout contenu distant. À lire dans la documentation de Tauri v2 avant d'écrire la configuration.
 - **Garde réseau** : outil exact de contrôle de l'arbre de dépendances (SEC1).
 - **Signature de code** (V1.0) : certificat Windows, clé de signature Linux, stockage des secrets de signature dans la CI.
@@ -63,6 +63,6 @@
 | Native messaging : JSON, longueur sur 32 bits, 1 Mo de l'hôte vers le navigateur ; Chrome liste les origines autorisées sans joker | documentation MDN et Chrome |
 | Les contenus d'une page web ne peuvent pas appeler l'hôte directement (Chrome) ; l'extension valide `sender.origin` | documentation Chrome |
 | Tauri v2 : par défaut toute commande enregistrée est appelable depuis toute fenêtre | documentation Tauri, « Capabilities » |
-| Crate `trash` 5.2.9 : `purge_all`, `restore_all` sur Windows et Linux | docs.rs |
+| Crate `trash` 5.2.9 : `purge_all`, `restore_all` sur Windows et Linux | docs.rs ; essai P1 sous Linux le 2026-10-18 (liens symboliques, collision de restauration, purge sélective) |
 
-**Non vérifié** : le comportement d'UAC, le fonctionnement exact de `cargo audit` et de l'outil de garde réseau, l'attestation de provenance GitHub, la gestion des liens symboliques et jonctions par les bibliothèques retenues, la CSP de Tauri.
+**Non vérifié** : la fermeture complète de la fenêtre entre vérification et action pour `trash`, le comportement d'UAC, le fonctionnement exact de `cargo audit` et de l'outil de garde réseau, l'attestation de provenance GitHub, la gestion des liens symboliques et jonctions par les bibliothèques retenues, la CSP de Tauri.

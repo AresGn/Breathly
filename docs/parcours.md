@@ -50,7 +50,8 @@ flowchart TD
     classDef na fill:#fafafa,stroke:#bbb,stroke-dasharray: 4 3,color:#888
     class A0,A1,B1,B2,B3,B4,B5,B7,B8 done
     class C progress
-    class B9,D,E,F,G,H,I todo
+    class D,E,F,G,H,I todo
+    class B9 progress
     class B6 na
 ```
 
@@ -70,7 +71,7 @@ Protection de `main` : appliquée le 2026-10-18 (voir `CONTRIBUTING.md` §5).
 | 2.6 Base | sans objet | pas de base de données ; le format des fichiers locaux relève d'un ADR (2.3) |
 | 2.7 Maquettes | fait (écarts à traiter) | 20 écrans livrés le 2026-10-18 dans `docs/design/maquettes/` (clair et sombre, jetons `breathly.css`) ; reste : libellés anglais appliqués, logo à vectoriser, texte à 200 %, polices à embarquer en WOFF2 |
 | 2.8 Sécurité | fait | `docs/policies/modele-de-menaces.md` (5 flux, 16 tests de sécurité TS-01 à TS-16) ; `securite.md` réécrit pour un outil local (SEC1 à SEC11) ; points ouverts : suppression sûre, CSP Tauri, attestation de provenance |
-| 2.9 Prototype | à faire | Tauri v2 + Svelte 5 (et mesure de la RAM de la fenêtre) ; native messaging (Firefox, Chromium, flatpak/snap) ; suppression vers la corbeille sur Linux et Windows ; détection d'« inutilisé » sur X11, Wayland et Windows ; température et CPU par OS |
+| 2.9 Prototype | en cours | P1 corbeille et suppression sûre, P2 mesures, P3 native messaging (Chromium, Firefox), P5 inactivité X11 : faits sous Linux le 2026-10-18 (`docs/research/2026-10-18-prototypes-2-9.md`). **Reste** : P4 Tauri + Svelte (paquets WebKitGTK à installer par le propriétaire), Windows, Wayland, Zen/Brave/snap/Flatpak en exécution, ADR 0008 et 0009 à finaliser |
 | 3 · Règles | en cours | `AGENTS.md` rempli ; `make kit-todo` renvoie encore des lignes (SECURITY.md, CODE_OF_CONDUCT.md, guide de démarrage, menaces) ; protection de `main` appliquée le 2026-10-18 |
 | 4 · Outils | à faire | pack `rust` non éprouvé : exécuter chaque commande sur un workspace vide, sondes négatives, `pin-actions.py` |
 | 5 · Applications | à faire | `Cargo.toml` racine, `extension/package.json`, `apps/desktop/ui` |

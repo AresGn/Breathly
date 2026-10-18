@@ -1,0 +1,1 @@
+{"manifest_version":3,"name":"Breathly proto","version":"0.0.1","browser_specific_settings":{"gecko":{"id":"proto@breathly.test"}},"permissions":["nativeMessaging"],"background":{"scripts":["bg.js"]}}
