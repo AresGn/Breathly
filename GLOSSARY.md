@@ -125,14 +125,29 @@ _À éviter_: heuristique, filtre, pattern
 Fichier TOML qui décrit un réglage (zram, swappiness…) : OS, distribution, paquet, effet, retour arrière. Module : `system-tune`.
 
 **Niveau de risque**:
-Classement partout identique : 🟢 **Sans risque** (se recrée seul), 🟡 **À vérifier** (dossier recréable, ancien téléchargement), 🔴 **Décision personnelle** (jamais sélectionné par défaut).
+Classement partout identique : 🟢 **Sans risque** (se recrée seul), 🟡 **À vérifier** (dossier recréable, ancien téléchargement), 🔴 **Décision personnelle** (jamais sélectionnable).
 _À éviter_: score, gravité, priorité
 
 **Cache**:
-Données qui se recréent toutes seules. Seule catégorie supprimée définitivement (🟢), ce que l'écran indique.
+Données qui se recréent toutes seules. Avec le vidage confirmé de la corbeille, seul cas de suppression définitive (🟢), ce que l'écran indique.
 
-**Corbeille** et **suppression définitive**:
-Destination d'un élément nettoyé. Les fichiers de l'utilisateur vont à la corbeille du système ; seuls les caches 🟢 sont supprimés définitivement.
+**Élément**:
+Chose précise que Breathly propose de nettoyer : un cache, un dossier de projet, un téléchargement, ou le contenu de la corbeille. Il vient toujours d'une règle de nettoyage et porte un niveau de risque et une taille.
+_À éviter_: item, entrée, fichier (trop étroit)
+
+**Gros fichier**:
+Fichier ou dossier personnel très volumineux montré en 🔴 pour information, avec « Ouvrir le dossier ». Breathly ne le supprime pas et il n'est jamais sélectionnable.
+_À éviter_: fichier lourd
+
+**Dossier de projet recréable**:
+Dossier d'un projet de développement qui se reconstruit (`node_modules`, `target`, `.gradle`), classé 🟡. Reconnu par une règle « nom + fichier marqueur ».
+_À éviter_: dossier de build, dépendances
+
+**Fichier marqueur**:
+Fichier à côté d'un dossier qui prouve qu'il est recréable (`package.json` pour `node_modules`, `Cargo.toml` pour `target`). Sans lui, le dossier n'est pas proposé.
+
+**Corbeille**, **vidage de la corbeille** et **suppression définitive**:
+La corbeille est la destination des fichiers de l'utilisateur. Le *vidage* est un élément 🟡 distinct et confirmé qui liste et chiffre ce qu'il détruit. Les seules suppressions définitives sont les caches 🟢 et ce vidage.
 
 **Simulation**:
 Affichage de ce qui serait fait et libéré, sans rien exécuter. Toujours disponible.

@@ -7,7 +7,7 @@ Références : `GLOSSARY.md` (vocabulaire), `docs/PRD.md` (exigences, brouillon 
 ## Stack
 
 - Cœur : Rust (édition 2024), workspace Cargo (`crates/`), PRD §10
-- Interface : Tauri v2, interface web légère (framework **à décider**, PRD §17 question 1), `apps/desktop/`
+- Interface : Tauri v2, interface web légère (Svelte 5, ADR 0001), `apps/desktop/`
 - Extension navigateur : TypeScript, Manifest V3, une base de code pour Firefox et Chromium, `extension/`
 - Règles de nettoyage et définitions de navigateurs : fichiers TOML (`rules/`, `browsers/`), modifiables sans écrire de Rust
 - Aucun serveur, aucun compte, aucune télémétrie (PRD §0 point 4)
@@ -28,9 +28,9 @@ Workspace Cargo : un crate par module du PRD §5 (`breathly-platform`, `-rules`,
 Breathly agit sur les fichiers de personnes non techniques : une violation est un incident, pas un bug.
 
 1. Rien n'est supprimé sans afficher la liste et obtenir une confirmation (PRD §0 point 6, §4).
-2. Les fichiers de l'utilisateur vont dans la corbeille du système ; seuls les caches 🟢 se suppriment définitivement, et l'écran le dit (S3).
+2. Les fichiers de l'utilisateur vont dans la corbeille du système ; seuls les caches 🟢 et le vidage confirmé de la corbeille se suppriment définitivement, et l'écran le dit (S3).
 3. Garde-fous non désactivables (S5) : jamais hors des emplacements prévus par une règle ; jamais les profils de navigateur, `Documents`, `Images`, `Vidéos`, `Musique`, `Bureau`, les conteneurs chiffrés, les dossiers `.git`, les fichiers ouverts.
-4. Trois niveaux de risque partout (🟢 🟡 🔴) ; un élément 🔴 n'est jamais sélectionné par défaut.
+4. Trois niveaux de risque partout (🟢 🟡 🔴) ; un élément 🔴 n'est jamais sélectionnable.
 5. Chaque action est inscrite à l'historique (S6).
 6. Les URL ne sortent jamais du navigateur : l'extension ne transmet que le domaine et des compteurs (T3).
 7. Aucune donnée ne quitte la machine : pas de télémétrie, pas de requête réseau non demandée.
