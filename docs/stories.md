@@ -51,6 +51,7 @@
 - US-011.1 : les processus sont regroupés par logiciel (« VS Code : 3,2 Go », pas trois lignes « code »). [auto]
 - US-011.2 : deux listes, par RAM et par CPU, de 10 logiciels au plus. [auto]
 - US-011.3 : Breathly ne ferme aucun logiciel en V0.1 ; aucune action de fermeture n'est proposée. [auto]
+- US-011.4 *(décision)* : les fils d'exécution ne comptent pas comme des processus ; les processus sont regroupés par nom d'exécutable (prototype P2). [auto]
 
 **US-012.** En tant qu'utilisateur, je veux recevoir au plus 5 recommandations classées par impact, afin de savoir quoi faire en premier.
 - US-012.1 : au plus 5 recommandations, chacune avec titre en langage simple, gain estimé, niveau de risque et un bouton d'action ou d'explication (D2) ; le niveau de risque réutilise les trois libellés des éléments : une explication sans action est Sans risque, une action de l'utilisateur sur le système est À vérifier *(décision)*. [auto]
