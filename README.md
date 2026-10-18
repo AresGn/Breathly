@@ -8,7 +8,7 @@ Breathly is a free, open-source, lightweight tool that helps anyone — technica
 - 🧹 **Free up space safely** — caches, old versions and leftovers, sorted by risk (🟢 safe · 🟡 review · 🔴 personal). Nothing is deleted without your confirmation, and your files go to the trash first.
 - 💤 **Let tabs nap** — keep all your tabs, even pinned ones, while unused ones sleep and stop eating RAM. Breathly learns which tabs you use every day.
 - 🌐 **One browser at a time** — get a gentle heads-up when a second browser opens.
-- 🔎 **Forgotten apps** — heavy apps you have not used for a while are flagged; you decide whether to close them. Breathly is not an antivirus: unknown processes are flagged "to check", never declared safe or infected.
+- 🔎 **Forgotten apps** — heavy apps you have not used for a while are flagged; you decide whether to close them. Breathly is not an antivirus: unknown processes are flagged "to examine", never declared safe or infected.
 
 Made for everyone whose PC is slow or full: developers, creatives (designers, video editors), office workers and families. Simple mode by default, details on demand.
 
