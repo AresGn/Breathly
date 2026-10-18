@@ -2,7 +2,7 @@
 # crates de bibliothèque ; l'application Tauri (apps/desktop/src-tauri) s'y ajoute avec sa coquille.
 [workspace]
 resolver = "3"
-members = ["crates/*"]
+members = ["crates/*", "apps/desktop/src-tauri"]
 
 [workspace.package]
 version = "0.0.0"

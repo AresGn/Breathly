@@ -1,0 +1,22 @@
+[package]
+name = "breathly-desktop"
+description = "Application de bureau de Breathly (Tauri v2) : fenêtre, commandes vers le cœur, aucune règle métier"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lib]
+# Suffixe `_lib` : évite le conflit de nom avec le binaire (problème connu sous Windows, rust-lang/cargo#8519).
+name = "breathly_desktop_lib"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+
+[lints]
+workspace = true

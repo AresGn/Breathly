@@ -54,11 +54,15 @@ Chaque action est atteignable au clavier avec un focus visible ; chaque contrôl
 
 Vitest et Testing Library : un test par état affiché (chargement, vide, erreur, « non disponible », mode simple et avancé), un test des clés de traduction, un test d'accessibilité de base (noms des contrôles). Pas de test de bout en bout en V0.1 : essais manuels sur les machines de validation (PRD §13). Aucun test ignoré (`it.skip`, `.only`, `.todo`, `.fails` refusés par ESLint **[machine]**), supprimé ou affaibli **[relecture]**. Un test sans assertion échoue (`expect.requireAssertions`) **[machine]**.
 
-## 10. Scripts attendus par le kit
+## 10. Imports et scripts
+
+Imports internes par l'alias de sous-chemin `#lib/…` (SvelteKit 3, déclaré dans `package.json`), avec l'extension `.js` pour un fichier TypeScript : `#lib/brand.js`. L'alias `$lib` n'est pas utilisé.
+
+## 11. Scripts attendus par le kit
 
 `pnpm lint` (`prettier --check` puis ESLint), `pnpm typecheck` (svelte-check, avertissements bloquants), `pnpm test` (Vitest, jsdom) et `pnpm fix` (corrige la mise en forme).
 
-## 11. Définition de « terminé »
+## 12. Définition de « terminé »
 
 - [ ] `make check` vert (`pnpm lint`, `pnpm typecheck`, `pnpm test`)
 - [ ] Aucun `any`, aucune couleur en dur, aucune chaîne affichée en dur

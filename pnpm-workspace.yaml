@@ -1,5 +1,6 @@
 # Espace de travail pnpm de la racine : un paquet par application JavaScript. L'extension (V0.3) s'y ajoutera.
 packages:
+  - "apps/desktop"
   - "apps/desktop/ui"
 # Bloque l'installation de tout paquet publié depuis moins de 7 jours (en minutes). À vérifier dans la documentation de pnpm :
 # `pnpm install` doit refuser un paquet trop récent (orthographe camelCase attendue dans ce fichier).

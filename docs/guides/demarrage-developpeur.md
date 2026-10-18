@@ -42,8 +42,8 @@ Les applications sont indépendantes. **Une personne initialise, ouvre une PR co
 
 | Application | État aujourd'hui | Qui fait quoi | Détail |
 |---|---|---|---|
-| `.` (cœur Rust, `crates/`) | pas encore initialisé | une personne crée le workspace et les 4 crates de la V0.1 (étape 5) | `CODING.md` |
-| `apps/desktop/ui` (interface Svelte) | pas encore initialisé | après le workspace : coquille Tauri + SvelteKit (étape 5) | `apps/desktop/ui/README.md` |
+| `.` (cœur Rust, `crates/`) | workspace et 4 crates de la V0.1 créés (vides) | les tickets de la V0.1 y ajoutent le code | `CODING.md` |
+| `apps/desktop` (Tauri) et `apps/desktop/ui` (Svelte) | coquille : une fenêtre qui affiche « Breathly » | les tickets de la V0.1 y ajoutent les écrans et les commandes | `apps/desktop/ui/README.md` |
 
 ## 5. Conventions communes
 

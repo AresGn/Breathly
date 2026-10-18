@@ -30,3 +30,6 @@ docs/design/*.zip
 
 # pnpm : le dossier node_modules de la racine (espace de travail)
 node_modules/
+
+# Tauri : schémas générés à la compilation
+apps/desktop/src-tauri/gen/

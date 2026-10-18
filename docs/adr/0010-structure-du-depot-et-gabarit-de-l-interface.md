@@ -53,6 +53,7 @@ breathly/
 
 - `.kit.conf` déclare deux applications : `.` (pile `rust`) et `apps/desktop/ui` (pile `node-api`, qui exécute `lint`, `typecheck` et `test` de son `package.json`). L'extension s'y ajoutera en V0.3 (`extension:node-api`).
 - Le gabarit SvelteKit apporte un script `check` (svelte-check) et non `typecheck` : l'initialisation ajoute les scripts attendus par le kit.
+- L'outil Tauri (`@tauri-apps/cli`) vit dans `apps/desktop/package.json` : il cherche `src-tauri/` dans le dossier courant et ses sous-dossiers, pas dans les parents (essai du 2026-10-18). L'espace de travail pnpm compte donc deux paquets, `apps/desktop` et `apps/desktop/ui`.
 - L'interface et le cœur dépendent de types partagés générés depuis Rust (design 0002 §6) ; l'emplacement des types générés est `apps/desktop/ui/src/lib/generated/` (non écrit à la main).
 - `apps/desktop/src-tauri` est un membre du workspace Cargo : `cargo clippy --workspace` couvre aussi l'application. Son identifiant d'application (`identifier` de `tauri.conf.json`) reste à décider à l'initialisation.
 - Les crates de bibliothèque n'importent jamais `apps/` ; `apps/` importe `crates/`.
