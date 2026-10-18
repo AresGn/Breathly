@@ -2,8 +2,8 @@
 
 Rédigé :
 
-- `securite.md` : règles techniques de sécurité par conception (S1 à S12), valeurs de départ, décisions ouvertes, pistes écartées.
-- `modele-de-menaces.md` : modèle STRIDE des flux critiques (à écrire avant le premier sprint d'authentification).
+- `securite.md` : règles techniques de sécurité par conception (SEC1 à SEC11), valeurs de départ, décisions ouvertes, pistes écartées.
+- `modele-de-menaces.md` : modèle STRIDE des flux critiques (5 flux, tests de sécurité à écrire).
 
 À produire selon le projet (livrables du cahier des charges) :
 

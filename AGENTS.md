@@ -67,7 +67,7 @@ Les seuils sont contrôlés par la machine (voir la configuration de chaque pile
 
 ## Sécurité par conception
 
-Règles techniques S1 à S12 (routes authentifiées, journaux par liste blanche, limitation de débit, fichiers privés, secrets, dépendances) : `docs/policies/securite.md`. Une règle de ce fichier ou de ce document ne se contourne pas pour passer au vert.
+Règles techniques SEC1 à SEC11 (aucun réseau, suppression par règle et garde-fous, l'interface n'envoie jamais un chemin, historique avant action, fichiers locaux non fiables, élévation, communication locale, dépendances, distribution) : `docs/policies/securite.md`. Une règle de ce fichier ou de ce document ne se contourne pas pour passer au vert.
 
 ## Écrire du code dans une application
 

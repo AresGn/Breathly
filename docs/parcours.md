@@ -48,10 +48,9 @@ flowchart TD
     classDef progress fill:#fff3cd,stroke:#b8860b,color:#111
     classDef todo fill:#eceff1,stroke:#607d8b,color:#111
     classDef na fill:#fafafa,stroke:#bbb,stroke-dasharray: 4 3,color:#888
-    class A0,A1,B1,B2,B3,B4,B5 done
+    class A0,A1,B1,B2,B3,B4,B5,B7,B8 done
     class C progress
-    class B8,B9,D,E,F,G,H,I todo
-    class B7 done
+    class B9,D,E,F,G,H,I todo
     class B6 na
 ```
 
@@ -70,7 +69,7 @@ Protection de `main` : appliquée le 2026-10-18 (voir `CONTRIBUTING.md` §5).
 | 2.5 Design du système | fait | `docs/design/0002-systeme.md` : carte des modules, dépendances sans cycle (prototype `graphe.py`, conforme au PRD §5), processus et qui écrit quoi, contrat Tauri, composition des recommandations ; 4 points ouverts (asynchrone, API de progression, mémoire de l'analyse, chemins Windows) |
 | 2.6 Base | sans objet | pas de base de données ; le format des fichiers locaux relève d'un ADR (2.3) |
 | 2.7 Maquettes | fait (écarts à traiter) | 20 écrans livrés le 2026-10-18 dans `docs/design/maquettes/` (clair et sombre, jetons `breathly.css`) ; reste : libellés anglais appliqués, logo à vectoriser, texte à 200 %, polices à embarquer en WOFF2 |
-| 2.8 Sécurité | à faire | `docs/policies/modele-de-menaces.md` ; adapter `securite.md` (règles écrites pour une API) |
+| 2.8 Sécurité | fait | `docs/policies/modele-de-menaces.md` (5 flux, 16 tests de sécurité TS-01 à TS-16) ; `securite.md` réécrit pour un outil local (SEC1 à SEC11) ; points ouverts : suppression sûre, CSP Tauri, attestation de provenance |
 | 2.9 Prototype | à faire | Tauri v2 + Svelte 5 (et mesure de la RAM de la fenêtre) ; native messaging (Firefox, Chromium, flatpak/snap) ; suppression vers la corbeille sur Linux et Windows ; détection d'« inutilisé » sur X11, Wayland et Windows ; température et CPU par OS |
 | 3 · Règles | en cours | `AGENTS.md` rempli ; `make kit-todo` renvoie encore des lignes (SECURITY.md, CODE_OF_CONDUCT.md, guide de démarrage, menaces) ; protection de `main` appliquée le 2026-10-18 |
 | 4 · Outils | à faire | pack `rust` non éprouvé : exécuter chaque commande sur un workspace vide, sondes négatives, `pin-actions.py` |
@@ -83,4 +82,4 @@ Protection de `main` : appliquée le 2026-10-18 (voir `CONTRIBUTING.md` §5).
 
 - **2.6 Design de la base** : aucune base serveur ; aucune donnée ne quitte la machine (PRD §0 point 4).
 - **Client et validation contractuelle** : projet libre.
-- Les règles de `securite.md` qui visent une API (routes authentifiées, limitation de débit…) sont à réécrire pour un outil local : c'est l'objet de l'étape 2.8.
+- Les règles de sécurité qui visent une API (routes authentifiées, limitation de débit, cloisonnement) ont été remplacées par SEC1 à SEC11, écrites pour un outil local (étape 2.8).
