@@ -1,0 +1,17 @@
+date: 2026-10-18T19:29:54+01:00 noyau: 6.1.0-53-amd64 coeurs: 8
+variante=v0 essais=2000 faits=2000 refus=0 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=1032 par_essai_us=879
+variante=v1 essais=2000 faits=1998 refus=2 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=1061 par_essai_us=923
+variante=v2 essais=2000 faits=1991 refus=9 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=1045 par_essai_us=908
+variante=v3c essais=2000 faits=998 refus=4 detecte_et_restaure=998 FICHIER_PROTEGE_PERDU=563 par_essai_us=3044
+variante=v4 essais=2000 faits=2000 refus=0 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=0 par_essai_us=276
+variante=v5 essais=2000 faits=1999 refus=1 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=0 par_essai_us=715
+variante=v0 essais=2000 faits=1997 refus=3 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=1039 par_essai_us=911
+variante=v1 essais=2000 faits=1998 refus=2 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=1096 par_essai_us=878
+variante=v2 essais=2000 faits=1993 refus=7 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=1084 par_essai_us=937
+variante=v3c essais=2000 faits=1036 refus=3 detecte_et_restaure=961 FICHIER_PROTEGE_PERDU=579 par_essai_us=2867
+variante=v4 essais=2000 faits=1999 refus=1 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=0 par_essai_us=280
+variante=v5 essais=2000 faits=2000 refus=0 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=0 par_essai_us=657
+variante=d0 essais=1000 faits=412 refus=588 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=3 par_essai_us=645
+variante=d6 essais=1000 faits=1000 refus=0 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=0 par_essai_us=647
+variante=d0 essais=1000 faits=371 refus=629 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=1 par_essai_us=647
+variante=d6 essais=1000 faits=999 refus=1 detecte_et_restaure=0 FICHIER_PROTEGE_PERDU=0 par_essai_us=652

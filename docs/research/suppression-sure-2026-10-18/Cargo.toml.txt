@@ -1,0 +1,11 @@
+[package]
+name = "race"
+version = "0.0.0"
+edition = "2024"
+publish = false
+[dependencies]
+trash = "=5.2.9"
+libc = "0.2"
+[profile.release]
+debug = false
+[workspace]
