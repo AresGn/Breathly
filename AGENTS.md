@@ -16,7 +16,7 @@ Applications déclarées dans `.kit.conf` (`APPS`) ; chacune a son `CODING.md`.
 
 ## Architecture
 
-Workspace Cargo : un crate par module du PRD §5 (`breathly-platform`, `-rules`, `-diagnose`, `-disk`, `-guard`, `-daemon`, `-nmhost`). Le sens des dépendances est celui du tableau du PRD §5 ; il ne s'inverse jamais.
+Workspace Cargo : un crate par module du PRD §5 (`breathly-platform`, `-rules`, `-diagnose`, `-disk`, `-guard`, `-daemon`, `-nmhost` ; V0.2 à V0.4 : `-watch`, `-startup`, `-tune`, `-elevated`). Le sens des dépendances est celui du tableau du PRD §5 ; il ne s'inverse jamais.
 
 - `platform` et `rules` ne dépendent d'aucun autre crate du projet.
 - `app-ui` appelle les modules uniquement par des commandes Tauri : aucune règle métier dans l'interface web.

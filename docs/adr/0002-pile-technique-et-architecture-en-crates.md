@@ -16,7 +16,7 @@ Le PRD (§0 point 2, §5, §10) fixe la pile : cœur en Rust (édition 2024), in
 
 ## Décision
 
-Option 1. Un workspace Cargo à la racine : `crates/breathly-platform`, `-rules`, `-diagnose`, `-disk`, `-guard`, `-daemon` (binaire du service Breathly), `-nmhost` (binaire de l'hôte), plus `apps/desktop/` (Tauri) et `extension/`. Le sens des dépendances est celui du PRD §5 et ne s'inverse jamais : `platform` et `rules` ne dépendent d'aucun crate du projet ; `app-ui` appelle les modules par des commandes Tauri uniquement.
+Option 1. Un workspace Cargo à la racine : `crates/breathly-platform`, `-rules`, `-diagnose`, `-disk`, `-guard`, `-daemon` (binaire du service Breathly), `-nmhost` (binaire de l'hôte) ; puis `-watch`, `-startup`, `-tune` et `-elevated` (assistant d'élévation, ADR 0006) aux versions V0.2 à V0.4, plus `apps/desktop/` (Tauri) et `extension/`. Le sens des dépendances est celui du PRD §5 et ne s'inverse jamais : `platform` et `rules` ne dépendent d'aucun crate du projet ; `app-ui` appelle les modules par des commandes Tauri uniquement.
 
 ## Conséquences
 
