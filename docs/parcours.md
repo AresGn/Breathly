@@ -64,7 +64,7 @@ Protection de `main` : appliquée le 2026-10-18 (voir `CONTRIBUTING.md` §5).
 | 1 · Initialiser | fait (PR #1) | |
 | 2.1 Glossaire | fait (PR de cette étape) | `GLOSSARY.md` : 7 ambiguïtés levées ; à compléter à chaque terme nouveau, dans la PR du code qui l'introduit |
 | 2.2 PRD | en cours | cadrage validé (PR #3) ; ajustements du 2026-10-18 faits (profils, G3 à G9, D5 à D7, §7.6 à §7.8) ; stories numérotées dans `docs/stories.md` (brouillon, à relire) ; risques ouverts à relire |
-| 2.3 ADR | en cours | ADR 0001 (Svelte 5) accepté sous réserve du prototype ; à écrire : format de l'historique et des réglages, protocole extension - hôte - daemon, élévation des droits administrateur (PRD §7.8), budgets de légèreté (après mesure), définition de « inutilisé » (après prototype) |
+| 2.3 ADR | en cours | ADR 0001 (Svelte 5) accepté sous réserve du prototype ; à écrire : format de l'historique et des réglages, protocole extension - hôte - daemon, élévation des droits administrateur (PRD §7.8), budgets de légèreté (après mesure), définition de « inutilisé » (après prototype), chargement des règles (intégrées au build, règles personnalisées plus tard), vidage de la corbeille et espace libéré, effacement de l'historique |
 | 2.4 États | à décider | peut-être : analyse, nettoyage, annulation |
 | 2.5 Design du système | à faire | modules sans cycle (PRD §5), protocole entre processus |
 | 2.6 Base | sans objet | pas de base de données ; le format des fichiers locaux relève d'un ADR (2.3) |

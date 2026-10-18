@@ -1,7 +1,7 @@
 # Breathly — Product Requirements Document
 
 > *Let your PC breathe.*
-> Statut : **brouillon v0.2 — cadrage validé les 2026-10-17 et 2026-10-18 (§0, §17) ; user stories numérotées et specs par module encore à écrire** · Dernière mise à jour : 2026-10-18
+> Statut : **brouillon v0.2 — cadrage validé les 2026-10-17 et 2026-10-18 (§0, §17) ; user stories dans `docs/stories.md` (brouillon), specs par module encore à écrire** · Dernière mise à jour : 2026-10-18
 
 ---
 
@@ -26,6 +26,10 @@ Ces points orientent tout le reste du document. Ils sont validés par le propri�
 12. **Processus et services inconnus ou gourmands :** signalés « à examiner » sans prétendre détecter un virus ; Breathly n'est pas un antivirus (§3).
 13. **Réglages du système (zram, swappiness…) :** diagnostic et commande exacte en V0.1 ; application par Breathly en V0.4 (`system-tune`), après vérification de chaque paquet et de chaque distribution.
 14. **Légèreté (G5) :** budgets chiffrés **mesurés par le prototype** (étape 2.9 du parcours) et fixés par ADR ; le code est conçu dès le départ pour les tenir.
+15. **Mises à jour avant la V1.0 :** téléchargement manuel depuis les GitHub Releases, sans connexion réseau de Breathly (US-071) ; mises à jour automatiques avec la V1.0 (US-401).
+16. **Gros fichiers 🔴 :** montrés avec « Ouvrir le dossier », jamais sélectionnables ni supprimés par Breathly (US-022).
+17. **Corbeille :** les éléments 🟡 vont à la corbeille ; vider la corbeille est un élément 🟡 distinct et confirmé (US-037) ; deux chiffres affichés, envoyé et libéré.
+18. **Règles :** intégrées au binaire à la compilation en V0.1, champ `command` informatif (US-060).
 
 ---
 
@@ -103,7 +107,7 @@ Toute personne dont le PC rame, est souvent plein et qui ne comprend pas ce qui 
 3. **Trois niveaux de risque, partout :**
    - 🟢 **Sans risque** : caches, fichiers temporaires, anciennes versions. Ils se recréent tout seuls.
    - 🟡 **À vérifier** : dossiers recréables (`node_modules`, installeurs déjà utilisés), anciens téléchargements.
-   - 🔴 **Décision personnelle** : gros fichiers personnels. Breathly les montre, mais ne les sélectionne jamais par défaut.
+   - 🔴 **Décision personnelle** : gros fichiers personnels. Breathly les montre, mais ne les propose jamais au nettoyage : ils ne sont pas sélectionnables (US-022).
 4. **Expliquer chaque proposition en une phrase** (« C'est le cache de npm : il se recrée automatiquement au prochain `npm install` »). Le détail technique reste accessible.
 5. **Ne rien casser.** En cas de doute, Breathly ne propose pas l'action. Il vaut mieux libérer 20 Go sans risque que 25 Go dont 5 de trop.
 6. **Sobriété.** Le service Breathly consomme moins qu'un onglet ouvert. La fenêtre ne tourne que quand elle est ouverte.
@@ -222,14 +226,14 @@ rules ────┴─> system-tune ──────────────
 - **D2.** Il produit **au plus 5 recommandations**, classées par impact, chacune avec : un titre en langage simple, le gain estimé, le niveau de risque, un bouton d'action ou d'explication.
 - **D3.** Les processus sont **regroupés par logiciel** (« VS Code : 3,2 Go », pas « code », « code », « code »…).
 - **D4.** Seuils par défaut : disque > 90 % = alerte ; **espace libre < 2 Go = alerte critique** (bandeau, G7) ; swap > 50 % avec une RAM disponible < 15 % = alerte ; température > 80 °C au repos = alerte. Tous réglables.
-- **D5.** **Chauffe par paliers.** Breathly croise température et charge. *Chaud sous forte charge* : normal, il le dit. *Chaud avec un processus gourmand* : cause logicielle, il le désigne et propose d'en parler. *Chaud sans charge* : cause matérielle probable, il affiche une liste de vérifications en langage simple (aération, poussière, mode d'alimentation, ventilateur). Si cela persiste sur plusieurs mesures, il suggère de **consulter un technicien**. Il ne promet aucune réparation, ne dit jamais qu'un composant est abîmé, et affiche « non disponible » si la température manque. Seuils de départ à valider sur du matériel varié (non vérifié).
+- **D5.** **Chauffe par paliers.** Breathly croise température et charge. *Chaud sous forte charge* : normal, il le dit. *Chaud avec un processus gourmand* : cause logicielle, il le désigne et propose d'en parler. *Chaud sans charge* : cause matérielle probable, il affiche une liste de vérifications en langage simple (aération, poussière, mode d'alimentation, ventilateur). Si cela persiste (sur 3 relevés consécutifs du même diagnostic, valeur de départ non vérifiée), il suggère de **consulter un technicien**. Il ne promet aucune réparation, ne dit jamais qu'un composant est abîmé, et affiche « non disponible » si la température manque. Seuils de départ à valider sur du matériel varié (non vérifié).
 - **D6.** **Processus et services système « à examiner ».** Un processus ou service qui consomme beaucoup sans être reconnu, ou lancé depuis un emplacement inhabituel, est listé avec une explication et un renvoi vers l'antivirus du système (Microsoft Defender, ClamAV). Breathly ne dit jamais « virus » ni « sain », et ne supprime rien de lui-même.
 - **D7.** **Réglages du système.** Si le swap est saturé et qu'un swap compressé (zram) est absent, la recommandation l'explique et affiche la commande exacte à copier (mode guidé). L'application automatique est en V0.4.
 
 ### 7.2 `disk-scan` / `disk-clean`
 - **S1.** Analyse du dossier personnel (~500 000 fichiers) en **moins de 60 s** sur un SSD.
 - **S2.** Chaque élément proposé au nettoyage provient **d'une règle explicite** (fichier TOML). Aucune heuristique ne propose de supprimer un fichier. Les gros fichiers 🔴 sont affichés pour information avec « Ouvrir le dossier » : Breathly ne les supprime pas (US-022). Les dossiers de projets recréables sont reconnus par une règle « nom + fichier marqueur » (US-023).
-- **S3.** Les fichiers de l'utilisateur vont dans la **corbeille** (crate `trash`) ; les caches 🟢 peuvent être supprimés définitivement, ce qui est indiqué à l'écran.
+- **S3.** Les fichiers de l'utilisateur vont dans la **corbeille** (crate `trash`). Les seules suppressions définitives sont les caches 🟢 et le **vidage confirmé de la corbeille** (US-037), qui liste et chiffre ce qu'il détruit ; l'écran l'indique.
 - **S4.** **Liste d'exclusion** gérée par l'utilisateur, qui prime sur toutes les règles.
 - **S5.** **Garde-fous non désactivables :** jamais en dehors des emplacements prévus par une règle ; jamais les profils de navigateur, `Documents`, `Images`, `Vidéos`, `Musique`, `Bureau`, les conteneurs chiffrés (`.hc`, `.vc`, `.kdbx`…), les dossiers `.git`, les fichiers ouverts par un programme.
 - **S6.** **Historique** : date, élément, taille, destination (corbeille ou suppression définitive), et annulation pour ce qui est passé par la corbeille.
@@ -286,13 +290,13 @@ os          = ["linux", "windows", "macos"]
 paths.linux   = ["~/.npm/_cacache"]
 paths.windows = ["%LOCALAPPDATA%/npm-cache/_cacache"]
 paths.macos   = ["~/.npm/_cacache"]
-command     = "npm cache clean --force"   # optionnel : commande officielle préférée à la suppression directe
+command     = "npm cache clean --force"   # optionnel, informatif en V0.1 : affiché en mode avancé, jamais exécuté (US-060.4)
 ```
 
 **Règles minimales pour la V0.1 :**
 - **Communes :** caches npm, pnpm, yarn, pip, Gradle, Cargo (registre), Go (build), Playwright, ms-playwright ; caches des navigateurs (**le cache seulement, jamais le profil**) ; caches de VS Code et de Cursor (VSIX en cache, `CachedData`) ; anciennes versions d'outils (Codex, etc.) ; installeurs dans Téléchargements (`.deb`, `.exe`, `.msi`, `.AppImage`, `.dmg`) en 🟡 ; dossiers de projets recréables en 🟡.
-- **Linux :** `~/.cache` (par sous-dossier connu), corbeille, miniatures.
-- **Windows :** `%TEMP%`, corbeille, `%LOCALAPPDATA%\CrashDumps`, miniatures, ancien dossier `Windows.old` (V0.4, droits administrateur).
+- **Linux :** `~/.cache` (par sous-dossier connu), corbeille (vidage confirmé, 🟡), miniatures.
+- **Windows :** `%TEMP%`, corbeille (vidage confirmé, 🟡), `%LOCALAPPDATA%\CrashDumps`, miniatures, ancien dossier `Windows.old` (V0.4, droits administrateur).
 
 ---
 
@@ -400,7 +404,7 @@ npx web-ext lint --source-dir extension/dist/firefox
 
 | Version | Critère vérifiable |
 |---|---|
-| **V0.1** | Sur la machine Windows de l'ami, une personne non technique libère ≥ 5 Go **en ≤ 3 clics, sans aide** ; aucun fichier hors règle n'est touché (vérifié par l'historique) ; installeur < 15 Mo |
+| **V0.1** | Sur la machine Windows de l'ami, une personne non technique libère ≥ 5 Go (espace réellement libéré, corbeille vidée comprise) **en ≤ 3 clics, sans aide** ; aucun fichier hors règle n'est touché (vérifié par l'historique) ; installeur < 15 Mo |
 | **V0.1** | Sur la machine de référence Linux, Breathly retrouve **au moins 80 %** des ~30 Go libérés à la main le 2026-10-17 |
 | **V0.1** | Quand l'espace libre est < 2 Go, le bandeau d'alerte apparaît à l'ouverture et mène au nettoyage en un clic ; sur une machine chaude sans charge, le diagnostic dit « cause matérielle probable » sans promettre de réparation |
 | **V0.2** | L'ouverture d'un 2e navigateur déclenche la fenêtre d'alerte en < 2 s ; service Breathly < 15 Mo de RAM sur 24 h (cible, voir §9) ; un logiciel gourmand inutilisé depuis 15 min est signalé, jamais fermé sans clic |

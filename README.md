@@ -18,6 +18,8 @@ Built with **Rust** and **Tauri** so the tool itself stays light.
 
 🚧 **Early design phase.** Nothing to install yet. Read the product requirements (in French): [`docs/PRD.md`](docs/PRD.md).
 
+Until v1.0 Breathly never connects to the network: download new versions from the [GitHub Releases](https://github.com/AresGn/Breathly/releases) page.
+
 | Version | Scope |
 |---|---|
 | v0.1 | Diagnosis (disk, RAM, CPU, heat) + safe disk cleanup + low-disk banner (Windows, Linux) |
