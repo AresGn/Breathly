@@ -1,0 +1,35 @@
+date: 2026-10-18T18:02:54+01:00  noyau: 6.1.0-53-amd64  coeurs: 8
+mode=std fils=1 conserve_chemins=false fichiers=2227127 dossiers=314886 octets=132199156587 erreurs=0 duree_ms=46491 t_500k_fichiers_ms=5914 VmHWM_Mo=2 cheminsgardes=0
+mode=jw fils=1 conserve_chemins=false fichiers=2227148 dossiers=314886 octets=132222702855 erreurs=0 duree_ms=32258 t_500k_fichiers_ms=2433 VmHWM_Mo=9 cheminsgardes=0
+mode=jw fils=2 conserve_chemins=false fichiers=2227145 dossiers=314886 octets=132203769775 erreurs=0 duree_ms=27642 t_500k_fichiers_ms=3833 VmHWM_Mo=18 cheminsgardes=0
+mode=jw fils=4 conserve_chemins=false fichiers=2227206 dossiers=314886 octets=132204641514 erreurs=0 duree_ms=17468 t_500k_fichiers_ms=3925 VmHWM_Mo=29 cheminsgardes=0
+mode=jw fils=8 conserve_chemins=false fichiers=2227207 dossiers=314886 octets=132204757569 erreurs=0 duree_ms=13695 t_500k_fichiers_ms=2819 VmHWM_Mo=36 cheminsgardes=0
+mode=std fils=1 conserve_chemins=false fichiers=2227208 dossiers=314886 octets=132204856128 erreurs=0 duree_ms=36945 t_500k_fichiers_ms=3089 VmHWM_Mo=2 cheminsgardes=0
+mode=jw fils=1 conserve_chemins=false fichiers=2227259 dossiers=314886 octets=132205548808 erreurs=0 duree_ms=35074 t_500k_fichiers_ms=2610 VmHWM_Mo=9 cheminsgardes=0
+mode=jw fils=2 conserve_chemins=false fichiers=2227266 dossiers=314886 octets=132206684433 erreurs=0 duree_ms=26744 t_500k_fichiers_ms=4603 VmHWM_Mo=19 cheminsgardes=0
+mode=jw fils=4 conserve_chemins=false fichiers=2227267 dossiers=314886 octets=132207464248 erreurs=0 duree_ms=15666 t_500k_fichiers_ms=4145 VmHWM_Mo=27 cheminsgardes=0
+mode=jw fils=8 conserve_chemins=false fichiers=2227266 dossiers=314886 octets=132207970139 erreurs=0 duree_ms=5622 t_500k_fichiers_ms=1408 VmHWM_Mo=50 cheminsgardes=0
+mode=std fils=1 conserve_chemins=false fichiers=2227266 dossiers=314886 octets=132207982499 erreurs=0 duree_ms=8329 t_500k_fichiers_ms=1909 VmHWM_Mo=2 cheminsgardes=0
+mode=jw fils=1 conserve_chemins=false fichiers=2227267 dossiers=314886 octets=132207868789 erreurs=0 duree_ms=9657 t_500k_fichiers_ms=2166 VmHWM_Mo=10 cheminsgardes=0
+mode=jw fils=2 conserve_chemins=false fichiers=2227271 dossiers=314886 octets=132207844469 erreurs=0 duree_ms=5557 t_500k_fichiers_ms=1248 VmHWM_Mo=19 cheminsgardes=0
+mode=jw fils=4 conserve_chemins=false fichiers=2227271 dossiers=314886 octets=132207865101 erreurs=0 duree_ms=3783 t_500k_fichiers_ms=844 VmHWM_Mo=33 cheminsgardes=0
+mode=jw fils=8 conserve_chemins=false fichiers=2227271 dossiers=314886 octets=132207885701 erreurs=0 duree_ms=2854 t_500k_fichiers_ms=678 VmHWM_Mo=49 cheminsgardes=0
+mode=jw fils=8 conserve_chemins=true fichiers=2227272 dossiers=314886 octets=132207914573 erreurs=0 duree_ms=4397 t_500k_fichiers_ms=1382 VmHWM_Mo=714 cheminsgardes=2227272
+FIN
+date: 2026-10-18T18:08:16+01:00 charge: 2.85 3.06 1.83
+mode=std fils=1 conserve_chemins=false fichiers=2227272 dossiers=314886 octets=132207925467 erreurs=0 duree_ms=8584 t_500k_fichiers_ms=2205 VmHWM_Mo=2 cheminsgardes=0
+mode=jw fils=1 conserve_chemins=false fichiers=2227274 dossiers=314886 octets=132207972009 erreurs=0 duree_ms=10072 t_500k_fichiers_ms=2257 VmHWM_Mo=10 cheminsgardes=0
+mode=jw fils=2 conserve_chemins=false fichiers=2227274 dossiers=314886 octets=132208009089 erreurs=0 duree_ms=5801 t_500k_fichiers_ms=1256 VmHWM_Mo=20 cheminsgardes=0
+mode=jw fils=4 conserve_chemins=false fichiers=2227274 dossiers=314886 octets=132208029689 erreurs=0 duree_ms=3892 t_500k_fichiers_ms=864 VmHWM_Mo=29 cheminsgardes=0
+mode=jw fils=8 conserve_chemins=false fichiers=2227274 dossiers=314886 octets=132207922569 erreurs=0 duree_ms=2952 t_500k_fichiers_ms=669 VmHWM_Mo=46 cheminsgardes=0
+mode=std fils=1 conserve_chemins=false fichiers=2227274 dossiers=314886 octets=132207926689 erreurs=0 duree_ms=8306 t_500k_fichiers_ms=1908 VmHWM_Mo=2 cheminsgardes=0
+mode=jw fils=1 conserve_chemins=false fichiers=2227277 dossiers=314886 octets=132208002007 erreurs=0 duree_ms=10110 t_500k_fichiers_ms=2275 VmHWM_Mo=11 cheminsgardes=0
+mode=jw fils=2 conserve_chemins=false fichiers=2227277 dossiers=314886 octets=132207952567 erreurs=0 duree_ms=5766 t_500k_fichiers_ms=1296 VmHWM_Mo=19 cheminsgardes=0
+mode=jw fils=4 conserve_chemins=false fichiers=2227279 dossiers=314886 octets=132208001804 erreurs=0 duree_ms=3748 t_500k_fichiers_ms=794 VmHWM_Mo=39 cheminsgardes=0
+mode=jw fils=8 conserve_chemins=false fichiers=2227279 dossiers=314886 octets=132208018284 erreurs=0 duree_ms=3005 t_500k_fichiers_ms=659 VmHWM_Mo=49 cheminsgardes=0
+mode=std fils=1 conserve_chemins=false fichiers=2227283 dossiers=314886 octets=132208076271 erreurs=0 duree_ms=8230 t_500k_fichiers_ms=1952 VmHWM_Mo=2 cheminsgardes=0
+mode=jw fils=1 conserve_chemins=false fichiers=2227286 dossiers=314886 octets=132208077825 erreurs=0 duree_ms=10144 t_500k_fichiers_ms=2241 VmHWM_Mo=10 cheminsgardes=0
+mode=jw fils=2 conserve_chemins=false fichiers=2227288 dossiers=314886 octets=132208147662 erreurs=0 duree_ms=5738 t_500k_fichiers_ms=1253 VmHWM_Mo=23 cheminsgardes=0
+mode=jw fils=4 conserve_chemins=false fichiers=2227288 dossiers=314886 octets=132208164142 erreurs=0 duree_ms=3730 t_500k_fichiers_ms=778 VmHWM_Mo=31 cheminsgardes=0
+mode=jw fils=8 conserve_chemins=false fichiers=2227288 dossiers=314886 octets=132208184742 erreurs=0 duree_ms=3053 t_500k_fichiers_ms=770 VmHWM_Mo=52 cheminsgardes=0
+charge fin: 3.00 3.07 1.96
