@@ -1,0 +1,73 @@
+// Banc d'essai jetable du parcours du disque (ticket #48). Lit seulement les métadonnées (taille), ne lit aucun contenu,
+// ne modifie rien, n'affiche aucun chemin : uniquement des compteurs, des durées et la mémoire.
+use jwalk::{Parallelism, WalkDirGeneric};
+use std::collections::BinaryHeap;
+use std::cmp::Reverse;
+use std::path::PathBuf;
+use std::time::Instant;
+
+fn status(key: &str) -> u64 {
+    std::fs::read_to_string("/proc/self/status").ok().and_then(|s| {
+        s.lines().find(|l| l.starts_with(key)).and_then(|l| l.split_whitespace().nth(1)?.parse::<u64>().ok())
+    }).unwrap_or(0)
+}
+
+#[derive(Default)]
+struct Totals { files: u64, dirs: u64, bytes: u64, errors: u64, t_500k_ms: u128 }
+
+fn std_walk(root: &str, t: &mut Totals, start: Instant, top: &mut BinaryHeap<Reverse<u64>>) {
+    let mut stack = vec![PathBuf::from(root)];
+    while let Some(dir) = stack.pop() {
+        let Ok(rd) = std::fs::read_dir(&dir) else { t.errors += 1; continue };
+        t.dirs += 1;
+        for e in rd {
+            let Ok(e) = e else { t.errors += 1; continue };
+            let Ok(md) = std::fs::symlink_metadata(e.path()) else { t.errors += 1; continue };
+            if md.is_dir() { stack.push(e.path()); }
+            else if md.is_file() {
+                t.files += 1; t.bytes += md.len();
+                top.push(Reverse(md.len())); if top.len() > 20 { top.pop(); }
+                if t.files == 500_000 { t.t_500k_ms = start.elapsed().as_millis(); }
+            }
+        }
+    }
+}
+
+fn main() {
+    let a: Vec<String> = std::env::args().collect();
+    let (mode, threads, root, keep) = (a[1].as_str(), a[2].parse::<usize>().unwrap(), a[3].as_str(), a.get(4).map(|s| s == "paths").unwrap_or(false));
+    let start = Instant::now();
+    let mut t = Totals::default();
+    let mut top: BinaryHeap<Reverse<u64>> = BinaryHeap::new();
+    let mut paths: Vec<PathBuf> = Vec::new();
+    if mode == "std" {
+        std_walk(root, &mut t, start, &mut top);
+    } else {
+        let walk = WalkDirGeneric::<((), Option<u64>)>::new(root)
+            .parallelism(if threads == 0 { Parallelism::RayonDefaultPool { busy_timeout: std::time::Duration::from_secs(1) } } else { Parallelism::RayonNewPool(threads) })
+            .skip_hidden(false).follow_links(false)
+            .process_read_dir(|_d, _p, _s, children| {
+                for c in children.iter_mut() {
+                    if let Ok(e) = c { if e.file_type().is_file() { e.client_state = e.metadata().ok().map(|m| m.len()); } }
+                }
+            });
+        for e in walk {
+            match e {
+                Ok(e) => {
+                    if e.file_type().is_dir() { t.dirs += 1; }
+                    else if e.file_type().is_file() {
+                        t.files += 1;
+                        let len = e.client_state.unwrap_or(0); t.bytes += len;
+                        top.push(Reverse(len)); if top.len() > 20 { top.pop(); }
+                        if keep { paths.push(e.path()); }
+                        if t.files == 500_000 { t.t_500k_ms = start.elapsed().as_millis(); }
+                    }
+                }
+                Err(_) => t.errors += 1,
+            }
+        }
+    }
+    let ms = start.elapsed().as_millis();
+    println!("mode={mode} fils={threads} conserve_chemins={keep} fichiers={} dossiers={} octets={} erreurs={} duree_ms={ms} t_500k_fichiers_ms={} VmHWM_Mo={} cheminsgardes={}",
+        t.files, t.dirs, t.bytes, t.errors, t.t_500k_ms, status("VmHWM:") / 1024, paths.len());
+}
