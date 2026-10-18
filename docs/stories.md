@@ -142,7 +142,7 @@
 **US-037.** En tant qu'utilisateur, je veux vider la corbeille depuis Breathly après avoir vu ce qu'elle contient, afin de libérer réellement l'espace des fichiers déjà nettoyés.
 - US-037.1 : « Vider la corbeille » est un élément 🟡 distinct, jamais coché par défaut (règle « corbeille » du §8). [auto]
 - US-037.2 : avant confirmation, Breathly affiche le nombre d'éléments et la taille qui seront détruits, avec l'avertissement « suppression définitive, impossible à annuler ». [auto]
-- US-037.4 *(décision)* : si « Vider la corbeille » est cochée avec d'autres éléments, N1 liste tout, puis la confirmation forte N5 (nombre, taille, « impossible à annuler ») s'affiche en plus avant toute action. [auto]
+- US-037.4 *(décision, modifiée le 2026-10-18)* : si « Vider la corbeille » est cochée avec d'autres éléments, N1 liste les fichiers à nettoyer et annonce que le vidage sera proposé ensuite ; le nettoyage a lieu d'abord, puis la confirmation forte N5 (nombre et taille recalculés après le nettoyage, « impossible à annuler ») s'affiche avant tout vidage. Si « Vider la corbeille » est la seule case cochée, « Nettoyer » mène directement à N5. [auto]
 - US-037.3 : sans confirmation, la corbeille n'est pas modifiée ; après confirmation, l'écran affiche l'espace libéré et l'historique l'inscrit comme suppression définitive. [auto]
 
 ## Historique et annulation
@@ -250,7 +250,7 @@
 - Historique : effacement limité aux entrées non annulables (US-040.3) ; conservation 12 mois puis rotation (US-040.4).
 - Persistance de la chauffe : 3 relevés du même diagnostic (US-013.2).
 - Machines à états (design 0001) : arrêt d'un nettoyage après l'élément en cours (US-036.3) ; une seule analyse à la fois par type (US-001.4) ; entrée `pending` avant l'action et vérifiée après un plantage (US-040.5, US-040.6) ; état « non annulable » vérifié à la demande seulement (US-040.7).
-- Maquettes (2026-10-18) : vidage coché avec d'autres éléments, N1 puis N5 (US-037.4) ; niveau de risque des recommandations sur la même échelle (US-012.1) ; libellés d'état de l'historique (US-040.8) ; logo provisoire à vectoriser avant la première publication.
+- Maquettes (2026-10-18) : vidage coché avec d'autres éléments, N1 puis N5 (US-037.4, modifié le 2026-10-18 : le vidage vient après le nettoyage, sur une liste recalculée, pour que ce que le nettoyage vient d'envoyer à la corbeille soit libéré aussi) ; niveau de risque des recommandations sur la même échelle (US-012.1) ; libellés d'état de l'historique (US-040.8) ; logo provisoire à vectoriser avant la première publication.
 - Les 11 précisions ajoutées en rédigeant les stories (US-001.3, 002.1, 002.2, 003.1, 004.3, 012.3, 020.4, 032.2, 034.3, 041.2, 073.3) sont toutes conservées.
 
 ---
