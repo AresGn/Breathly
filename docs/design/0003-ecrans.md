@@ -95,7 +95,7 @@ Chaque écran a un **identifiant stable** (H1, D2…) repris par les tickets. Le
 |---|---|---|---|
 | D1 | État du PC | Cartes : **Disque** (libre / total), **Mémoire (RAM)**, **Swap**, **Processeur (CPU)**, **Chauffe** (température ou « non disponible »). **Au plus 5 recommandations** classées (titre simple, gain estimé, niveau de risque, bouton d'action ou d'explication). Listes **Top 10 des logiciels par RAM** et **par CPU**. Section **À examiner** (processus ou services système inconnus et gourmands, avec explication et renvoi vers l'antivirus du système). Mode avancé : noms de processus, chemins. | US-010 à US-014 |
 | D2 | Chauffe | Explication par paliers : normal sous charge / un logiciel gourmand (nommé) / cause matérielle probable avec **liste de vérifications** (aération, poussière, mode d'alimentation, ventilateur) ; « consulter un technicien » seulement si la chauffe persiste. Aucune promesse de réparation. | US-013 |
-| D3 | Réglage recommandé (Linux) | Recommandation de swap compressé (zram) : explication en mots simples, **bouton « Copier la commande »**, commande exacte dans un bloc **replié** « Voir la commande ». Breathly n'exécute rien. | US-015 |
+| D3 | Réglage recommandé (Linux) | Recommandation de swap compressé (zram) : explication en mots simples, **bouton « Copier la commande »**, commande exacte dans un bloc **replié** « Voir la commande ». Breathly n'exécute rien. Commande à afficher pour Debian, Ubuntu et Mint : `sudo apt install zram-tools`. Sous Fedora, la recommandation n'apparaît pas (le swap sur zram y est activé par défaut). Le texte de la commande est celui de la distribution détectée : la maquette montre le cas Debian, Ubuntu, Mint. | US-015 |
 
 ### S. Espace disque
 
@@ -128,7 +128,7 @@ Chaque écran a un **identifiant stable** (H1, D2…) repris par les tickets. Le
 | Id | Écran | Contenu et actions | Stories |
 |---|---|---|---|
 | R1 | Général | **Langue** (français, anglais), **thème** (clair, sombre, système), **mode** (simple, avancé). | US-002 à US-004 |
-| R2 | Seuils | Seuil d'alerte d'espace libre (2 Go par défaut), seuils du diagnostic, réglables. | US-020, US-010.3 |
+| R2 | Seuils | Quatre seuils réglables, avec leur valeur par défaut : **espace libre minimal 2 Go** ; **disque occupé 90 %** ; **swap 50 %, seulement si la RAM disponible est sous 15 %** ; **température 80 °C au repos**. Pas de seuil de RAM ni de CPU en V0.1 (ils arrivent en V0.2, pour le suivi des logiciels inutilisés). Bouton « Rétablir les valeurs par défaut ». | US-020, US-010.3 |
 | R3 | Exclusions | **Liste d'exclusion** : ajouter ou retirer un emplacement que Breathly ne touchera jamais ; rappel des emplacements toujours protégés (Documents, Images, Vidéos, Musique, Bureau, profils de navigateur, conteneurs chiffrés, dossiers .git). | US-035 |
 
 ### T. Onglets (esquisse pour la V0.3, à ne pas détailler)
@@ -200,6 +200,15 @@ Identité visuelle (palette, typographie, logo, icône de l'application), textes
 2. Logo et icône de l'application (Breathly) : à proposer.
 3. Présence d'une illustration d'accueil, ou accueil purement typographique.
 
-## 12. Après la livraison
+## 12. Réponses aux questions du designer (2026-10-18)
+
+- **Ton** : vouvoiement.
+- **Accueil** : petite illustration, vectorielle et simple.
+- **Total « libérable »** : 13,7 Go, les gros fichiers étant montrés à part et jamais comptés.
+- **Vider la corbeille** : case décochée dans la liste S2.
+- **Commande zram** : `sudo apt install zram-tools` est la commande exacte pour Debian, Ubuntu et Mint. Elle a été vérifiée le 2026-10-18 : le paquet `zram-tools` existe dans Debian stable et dans Ubuntu 22.04, 24.04 et suivants (composant universe). Ce qui n'est pas vérifié : l'activation automatique du service après l'installation, et le cas Linux Mint lui-même. Breathly affiche la commande de la distribution détectée ; sous Fedora la recommandation n'existe pas.
+- **Seuils de R2** : ceux du dossier (§5, écran R2), pas les propositions « RAM 85 %, swap 80 %, processeur 90 % ». Le seuil de swap est « 50 % avec RAM disponible sous 15 % ». RAM et CPU n'ont pas de seuil en V0.1.
+
+## 13. Après la livraison
 
 Les maquettes validées sont déposées dans `docs/design/maquettes/` avec un `README.md` (liste des écrans, jetons, écarts connus). Les jetons deviennent le thème de l'interface Svelte ; aucune couleur n'est écrite en dur dans un composant. Une maquette change dans la même PR que le code qui la modifie.
