@@ -20,10 +20,10 @@ Dernière vérification des versions : 2026-10-18 (poste du propriétaire : Linu
 | Git, `make`, `bash`, Python 3 | récents | tout (hooks, outils de `tools/`) |
 | `gh` (CLI GitHub), authentifié | récent | tickets, `make ci-local`, `make backlog` |
 | Rust (via `rustup`) | version fixée par `rust-toolchain.toml` (1.97.1 à ce jour) | cœur, application Tauri |
-| Node.js (LTS) et pnpm | à fixer à l'étape 5 | interface Svelte (et extension en V0.3) |
+| Node.js (LTS) et pnpm | Node 24.16.0 et pnpm 11.5.3 (éprouvés le 2026-10-18) ; `packageManager` à fixer à l'étape 5 | interface Svelte (et extension en V0.3) |
 | Linux : paquets de développement de Tauri | `sudo apt update` puis `sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev` | construire l'application (liste de la page officielle Tauri v2 pour Debian, lue le 2026-10-18) |
 | Windows : Microsoft C++ Build Tools (« Desktop development with C++ ») et WebView2 | WebView2 est déjà présent sur Windows 10 (1803) et suivants | construire l'application |
-| `cargo-audit` | à vérifier à l'étape 4 | `make check` |
+| `cargo-audit` et `cargo-deny` | `cargo install cargo-audit --version 0.22.2 --locked` et `cargo install cargo-deny --version 0.20.2 --locked` (éprouvés le 2026-10-18) | `make audit` (avis de sécurité, demande Internet) et `make check` (bibliothèques réseau interdites, sens des dépendances) |
 
 Windows : l'application se compile avec les outils **natifs** (MSVC, WebView2) ; les scripts et le `Makefile` sont en bash (Git Bash ou WSL 2). Compilation sous Windows : non vérifiée à ce jour, à essayer sur la machine de validation. Ajouter une règle TOML ou une traduction ne demande **aucun** outil de compilation.
 

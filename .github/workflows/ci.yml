@@ -67,8 +67,23 @@ jobs:
       matrix: ${{ fromJSON(needs.detect.outputs.matrix) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # La version de Rust vient de rust-toolchain.toml (ADR 0011), pas de « stable ».
       - if: matrix.stack == 'rust'
-        run: rustup toolchain install stable --profile minimal -c clippy,rustfmt
+        run: rustup toolchain install --profile minimal
+      # Versions des outils éprouvées le 2026-10-18 (docs/research/2026-10-18-outils-etape-4.md). Non vérifié sur un
+      # exécuteur hébergé : le premier passage de la CI hébergée confirmera.
+      - if: matrix.stack == 'rust'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: cargo-tools
+        with:
+          path: |
+            ~/.cargo/bin/cargo-audit
+            ~/.cargo/bin/cargo-deny
+          key: cargo-tools-audit-0.22.2-deny-0.20.2-${{ runner.os }}
+      - if: matrix.stack == 'rust' && steps.cargo-tools.outputs.cache-hit != 'true'
+        run: |
+          cargo install cargo-audit --version 0.22.2 --locked
+          cargo install cargo-deny --version 0.20.2 --locked
       - if: contains(fromJSON('["typescript-nextjs","node-api"]'), matrix.stack)
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
@@ -76,9 +91,9 @@ jobs:
       - if: contains(fromJSON('["typescript-nextjs","node-api"]'), matrix.stack)
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
-          cache-dependency-path: ${{ matrix.path }}/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
       - name: Setup de l'application
         run: bash tools/stack.sh setup "${{ matrix.path }}"
       - name: Portes (lint, statique, architecture, tests)

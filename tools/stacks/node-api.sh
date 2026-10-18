@@ -3,6 +3,7 @@
 STACK_MARKER="package.json"
 stack_setup()  { pnpm install --frozen-lockfile; }
 stack_lint()   { pnpm lint; }
+stack_fix()    { pnpm fix; }
 stack_static() { pnpm typecheck; }
 stack_test()   { pnpm test; }
 stack_audit()  { pnpm audit --audit-level=high; }
