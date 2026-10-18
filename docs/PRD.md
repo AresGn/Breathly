@@ -1,7 +1,7 @@
 # Breathly — Product Requirements Document
 
 > *Let your PC breathe.*
-> Statut : **brouillon v0.1 — cadrage validé le 2026-10-17 (§0, §17) ; user stories numérotées et specs par module encore à écrire** · Dernière mise à jour : 2026-10-17
+> Statut : **brouillon v0.2 — cadrage validé les 2026-10-17 et 2026-10-18 (§0, §17) ; user stories numérotées et specs par module encore à écrire** · Dernière mise à jour : 2026-10-18
 
 ---
 
@@ -16,6 +16,17 @@ Ces points orientent tout le reste du document. Ils sont validés par le propri�
 5. **Licence : MIT** (fichier `LICENSE` du dépôt). ✅ Décidé.
 6. **Breathly ne supprime jamais rien sans montrer la liste et obtenir une confirmation.** ✅
 
+### Décisions du 2026-10-18 ✅
+
+7. **Droits administrateur :** élévation **ponctuelle**, une action à la fois, par la fenêtre standard de l'OS (UAC, polkit), avec explication préalable ; **mode guidé** (commande exacte à copier) quand l'élévation est impossible ou refusée. Pas de « mode superadmin » : Breathly ne tourne jamais en administrateur (§7.8).
+8. **Surchauffe :** paliers et conseils guidés ; Breathly distingue cause logicielle et cause matérielle, ne promet aucune réparation et oriente vers un technicien seulement si cela persiste (D5).
+9. **Utilisateurs :** trois profils d'usage (technique, créatif, bureautique et famille) ; le système d'exploitation est un attribut, pas un profil (§2). Écrans conçus pour tous, centrés sur l'utilisateur.
+10. **Logiciels inutilisés :** liste instantanée des gros consommateurs de RAM **et de CPU** en V0.1 ; suivi d'inactivité (15 min, réglable) avec notification en V0.2 (`app-watch`).
+11. **Espace disque faible (< 2 Go libres) :** bandeau à l'ouverture en V0.1 ; notification système avec le service en V0.2.
+12. **Processus et services inconnus ou gourmands :** signalés « à vérifier » sans prétendre détecter un virus ; Breathly n'est pas un antivirus (§3).
+13. **Réglages du système (zram, swappiness…) :** diagnostic et commande exacte en V0.1 ; application par Breathly en V0.4 (`system-tune`), après vérification de chaque paquet et de chaque distribution.
+14. **Légèreté (G5) :** budgets chiffrés **mesurés par le prototype** (étape 2.9 du parcours) et fixés par ADR ; le code est conçu dès le départ pour les tenir.
+
 ---
 
 ## 1. Problème
@@ -28,7 +39,9 @@ Les PC « qui rament » ont presque toujours les mêmes causes, sur tous les sys
 | **RAM saturée → swap** | Gels, PC lent « presque tout le temps » | Swap pleine (7,5/7,6 Go) avec 16 Go de RAM |
 | **Trop d'onglets / de navigateurs** | On n'ose pas fermer ses onglets, surtout les épinglés | Firefox + Zen + Brave ouverts en même temps, dizaines d'onglets épinglés pour ~10 vraiment utilisés |
 | **Programmes lancés au démarrage** | Le PC est lent dès l'allumage | Apache, MariaDB, PostgreSQL, Redis, Tor, BreakTimer (580 Mo) lancés en permanence |
-| **Surchauffe** | Le processeur ralentit pour se protéger | 70 °C à 10 % de charge |
+| **Logiciels ouverts mais inutilisés** | RAM et CPU occupés par des programmes qu'on n'utilise plus (agents en arrière-plan, OBS Studio ouvert depuis des heures…) | Plusieurs agents et outils gourmands lancés et oubliés |
+| **Processus et services inconnus** | Ressources consommées par un service dont on ignore l'existence (parfois un logiciel indésirable sous Windows) | Services en arrière-plan inattendus repérés sur la machine de référence |
+| **Surchauffe** | Le processeur ralentit pour se protéger. Cause logicielle (processus gourmand) ou matérielle (poussière, ventilation, pâte thermique) | 70 °C à 10 % de charge |
 
 Les outils existants traitent chacun **un morceau** du problème et ne savent pas **expliquer** :
 
@@ -46,38 +59,44 @@ Les outils existants traitent chacun **un morceau** du problème et ne savent pa
 
 ## 2. Utilisateurs cibles
 
-| Persona | Système | Besoin principal | Niveau technique |
-|---|---|---|---|
-| **Le développeur aux 50 onglets** | Linux (LMDE / Debian) | Garder ses onglets épinglés sans que le PC s'effondre ; nettoyer les caches de développement | Élevé |
-| **L'ami sous Windows** | Windows 11 | « Mon disque est plein et je ne sais pas quoi supprimer » | Faible |
-| **L'amie sous Ubuntu** | Ubuntu (Firefox en snap) | PC lent, disque plein | Moyen |
-| **Le parent** | Windows ou Linux | Cliquer sur un bouton et comprendre ce qui se passe | Très faible |
+Toute personne dont le PC rame, est souvent plein et qui ne comprend pas ce qui se passe. Le système d'exploitation ne décrit pas la personne : un développeur utilise Windows aussi bien qu'Ubuntu. On distingue donc **trois profils d'usage**, chacun avec un niveau technique ; Windows, Ubuntu, Mint ou Fedora sont des attributs.
 
-**Règle de conception :** chaque écran doit pouvoir être utilisé par le persona « parent ». Le détail technique est disponible, mais jamais imposé.
+| Profil | Qui | Ce qui le fait ramer | Besoin principal | Niveau technique |
+|---|---|---|---|---|
+| **Technique** | Développeurs, administrateurs, étudiants en informatique (Windows ou Linux) | Dizaines d'onglets épinglés, services de développement au démarrage, caches (`node_modules`, Gradle, Cargo), conteneurs | Garder ses onglets sans que le PC s'effondre ; nettoyer les caches ; comprendre un service qui tourne | Élevé |
+| **Créatif** | Designers, graphistes, vidéastes, photographes | Gros fichiers et projets, caches de logiciels de montage et de dessin, plusieurs logiciels lourds ouverts à la fois | Retrouver de l'espace sans toucher aux projets ; savoir quel logiciel pèse sur la RAM et le CPU | Moyen |
+| **Bureautique et famille** | Secrétaires, parents, personnes sans formation technique | Disque plein, démarrage lent, navigateur chargé, logiciels inconnus en arrière-plan | « Cliquer sur un bouton et comprendre ce qui se passe » | Très faible |
+
+**Machines de validation** (tests réels avant chaque version, §13) : le Linux du développeur (LMDE), le Windows 11 d'un ami, l'Ubuntu d'une amie (Firefox en snap). Ce sont des machines de test, pas des personas.
+
+**Règle de conception : des écrans pour tout le monde, centrés sur l'utilisateur.** Chaque écran est utilisable par le profil « bureautique et famille » : mode simple par défaut, une action principale par écran, mots de tous les jours. Le détail technique est disponible à la demande (mode avancé), jamais imposé. L'UI/UX se valide avec une personne de chaque profil.
 
 ---
 
 ## 3. Objectifs et non-objectifs
 
 ### Objectifs
-- **G1.** Répondre en moins d'une minute à « pourquoi mon PC est lent ? », en langage simple.
+- **G1.** Répondre en moins d'une minute à « pourquoi mon PC est lent ? », en langage simple (disque, mémoire, processeur, chauffe).
 - **G2.** Libérer de l'espace disque **sans risque pour les données personnelles**.
-- **G3.** Réduire la RAM consommée par les navigateurs **sans obliger à fermer des onglets**.
+- **G3.** Réduire la RAM et le CPU consommés par ce qui est ouvert sans être utilisé : **les navigateurs** (sans obliger à fermer des onglets) **et tous les autres logiciels** (un logiciel gourmand inutilisé depuis 15 min est signalé ; l'utilisateur décide).
 - **G4.** Éviter d'avoir plusieurs navigateurs ouverts en même temps sans le vouloir.
-- **G5.** Être **lui-même léger** : un outil anti-lenteur qui ralentit le PC n'a pas de sens.
+- **G5.** Être **lui-même léger** : un outil anti-lenteur qui ralentit le PC n'a pas de sens. **L'architecture et le code sont conçus dès le départ pour tenir des budgets mesurables** (§9) : rien ne tourne quand ce n'est pas nécessaire, une seule instance de surveillance, des mesures échantillonnées et non continues.
+- **G7.** **Alerter quand l'espace libre passe sous 2 Go** (seuil réglable), avec un nettoyage clair en un clic.
+- **G8.** **Repérer les processus et services inconnus ou gourmands** et les signaler « à vérifier », sans prétendre détecter un virus.
+- **G9.** **Guider les réglages du système** qui aident la machine (swap compressé, mode d'alimentation, démarrage), puis les appliquer avec accord quand l'OS le permet.
 - **G6.** Être **facile à étendre** par la communauté (nouveaux caches, nouveaux navigateurs, nouvelles langues) sans écrire de Rust.
 
 ### Non-objectifs (ce que Breathly ne fera jamais)
 - ❌ **« Nettoyeur de registre » Windows** : gain nul, risque réel.
 - ❌ **« Booster de RAM »** qui vide la mémoire de force : contre-productif.
-- ❌ Antivirus, mise à jour de pilotes, VPN, ou tout ce qui sort du sujet.
+- ❌ **Antivirus** : Breathly signale des processus « à vérifier » mais ne prétend jamais détecter un virus, ne dit jamais « votre PC est sain » et ne supprime pas ces fichiers lui-même. Mise à jour de pilotes, VPN et tout ce qui sort du sujet sont aussi exclus.
 - ❌ Comptes, synchronisation dans le cloud, publicité, télémétrie activée par défaut.
 - ❌ Supprimer des **données personnelles** (documents, photos, profils de navigateur, conteneurs chiffrés, bases de données) **de sa propre initiative**. L'utilisateur peut les voir dans l'analyse, mais Breathly ne les propose jamais au nettoyage automatique.
 - ❌ Application mobile.
 
 ---
 
-## 4. Principes produit
+## 4. Principes produit (validés le 2026-10-18)
 
 1. **Montrer avant d'agir.** Toute action affiche ce qui va se passer et ce que ça libère. Une simulation est toujours possible.
 2. **Réversible par défaut.** Les fichiers de l'utilisateur vont **dans la corbeille** du système. Seuls les caches (qui se recréent tout seuls) sont supprimés définitivement. Chaque action est notée dans un **historique** et peut être annulée quand c'est possible.
@@ -88,6 +107,7 @@ Les outils existants traitent chacun **un morceau** du problème et ne savent pa
 4. **Expliquer chaque proposition en une phrase** (« C'est le cache de npm : il se recrée automatiquement au prochain `npm install` »). Le détail technique reste accessible.
 5. **Ne rien casser.** En cas de doute, Breathly ne propose pas l'action. Il vaut mieux libérer 20 Go sans risque que 25 Go dont 5 de trop.
 6. **Sobriété.** Le service en arrière-plan consomme moins qu'un onglet ouvert. La fenêtre ne tourne que quand elle est ouverte.
+7. **Pour tout le monde.** Mode simple par défaut, jargon absent de l'écran principal, détail technique à la demande. Breathly propose et explique ; c'est l'utilisateur qui décide (aucune fermeture de logiciel, aucune suppression ni aucun réglage sans son accord).
 
 ---
 
@@ -99,24 +119,28 @@ Chaque module a un identifiant stable. Ces identifiants nomment les specs détai
 |---|---|---|
 | `platform` | Abstraction du système d'exploitation : processus, RAM, swap, disques, températures, chemins standard, corbeille, droits administrateur | — |
 | `rules` | Format et chargement des **règles de nettoyage** déclaratives (TOML) : emplacement, OS, niveau de risque, explication, commande éventuelle | — |
-| `diagnose` | Analyse « pourquoi mon PC est lent » : score, causes classées, recommandations | `platform` |
+| `diagnose` | Analyse « pourquoi mon PC est lent » : disque, RAM, swap, CPU, chauffe, gros consommateurs, processus à vérifier, recommandations | `platform` |
 | `disk-scan` | Parcours rapide du disque, regroupement par catégorie, application des règles | `platform`, `rules` |
 | `disk-clean` | Exécution des nettoyages : simulation, corbeille, historique, annulation | `platform`, `rules`, `disk-scan` |
 | `daemon` | Service léger en arrière-plan : icône dans la barre des tâches, IPC avec l'interface, planification | `platform` |
+| `app-watch` | Suivi des logiciels gourmands et inutilisés (RAM et CPU), notification « fermer / ignorer », alerte d'espace disque faible | `platform`, `daemon` |
+| `system-tune` | Réglages du système guidés puis appliqués (zram, swappiness, mode d'alimentation…) avec élévation ponctuelle et retour arrière | `platform`, `rules` |
 | `browser-guard` | Détection des navigateurs ouverts, RAM par navigateur, alertes « un autre navigateur est déjà ouvert » | `platform`, `daemon` |
 | `tab-sleep` | Extension navigateur et hôte *native messaging* : mise en veille des onglets, apprentissage des onglets du quotidien, statistiques | `daemon`, `browser-guard` |
 | `startup` | Liste et désactivation des programmes et services lancés au démarrage | `platform` |
 | `app-ui` | Application Tauri : écrans, i18n, accessibilité, thème clair/sombre | tous les modules ci-dessus (via des commandes Tauri) |
 
 **Ordre de construction :**
-`platform`, `rules` → `diagnose`, `disk-scan` → `disk-clean` → `app-ui` (V0.1) → `daemon` → `browser-guard` (V0.2) → `tab-sleep` (V0.3) → `startup` (V0.4)
+`platform`, `rules` → `diagnose`, `disk-scan` → `disk-clean` → `app-ui` (V0.1) → `daemon` → `browser-guard`, `app-watch` (V0.2) → `tab-sleep` (V0.3) → `startup`, `system-tune` (V0.4)
 
 ```
 platform ─┬─> diagnose ───────────────────────┐
           ├─> disk-scan ─> disk-clean ────────┤
 rules ────┘                                   ├─> app-ui
-          ├─> daemon ─> browser-guard ─> tab-sleep ┤
-          └─> startup ────────────────────────┘
+          ├─> daemon ─┬─> browser-guard ─> tab-sleep ┤
+          │           └─> app-watch ───────────────┤
+          ├─> startup ─────────────────────────────┤
+rules ────┴─> system-tune ─────────────────────────┘
 ```
 
 ---
@@ -124,31 +148,34 @@ rules ────┘                                   ├─> app-ui
 ## 6. Périmètre par version
 
 ### V0.1 « Respire » : diagnostic et disque
-*L'ami sous Windows et l'amie sous Ubuntu peuvent libérer de l'espace et comprendre pourquoi leur PC est lent.*
+*Une personne de n'importe quel profil, sous Windows ou Linux, peut libérer de l'espace et comprendre pourquoi son PC est lent. Validation : l'ami sous Windows et l'amie sous Ubuntu.*
 
 **Plateformes :** Windows 10/11, Linux (Debian/Ubuntu/Mint, Fedora).
 
 | Module | Inclus | Exclu (plus tard) |
 |---|---|---|
-| `platform` | Processus, RAM, swap, disques, température du processeur quand elle est disponible, corbeille, chemins standard | Droits administrateur (V0.4) |
+| `platform` | Processus, RAM, swap, **charge CPU**, disques, température du processeur quand elle est disponible, corbeille, chemins standard | Élévation des droits administrateur (V0.4) ; en V0.1 le mode guidé affiche la commande à copier |
 | `rules` | Format TOML, ~40 règles de départ (§8) | Règles qui demandent des droits administrateur |
-| `diagnose` | Écran « État du PC » : disque, RAM, swap, chauffe, **top 10 des applications par RAM (processus regroupés par application)**, recommandations en phrases simples | Historique dans le temps |
+| `diagnose` | Écran « État du PC » : disque, RAM, swap, CPU, chauffe interprétée par paliers (D5), **top 10 des applications par RAM et par CPU (processus regroupés par application)**, processus et services « à vérifier » (D6), état du swap et recommandation zram avec la commande exacte (D7), recommandations en phrases simples | Historique dans le temps, suivi d'inactivité (V0.2), application des réglages (V0.4) |
 | `disk-scan` | Analyse du dossier personnel + caches connus, catégories 🟢🟡🔴, **plus gros fichiers et dossiers**, dossiers de projets recréables (`node_modules`, `target`, `.gradle`…) | Doublons (on renverra vers Czkawka), analyse des disques externes |
 | `disk-clean` | Nettoyage 🟢 en un clic, 🟡 élément par élément, simulation, corbeille, historique, annulation | Nettoyages système qui demandent des droits administrateur |
-| `app-ui` | Accueil (« Analyser mon PC »), écran Diagnostic, écran Espace disque, écran Historique, Réglages, FR/EN, thème clair/sombre | Icône dans la barre des tâches |
+| `app-ui` | Accueil (« Analyser mon PC ») avec **bandeau « moins de 2 Go libres » et bouton de nettoyage**, écran Diagnostic, écran Espace disque, écran Historique, Réglages, mode simple / avancé, FR/EN, thème clair/sombre | Icône dans la barre des tâches, notifications système (V0.2) |
 
 **Livrables :** installeur `.msi` (Windows), `.deb`, `.rpm` et `.AppImage` (Linux), publiés dans les *GitHub Releases*.
 
-### V0.2 « Un seul navigateur » : surveillance des navigateurs
-*Breathly prévient quand un deuxième navigateur s'ouvre et montre ce que chaque navigateur consomme.*
+### V0.2 « Un seul navigateur » : navigateurs, logiciels inutilisés et espace disque
+*Breathly prévient quand un deuxième navigateur s'ouvre, signale les logiciels gourmands oubliés et alerte quand l'espace disque devient critique.*
 
 | Module | Inclus |
 |---|---|
 | `daemon` | Service en arrière-plan + icône dans la barre des tâches, lancement automatique au démarrage (désactivable), communication avec l'interface |
 | `browser-guard` | Détection de Firefox, Zen, LibreWolf, Chrome, Chromium, Brave, Edge, Opera, Vivaldi (liste extensible en TOML). Quand un **deuxième** navigateur s'ouvre, une petite fenêtre Breathly propose : **« Fermer [A] »**, **« Fermer [B] »**, **« Garder les deux »**, **« Ne plus demander pendant 1 h »**. Liste blanche. Alerte quand un navigateur dépasse X Go (seuil réglable) |
-| `app-ui` | Écran « Navigateurs » : RAM par navigateur, nombre de processus, réglages des alertes |
+| `app-watch` | Suivi des logiciels gourmands en RAM ou CPU et **inutilisés depuis 15 min** (réglable) : notification « Fermer », « Garder », « Ne plus demander » ; liste blanche. **Notification système « moins de 2 Go libres »** (seuil réglable, un rappel par jour au plus) |
+| `app-ui` | Écran « Navigateurs » : RAM par navigateur, nombre de processus, réglages des alertes ; écran « Logiciels ouverts » : gros consommateurs et inactivité |
 
-**Contrainte connue :** Breathly ne peut pas *empêcher* un navigateur de démarrer sans aller très loin dans le système (pilote, hook). Il **détecte** le lancement (vérification toutes les 1 à 2 s, ou événements du système quand ils existent) et **réagit** dans les 2 secondes.
+**Contraintes connues :**
+- La notion d'« inutilisé » n'est pas fournie par l'OS de façon uniforme (Wayland, Windows). Définition de départ : logiciel sans fenêtre au premier plan, sans son, avec un CPU faible pendant 15 min. **À prototyper (étape 2.9) avant de s'y engager.** Breathly ne ferme jamais un logiciel de lui-même : il notifie, l'utilisateur choisit, la fermeture est propre (B3).
+- Breathly ne peut pas *empêcher* un navigateur de démarrer sans aller très loin dans le système (pilote, hook). Il **détecte** le lancement (vérification toutes les 1 à 2 s, ou événements du système quand ils existent) et **réagit** dans les 2 secondes.
 
 ### V0.3 « Sieste des onglets » : mise en veille des onglets
 *Garder tous ses onglets, y compris épinglés, sans que le PC rame.*
@@ -170,6 +197,7 @@ rules ────┘                                   ├─> app-ui
 |---|---|
 | `startup` | Liste des programmes et services lancés au démarrage, avec leur RAM ; désactivation et réactivation en un clic. Linux : autostart XDG, services systemd utilisateur et système. Windows : clés `Run`, dossier Démarrage, tâches planifiées |
 | `platform` / `rules` | **Actions qui demandent des droits administrateur**, avec explication et demande de mot de passe : anciens noyaux (Debian/Ubuntu), révisions snap désactivées, flatpak inutilisés, journaux systemd, cache apt/dnf, cache Windows Update, instantanés Timeshift |
+| `system-tune` | Application des réglages recommandés : Linux (zram, swappiness) via le gestionnaire de paquets de la distribution (apt, dnf), Windows (mode d'alimentation, démarrage rapide). Élévation ponctuelle (§7.8), liste des changements, retour arrière. **Chaque paquet et chaque distribution sont vérifiés dans la documentation avant écriture de la règle (non vérifié à ce jour)** |
 | `diagnose` | Recommandations Linux : zram, swappiness. Recommandations Windows : mode d'alimentation, démarrage rapide |
 
 ### V1.0 « Stable »
@@ -193,7 +221,10 @@ rules ────┘                                   ├─> app-ui
 - **D1.** Le diagnostic complet prend **moins de 10 secondes**, sans compter l'analyse du disque, qui est lancée à part.
 - **D2.** Il produit **au plus 5 recommandations**, classées par impact, chacune avec : un titre en langage simple, le gain estimé, le niveau de risque, un bouton d'action ou d'explication.
 - **D3.** Les processus sont **regroupés par application** (« VS Code : 3,2 Go », pas « code », « code », « code »…).
-- **D4.** Seuils par défaut : disque > 90 % = alerte ; swap > 50 % avec une RAM disponible < 15 % = alerte ; température > 80 °C au repos = alerte.
+- **D4.** Seuils par défaut : disque > 90 % = alerte ; **espace libre < 2 Go = alerte critique** (bandeau, G7) ; swap > 50 % avec une RAM disponible < 15 % = alerte ; température > 80 °C au repos = alerte. Tous réglables.
+- **D5.** **Chauffe par paliers.** Breathly croise température et charge. *Chaud sous forte charge* : normal, il le dit. *Chaud avec un processus gourmand* : cause logicielle, il le désigne et propose d'en parler. *Chaud sans charge* : cause matérielle probable, il affiche une liste de vérifications en langage simple (aération, poussière, mode d'alimentation, ventilateur). Si cela persiste sur plusieurs mesures, il suggère de **consulter un technicien**. Il ne promet aucune réparation, ne dit jamais qu'un composant est abîmé, et affiche « non disponible » si la température manque. Seuils de départ à valider sur du matériel varié (non vérifié).
+- **D6.** **Processus et services « à vérifier ».** Un processus ou service qui consomme beaucoup sans être reconnu, ou lancé depuis un emplacement inhabituel, est listé avec une explication et un renvoi vers l'antivirus du système (Microsoft Defender, ClamAV). Breathly ne dit jamais « virus » ni « sain », et ne supprime rien de lui-même.
+- **D7.** **Réglages du système.** Si le swap est saturé et qu'un swap compressé (zram) est absent, la recommandation l'explique et affiche la commande exacte à copier (mode guidé). L'application automatique est en V0.4.
 
 ### 7.2 `disk-scan` / `disk-clean`
 - **S1.** Analyse du dossier personnel (~500 000 fichiers) en **moins de 60 s** sur un SSD.
@@ -218,6 +249,24 @@ rules ────┘                                   ├─> app-ui
 ### 7.5 `daemon`
 - **M1.** Un seul processus en arrière-plan, **< 15 Mo de RAM** (objectif < 8 Mo), **< 0,5 % de CPU** en moyenne.
 - **M2.** Le service peut être mis en pause depuis l'icône (« Mettre Breathly en pause 1 h »).
+
+### 7.6 `app-watch`
+- **A1.** Un logiciel est signalé quand sa RAM ou son CPU dépasse un seuil réglable **et** qu'il est inutilisé depuis la durée choisie (15 min par défaut).
+- **A2.** La notification propose « Fermer », « Garder » et « Ne plus demander » ; la fermeture est propre (B3) et jamais automatique.
+- **A3.** Liste blanche gérée par l'utilisateur ; les logiciels en cours d'enregistrement, de lecture ou d'appel ne sont jamais signalés.
+- **A4.** Notification « moins de 2 Go libres » au plus une fois par jour, avec le bouton de nettoyage.
+
+### 7.7 `system-tune`
+- **Y1.** Chaque réglage est une règle explicite (TOML) : OS, distribution, paquet, effet attendu, retour arrière.
+- **Y2.** Avant d'appliquer : liste exacte des changements et des paquets installés, confirmation, journal dans l'historique.
+- **Y3.** Un réglage non vérifié pour la distribution détectée n'est pas proposé ; Breathly affiche seulement le conseil.
+
+### 7.8 Droits administrateur (élévation)
+- **E1.** Breathly ne tourne jamais en administrateur. Une action qui l'exige est exécutée seule, par une élévation ponctuelle de l'OS (UAC sous Windows, polkit sous Linux).
+- **E2.** Avant la demande, un écran explique **pourquoi** ce droit est nécessaire, ce qui sera modifié et ce que cela libère.
+- **E3.** **Mode guidé.** Si l'élévation est refusée ou indisponible, Breathly affiche la commande exacte à copier, avec la même explication, et n'exécute rien.
+- **E4.** Breathly ne reçoit, ne stocke ni ne transmet jamais un mot de passe : la saisie reste dans la fenêtre de l'OS.
+- **E5.** Les actions administrateur forment une liste fermée de règles (S2). Les garde-fous S5 s'appliquent aussi.
 
 ---
 
@@ -251,12 +300,12 @@ command     = "npm cache clean --force"   # optionnel : commande officielle pré
 
 | Catégorie | Exigence |
 |---|---|
-| **Légèreté** | Service < 15 Mo de RAM ; interface ouverte < 150 Mo ; installeur < 15 Mo ; aucun processus de l'interface quand la fenêtre est fermée |
+| **Légèreté** | Cibles de départ : service < 15 Mo de RAM ; interface ouverte < 150 Mo ; installeur < 15 Mo ; aucun processus de l'interface quand la fenêtre est fermée. **Ces chiffres sont des cibles non mesurées** : le prototype (étape 2.9) mesure la fenêtre Tauri + Svelte et l'ADR de budgets les fixe, puis la CI les contrôle quand c'est possible. Conception : mesures échantillonnées, une seule boucle de surveillance, aucune activité quand la fenêtre est fermée en V0.1 |
 | **Accessibilité** | WCAG 2.2 AA : contraste, navigation au clavier, lecteur d'écran, textes à taille réglable |
-| **Simplicité** | Un utilisateur non technique libère de l'espace **en 3 clics ou moins** depuis l'accueil |
+| **Simplicité** | Un utilisateur non technique libère de l'espace **en 3 clics ou moins** depuis l'accueil. Mode simple par défaut, mode avancé à la demande |
 | **Langues** | Toutes les chaînes dans des fichiers de traduction (FR, EN au départ) ; aucun texte en dur dans le code |
 | **Confidentialité** | Aucune connexion réseau, sauf la vérification des mises à jour (V1.0, désactivable) |
-| **Sécurité** | Les actions administrateur passent par l'élévation standard de l'OS (UAC, polkit/pkexec), une action à la fois, jamais l'application entière en administrateur |
+| **Sécurité** | Les actions administrateur passent par l'élévation standard de l'OS (UAC, polkit/pkexec), une action à la fois, jamais l'application entière en administrateur ; mode guidé en repli (§7.8) |
 | **Fiabilité** | Une erreur pendant un nettoyage n'interrompt pas le reste ; chaque erreur est affichée avec une explication |
 
 ---
@@ -337,7 +386,7 @@ npx web-ext lint --source-dir extension/dist/firefox
 - **Nettoyage :** tests d'intégration **uniquement dans des dossiers temporaires** (`tempfile`). **Aucun test ne touche le vrai dossier personnel.** Les garde-fous S5 ont chacun un test dédié qui vérifie le refus.
 - **Plateformes :** CI GitHub Actions sur `ubuntu-latest` et `windows-latest` (`macos-latest` s'ajoutera avec le support de macOS, après la V1.0).
 - **Extension :** tests unitaires des règles de mise en veille (Vitest) ; tests manuels sur Firefox, Zen, Brave et Chrome à chaque version.
-- **Validation réelle :** avant chaque version, test sur les machines des 3 personas (Linux du développeur, Windows de l'ami, Ubuntu de l'amie).
+- **Validation réelle :** avant chaque version, test sur les machines de validation (Linux du développeur, Windows de l'ami, Ubuntu de l'amie) et essai de l'interface par une personne de chaque profil d'usage (§2).
 
 ## 14. Règles de travail
 
@@ -353,9 +402,10 @@ npx web-ext lint --source-dir extension/dist/firefox
 |---|---|
 | **V0.1** | Sur la machine Windows de l'ami, une personne non technique libère ≥ 5 Go **en ≤ 3 clics, sans aide** ; aucun fichier hors règle n'est touché (vérifié par l'historique) ; installeur < 15 Mo |
 | **V0.1** | Sur la machine de référence Linux, Breathly retrouve **au moins 80 %** des ~30 Go libérés à la main le 2026-10-17 |
-| **V0.2** | L'ouverture d'un 2e navigateur déclenche la fenêtre d'alerte en < 2 s ; service < 15 Mo de RAM sur 24 h |
+| **V0.1** | Quand l'espace libre est < 2 Go, le bandeau d'alerte apparaît à l'ouverture et mène au nettoyage en un clic ; sur une machine chaude sans charge, le diagnostic dit « cause matérielle probable » sans promettre de réparation |
+| **V0.2** | L'ouverture d'un 2e navigateur déclenche la fenêtre d'alerte en < 2 s ; service < 15 Mo de RAM sur 24 h (cible, voir §9) ; un logiciel gourmand inutilisé depuis 15 min est signalé, jamais fermé sans clic |
 | **V0.3** | Avec ~40 onglets dont des épinglés, la RAM du navigateur baisse d'**au moins 40 %** après 30 min, **sans qu'aucun onglet ne disparaisse** |
-| **V0.4** | Les services de développement lancés au démarrage sont détectés et désactivables depuis l'interface, avec possibilité de les réactiver |
+| **V0.4** | Les services de développement lancés au démarrage sont détectés et désactivables depuis l'interface, avec possibilité de les réactiver ; sur une distribution vérifiée, zram est installé avec élévation ponctuelle et un retour arrière fonctionne |
 | **V1.0** | Installeurs signés pour Windows et Linux ; extensions publiées sur les 3 boutiques ; ≥ 3 contributeurs externes ont ajouté des règles ou des traductions |
 
 ---
@@ -369,6 +419,10 @@ npx web-ext lint --source-dir extension/dist/firefox
 | Une règle de nettoyage fausse supprime des données | Perte de confiance, irréversible | Règles revues par 2 personnes ; garde-fous S5 non désactivables ; corbeille pour les fichiers de l'utilisateur |
 | Antivirus Windows qui bloque un exécutable non signé | L'ami ne peut pas installer | Signature de code dès que possible ; documentation SmartScreen en attendant |
 | WebKitGTK lent ou ancien sur certaines distributions | Interface lente sous Linux | Interface sobre, pas d'animations lourdes ; test sur Ubuntu LTS |
+| **Détection d'« inutilisé »** non uniforme (Wayland, Windows) | Fausses alertes ou logiciel utile signalé | Prototype avant V0.2 ; ne jamais fermer sans clic ; liste blanche ; définition prudente (fenêtre, son, CPU) |
+| **Faux sentiment de sécurité** : « à vérifier » compris comme « sain » ou « virus » | L'utilisateur croit son PC protégé ou panique | Vocabulaire fixé (D6) ; renvoi vers l'antivirus ; jamais « sain » ni « virus » |
+| **Réglages système différents selon la distribution** (zram, paquets) | Commande fausse ou paquet absent | Vérification par distribution avant la règle (Y3) ; pas de réglage non vérifié |
+| **Surchauffe mal diagnostiquée** | Conseil inutile ou alarmiste | Paliers prudents (D5) ; « non disponible » plutôt qu'une valeur fausse ; jamais de promesse de réparation |
 | Températures indisponibles (sous Windows, souvent sans droits administrateur) | Diagnostic incomplet | Afficher « non disponible » plutôt qu'une valeur fausse |
 
 ---
@@ -379,4 +433,8 @@ npx web-ext lint --source-dir extension/dist/firefox
 2. ~~**Licence**~~ → MIT ✅
 3. ~~**macOS**~~ → **après la V1.0** ✅
 4. ~~**Hébergement**~~ → https://github.com/AresGn/Breathly ✅
-5. ~~**Identité visuelle**~~ → **maquette cliquable de 4 écrans** (accueil, diagnostic, disque, onglets) dans `docs/design/`, validée avant d'écrire l'interface ✅ (à produire)
+5. ~~**Identité visuelle**~~ → **maquette cliquable de 4 écrans** (accueil avec bandeau d'espace faible, diagnostic, disque, onglets ; mode simple et avancé) dans `docs/design/`, validée avant d'écrire l'interface ✅ (à produire)
+6. **Seuils de chauffe** (D5) : valeurs de départ à valider sur du matériel varié (portable, fixe, Windows sans droits).
+7. **Définition de « inutilisé »** (A1) : à prototyper sur X11, Wayland et Windows (étape 2.9).
+8. **Paquets et distributions** pour `system-tune` (Y3) : zram-tools, zram-generator, etc. à vérifier dans la documentation de chaque distribution avant la V0.4.
+9. **Budgets de légèreté** (G5, §9) : à mesurer par le prototype puis à fixer par ADR.

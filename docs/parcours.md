@@ -63,14 +63,14 @@ Protection de `main` : appliquée le 2026-10-18 (voir `CONTRIBUTING.md` §5).
 | 0 · Prérequis | fait | |
 | 1 · Initialiser | fait (PR #1) | |
 | 2.1 Glossaire | à faire | termes du PRD : niveau de risque, règle, garde-fou, onglet du quotidien, hôte, daemon… |
-| 2.2 PRD | en cours | cadrage validé (PR #3) ; **stories numérotées et critères d'acceptation** à écrire ; risques ouverts à relire |
-| 2.3 ADR | en cours | ADR 0001 (Svelte 5) accepté sous réserve du prototype ; à écrire : format de l'historique et des réglages, protocole extension - hôte - daemon, élévation des droits administrateur |
+| 2.2 PRD | en cours | cadrage validé (PR #3) ; ajustements du 2026-10-18 faits (profils, G3 à G9, D5 à D7, §7.6 à §7.8) ; **stories numérotées et critères d'acceptation** à écrire ; risques ouverts à relire |
+| 2.3 ADR | en cours | ADR 0001 (Svelte 5) accepté sous réserve du prototype ; à écrire : format de l'historique et des réglages, protocole extension - hôte - daemon, élévation des droits administrateur (PRD §7.8), budgets de légèreté (après mesure), définition de « inutilisé » (après prototype) |
 | 2.4 États | à décider | peut-être : analyse, nettoyage, annulation |
 | 2.5 Design du système | à faire | modules sans cycle (PRD §5), protocole entre processus |
 | 2.6 Base | sans objet | pas de base de données ; le format des fichiers locaux relève d'un ADR (2.3) |
 | 2.7 Maquettes | à faire | accueil, diagnostic, disque, onglets, dans `docs/design/` |
 | 2.8 Sécurité | à faire | `docs/policies/modele-de-menaces.md` ; adapter `securite.md` (règles écrites pour une API) |
-| 2.9 Prototype | à faire | Tauri v2 + Svelte 5 ; native messaging (Firefox, Chromium, flatpak/snap) ; suppression vers la corbeille sur Linux et Windows |
+| 2.9 Prototype | à faire | Tauri v2 + Svelte 5 (et mesure de la RAM de la fenêtre) ; native messaging (Firefox, Chromium, flatpak/snap) ; suppression vers la corbeille sur Linux et Windows ; détection d'« inutilisé » sur X11, Wayland et Windows ; température et CPU par OS |
 | 3 · Règles | en cours | `AGENTS.md` rempli ; `make kit-todo` renvoie encore des lignes (SECURITY.md, CODE_OF_CONDUCT.md, guide de démarrage, menaces) ; protection de `main` appliquée le 2026-10-18 |
 | 4 · Outils | à faire | pack `rust` non éprouvé : exécuter chaque commande sur un workspace vide, sondes négatives, `pin-actions.py` |
 | 5 · Applications | à faire | `Cargo.toml` racine, `extension/package.json`, `apps/desktop/ui` |

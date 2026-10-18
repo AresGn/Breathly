@@ -34,9 +34,10 @@ Breathly agit sur les fichiers de personnes non techniques : une violation est u
 5. Chaque action est inscrite à l'historique (S6).
 6. Les URL ne sortent jamais du navigateur : l'extension ne transmet que le domaine et des compteurs (T3).
 7. Aucune donnée ne quitte la machine : pas de télémétrie, pas de requête réseau non demandée.
-8. Une action qui exige les droits administrateur passe par l'élévation standard de l'OS, une action à la fois ; jamais l'application entière en administrateur.
+8. Une action qui exige les droits administrateur passe par l'élévation standard de l'OS, une action à la fois, après une explication ; jamais l'application entière en administrateur ; Breathly ne manipule jamais un mot de passe ; en repli, mode guidé (commande à copier, rien d'exécuté) (PRD §7.8).
 9. Un navigateur se ferme proprement, jamais en tuant le processus (B3).
-10. Aucune règle de nettoyage n'est ajoutée sans explication en français et en anglais, niveau de risque et chemins par OS (validé par un test).
+10. Breathly n'est pas un antivirus : il ne dit jamais « virus » ni « sain » ; un processus inconnu est « à vérifier » (PRD D6). Il ne ferme jamais un logiciel sans clic de l'utilisateur (PRD §6 V0.2).
+11. Aucune règle de nettoyage ou de réglage système n'est ajoutée sans explication en français et en anglais, niveau de risque et chemins par OS (validé par un test).
 
 ## Ports à implémenter (adapters remplaçables)
 
