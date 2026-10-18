@@ -170,7 +170,7 @@ Le code écrit par un agent suit les mêmes règles que celui d'un humain, et **
 
 ## 12. Sécurité
 
-- Les règles techniques de sécurité par conception (S1 à S12) sont dans [`docs/policies/securite.md`](docs/policies/securite.md). Une PR qui y déroge le dit et cite la dérogation (§13).
+- Les règles techniques de sécurité par conception (SEC1 à SEC11) sont dans [`docs/policies/securite.md`](docs/policies/securite.md). Une PR qui y déroge le dit et cite la dérogation (§13).
 - Une vulnérabilité ou une fuite de donnée **ne se signale pas dans une issue ou une PR publique** : prévenir directement le propriétaire du dépôt par un canal privé.
 - Un secret publié par erreur est **considéré comme compromis** : il est révoqué et remplacé, retirer la ligne ne suffit pas.
 - Les données d'identité ne quittent jamais les parcours prévus (lecture avec motif et audit).

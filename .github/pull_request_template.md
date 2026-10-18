@@ -32,12 +32,12 @@
 
 ## Sécurité par conception (`docs/policies/securite.md`)
 
-- [ ] Route nouvelle : authentifiée, limitée en débit si sensible, test d'intrusion croisée (S1, S2, S5)
-- [ ] Fichiers : stockage privé, URL signée courte (S7) ; journaux : identifiants seulement (S4)
+- [ ] Suppression : seulement par une règle, garde-fous revérifiés par élément, l'interface n'envoie jamais un chemin (SEC2, SEC3)
+- [ ] Fichiers locaux validés au chargement ; journaux : identifiants et codes seulement ; aucune dépendance réseau ni nouvelle dépendance sans accord (SEC1, SEC5, SEC9, SEC10)
 
-## Contrat d'API
+## Contrat entre l'interface et le cœur
 
-- [ ] Contrat régénéré (`make gen-api` ou équivalent) et commité, si la PR touche une route (sinon : « sans objet »)
+- [ ] Types TypeScript régénérés depuis les types Rust, si la PR touche une commande ou un type partagé (sinon : « sans objet »)
 
 ## Documentation
 
