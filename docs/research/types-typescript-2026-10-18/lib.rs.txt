@@ -1,0 +1,38 @@
+use serde::{Deserialize, Serialize};
+
+/// Taille en octets : un newtype sérialisé comme un nombre.
+#[derive(Clone, Copy, Serialize, Deserialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
+#[cfg_attr(test, ts(export, export_to = "generated/"))]
+pub struct ByteSize(#[cfg_attr(test, ts(type = "number"))] pub u64);
+
+#[derive(Clone, Serialize, Deserialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
+#[serde(rename_all = "snake_case")]
+#[cfg_attr(test, ts(export, export_to = "generated/", rename_all = "snake_case"))]
+pub enum RiskLevel { Safe, Review, Personal }
+
+#[derive(Clone, Serialize, Deserialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
+#[serde(tag = "kind", rename_all = "snake_case")]
+#[cfg_attr(test, ts(export, export_to = "generated/", tag = "kind", rename_all = "snake_case"))]
+pub enum Progress {
+    Started,
+    Step { done: u32, total: Option<u32>, step_key: String },
+    Failed { code: String, message_key: String },
+    Finished,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+#[cfg_attr(test, derive(ts_rs::TS))]
+#[cfg_attr(test, ts(export, export_to = "generated/"))]
+pub struct AnalysisItem {
+    pub item_id: u32,
+    pub rule_id: String,
+    pub size: ByteSize,
+    pub risk: RiskLevel,
+    pub explain_key: String,
+    pub raw_u64: u64,
+    pub maybe: Option<ByteSize>,
+    pub list: Vec<u32>,
+}
