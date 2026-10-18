@@ -210,7 +210,7 @@
 - **US-300.** Je veux lister les logiciels et services système lancés au démarrage avec leur RAM, et les désactiver et réactiver en un clic.
 - **US-310.** Je veux nettoyer des éléments qui exigent les droits administrateur (anciens noyaux, snap, flatpak, journaux systemd, caches apt et dnf, Windows Update, Timeshift) par élévation ponctuelle (E1, E2, E5 : liste fermée de règles).
 - **US-311.** Je veux un mode guidé quand l'élévation est refusée ou indisponible (E3, E4).
-- **US-320.** Je veux que Breathly applique les réglages recommandés (zram, swappiness ; mode d'alimentation et démarrage rapide sous Windows) avec liste des changements, confirmation, journal dans l'historique et retour arrière (Y1 à Y3).
+- **US-320.** Je veux que Breathly applique les réglages recommandés (zram, swappiness ; mode d'alimentation et démarrage rapide sous Windows) avec liste des changements, confirmation, journal dans l'historique et retour arrière (Y1, Y2, Y3).
 
 # V1.0 « Stable » (US-400 à US-499, critères à écrire)
 
@@ -257,4 +257,4 @@
 | B1 à B4, M1, M2 | US-100 à US-112 |
 | A1 à A4 | US-120 à US-123 |
 | T1 à T4 | US-200 à US-207 |
-| E1 à E5, Y1 à Y3 | US-310 (E1, E2, E5), US-311 (E3, E4), US-320 (Y1 à Y3) ; E3 aussi par US-015 en V0.1 |
+| E1 à E5, Y1 à Y3 | US-310 (E1, E2, E5), US-311 (E3, E4), US-320 (Y1, Y2, Y3) ; E3 aussi par US-015 en V0.1 |
