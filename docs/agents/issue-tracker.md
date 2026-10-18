@@ -21,10 +21,10 @@ Aucun texte publié (ticket, commentaire, étiquette de triage) ne porte de ment
 
 | Étiquette | Sens |
 |---|---|
-| `app:<nom>` | ticket d'une application (une par application déclarée dans `.kit.conf`) |
+| `app:<nom>` | ticket d'une application (`app:core`, `app:desktop`, `app:desktop-ui` pour Breathly) |
 | `en-attente-decision` | bloqué par une décision non prise (ADR, choix du client) ; le corps nomme la décision |
 
-**Un ticket porte exactement une étiquette `app:*`**, un rôle de catégorie (`bug` ou `enhancement`) et un état de triage (`docs/agents/triage-labels.md`). Créer les étiquettes : `make labels`.
+**Un ticket porte exactement une étiquette `app:*`**, un rôle de catégorie (`bug` ou `enhancement`) et un état de triage (`docs/agents/triage-labels.md`). Les trois étiquettes `app:*` ont été créées à la main (`gh label create`) : **ne pas lancer `make labels`**, qui dérive le nom du dossier déclaré dans `.kit.conf` et ajouterait `app:.` et `app:ui` ; l'écart est à remonter au kit (le nom devrait pouvoir être explicite).
 
 ## Une fonctionnalité, un ticket par application
 
@@ -41,8 +41,22 @@ Chaque ticket appartient à une seule milestone (sans échéance tant que l'équ
 
 | Milestone | Critère de fin démontrable |
 |---|---|
-| M0 · Socle | les applications démarrent, `make ci-local` est vert, les schémas existent |
-| M1 · V0.1 « Respire » | l'application diagnostique la machine et nettoie les caches 🟢 en un clic, avec corbeille, historique et annulation (PRD §6) |
+| M0 · Socle | les applications démarrent, l'interface navigue entre les écrans de V0.1 sur des faux services, le français, l'anglais et les deux thèmes fonctionnent, les commandes Tauri déclarées sont inventoriées et restreintes à la fenêtre principale, et `make ci-local` est vert |
+| M1 · Disque | « Analyser mon PC » lance l'analyse du disque ; l'écran montre l'espace libérable classé Sans risque, À vérifier et Décision personnelle, avec les gros fichiers à part et « Ouvrir le dossier » ; un bandeau apparaît sous 2 Go libres ; rien n'est modifiable sur le disque |
+| M2 · Nettoyage sûr | depuis l'accueil, on nettoie ce qui est sans risque en 3 clics avec simulation et confirmation ; les éléments à vérifier se choisissent un par un ; les fichiers vont à la corbeille, les garde-fous sont revérifiés pour chaque élément, l'historique permet d'annuler, et le vidage de la corbeille est confirmé à part ; aucun test ne touche au vrai disque |
+| M3 · Diagnostic | « Analyser mon PC » affiche l'état du PC (disque, RAM, swap, CPU, chauffe), le top 10 des logiciels, au plus 5 recommandations classées, les processus à examiner sans les mots « virus » ni « sain », et la commande zram à copier sur Debian, Ubuntu et Mint |
+| M4 · Livraison | les installeurs `.msi`, `.deb` et `.rpm` sont construits par la CI avec leurs empreintes SHA-256, respectent les budgets de l'ADR 0008, et la V0.1 est validée sur les machines de référence (PRD §15) |
+
+Ordre de travail : M0, puis M1, M2, M3, M4 (décision du 2026-10-18 : le disque et le nettoyage avant le diagnostic, parce que le critère central du PRD §15 est de libérer de l'espace et que les recommandations du diagnostic chiffrent leur gain avec l'analyse du disque). Les blocages natifs des tickets font foi pour l'ordre fin.
+
+### Points ouverts qui n'ont pas de ticket, et pourquoi
+
+| Point | Raison |
+|---|---|
+| ADR 0009 (définition de « logiciel inutilisé ») | reporté : elle concerne la V0.2 et attend des essais sous Wayland et Windows ; aucun ticket de V0.1 n'en dépend |
+| Attestation de provenance des builds (`docs/policies/securite.md` §3) | reportée : sa disponibilité sur ce dépôt n'est pas vérifiée ; à décider avant la première release, sans bloquer le code |
+| Signature de code | reportée à la V1.0 (US-400) |
+| Mesures sous Windows, installeur `.msi` | pas hors backlog : ticket de validation de M4 |
 
 Les tickets « décision » (ADR, valeurs du client) portent `ready-for-human` et bloquent les tickets qui les attendent (`en-attente-decision`). Un ticket est libre quand ses bloqueurs sont fermés ; prendre d'abord ceux de la milestone en cours.
 

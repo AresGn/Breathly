@@ -22,7 +22,7 @@ Les planches chargent des polices depuis Google Fonts **pour l'aperçu seulement
 
 ## Décisions validées (2026-10-18)
 
-Vouvoiement ; total libérable 13,7 Go avec les gros fichiers à part (8,4 Go) ; « Vider la corbeille » = case décochée dans S2, et si elle est cochée avec d'autres éléments, N1 puis la confirmation forte N5 ; commande zram `sudo apt install zram-tools` (Debian, Ubuntu, Mint ; absente sous Fedora) ; seuils de R2 (espace libre 2 Go, disque occupé 90 %, swap 50 % si RAM disponible sous 15 %, température 80 °C au repos) ; pas de seuil de RAM ni de CPU en V0.1 ; le niveau de risque des recommandations réutilise les trois libellés (explication sans action : Sans risque, action de l'utilisateur sur le système : À vérifier) ; logo validé comme provisoire.
+Vouvoiement ; total libérable 13,7 Go avec les gros fichiers à part (8,4 Go) ; « Vider la corbeille » = case décochée dans S2, et si elle est cochée avec d'autres éléments, N1 puis la confirmation forte N5 (modifié le 2026-10-18 : le nettoyage a lieu d'abord, N5 s'affiche ensuite sur une liste recalculée, voir US-037.4) ; commande zram `sudo apt install zram-tools` (Debian, Ubuntu, Mint ; absente sous Fedora) ; seuils de R2 (espace libre 2 Go, disque occupé 90 %, swap 50 % si RAM disponible sous 15 %, température 80 °C au repos) ; pas de seuil de RAM ni de CPU en V0.1 ; le niveau de risque des recommandations réutilise les trois libellés (explication sans action : Sans risque, action de l'utilisateur sur le système : À vérifier) ; logo validé comme provisoire.
 
 ## Écarts connus et à traiter
 
