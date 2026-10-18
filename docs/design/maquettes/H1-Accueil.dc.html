@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>H1 · Accueil</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./breathly.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="gal" style="width: 2064px; min-height: 3150px">
+<svg class="spr" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" style="fill:var(--color-accent)"/><circle cx="16" cy="16" r="4.5" style="fill:var(--color-on-accent)"/><circle cx="16" cy="16" r="9.5" style="fill:none;stroke:var(--color-on-accent);stroke-width:2;stroke-linecap:round;stroke-dasharray:44 16"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  <symbol id="i-disk" viewBox="0 0 24 24"><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M5.5 14 8 4h8l2.5 10"/><path d="M7 17.5h.01M11 17.5h.01"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/><path d="M12 8v4.5l3 2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2h.01"/></symbol>
+</svg>
+
+<h1 class="gal-title">H1 · Accueil</h1>
+<p class="gal-note">Parcours 1 et 2 (US-001, US-020). Un seul bouton principal. Variantes : clair et sombre ; espace critique (le bandeau apparaît sous 2 Go et l’action principale devient « Libérer de l’espace ») ; première utilisation ; taille minimale 720 × 520 (barre latérale réduite aux icônes) ; version anglaise, sans illustration (variante typographique pour la question ouverte n° 3).</p>
+
+<div class="gal-grid">
+<sc-for list="{{wins}}" as="w" hint-placeholder-count="4">
+<figure class="gal-fig">
+  <figcaption class="gal-cap">{{w.caption}}</figcaption>
+  <div class="{{w.cls}}" data-theme="{{w.theme}}" lang="{{w.lang}}">
+    <aside class="side">
+      <div class="brand"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span class="brand-name">Breathly</span></div>
+      <nav class="nav" aria-label="{{w.navLabel}}">
+        <sc-for list="{{w.nav}}" as="n" hint-placeholder-count="5">
+        <a href="#" aria-current="{{n.current}}" aria-label="{{n.label}}"><svg class="ic" aria-hidden="true"><use href="{{n.icon}}"/></svg><span class="nav-label">{{n.label}}</span></a>
+        </sc-for>
+      </nav>
+      <p class="side-foot">{{w.t.foot}}</p>
+    </aside>
+
+    <section class="main">
+      <sc-if value="{{w.crit}}" hint-placeholder-val="{{ false }}">
+      <div class="banner" role="alert">
+        <svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>
+        <div class="grow"><span class="banner-title">{{w.t.bannerT}}</span> {{w.t.bannerS}}</div>
+        <button class="btn btn--primary">{{w.t.bannerBtn}}</button>
+      </div>
+      </sc-if>
+
+      <div class="hero">
+        <sc-if value="{{w.illus}}" hint-placeholder-val="{{ true }}">
+        <svg class="illus" viewBox="0 0 168 168" aria-hidden="true">
+          <circle cx="84" cy="84" r="80" style="fill:var(--color-accent-soft)"/>
+          <circle cx="84" cy="84" r="56" style="fill:none;stroke:var(--color-accent);stroke-width:2;opacity:.45"/>
+          <circle cx="84" cy="84" r="36" style="fill:var(--color-accent);opacity:.18"/>
+          <circle cx="84" cy="84" r="16" style="fill:var(--color-accent)"/>
+          <path d="M28 118a64 64 0 0 1 6-68" style="fill:none;stroke:var(--color-accent);stroke-width:3;stroke-linecap:round"/>
+        </svg>
+        </sc-if>
+        <h1 class="h1 h1--hero">{{w.t.title}}</h1>
+        <p class="lead">{{w.t.lead}}</p>
+        <div class="stack" style="gap: 8px; align-items: flex-start">
+          <button class="{{w.ctaCls}}">{{w.t.cta}}</button>
+          <span class="small muted">{{w.t.reassure}}</span>
+        </div>
+      </div>
+
+      <sc-if value="{{w.hasLast}}" hint-placeholder-val="{{ true }}">
+      <div class="card">
+        <div class="row row--between" style="margin-bottom: 16px">
+          <h2 class="h3">{{w.t.last}}</h2>
+          <span class="small muted">{{w.t.when}}</span>
+        </div>
+        <div class="grid2">
+          <div class="stat">
+            <span class="stat-label">{{w.t.free}}</span>
+            <span class="stat-value">{{w.freeV}} <span class="small muted" style="font-family: var(--font-body); font-weight: 400">{{w.t.freeOf}}</span></span>
+            <sc-if value="{{w.crit}}" hint-placeholder-val="{{ false }}">
+            <span class="status status--alert" style="align-self: flex-start"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>{{w.t.almostFull}}</span>
+            </sc-if>
+          </div>
+          <div class="stat">
+            <span class="stat-label">{{w.t.can}}</span>
+            <span class="stat-value">{{w.canV}}</span>
+            <span class="small muted">{{w.canSub}}</span>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{w.noLast}}" hint-placeholder-val="{{ false }}">
+      <div class="card card--flat" style="border-style: dashed">
+        <h2 class="h3">{{w.t.noneT}}</h2>
+        <p class="small muted" style="margin: 4px 0 0">{{w.t.noneS}}</p>
+      </div>
+      </sc-if>
+    </section>
+  </div>
+</figure>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2064,"height":3150}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const NAVL = { fr: ['Accueil', 'Diagnostic', 'Espace disque', 'Historique', 'Réglages'], en: ['Home', 'Diagnostic', 'Disk space', 'History', 'Settings'] };
+    const NAVI = ['#i-home', '#i-activity', '#i-disk', '#i-history', '#i-sliders'];
+    const nav = (lang, act) => NAVL[lang].map((l, i) => ({ label: l, icon: NAVI[i], current: i === act ? 'page' : 'false' }));
+    const T = {
+      fr: {
+        foot: 'Tout reste sur votre ordinateur.', title: 'Voyons pourquoi votre PC est lent.',
+        lead: 'Breathly regarde l’état de votre ordinateur et vous propose quoi faire. Vous décidez de tout.',
+        cta: 'Analyser mon PC', reassure: 'Rien n’est modifié pendant l’analyse.',
+        last: 'Dernière analyse', when: 'hier, 18 h 42', free: 'Espace libre', freeOf: 'sur 221 Go', can: 'Libérable',
+        almostFull: 'Presque plein',
+        bannerT: 'Il reste moins de 2 Go sur votre disque.', bannerS: 'Libérons de l’espace.', bannerBtn: 'Libérer de l’espace',
+        noneT: 'Aucune analyse pour l’instant', noneS: 'Le résultat de votre première analyse apparaîtra ici.'
+      },
+      en: {
+        foot: 'Everything stays on your computer.', title: 'Let’s see why your PC is slow.',
+        lead: 'Breathly looks at the state of your computer and suggests what to do. You decide everything.',
+        cta: 'Analyze my PC', reassure: 'Nothing is changed during the analysis.',
+        last: 'Last analysis', when: 'yesterday, 6:42 PM', free: 'Free space', freeOf: 'of 221 GB', can: 'Can be freed',
+        almostFull: 'Almost full',
+        bannerT: 'Less than 2 GB left on your disk.', bannerS: 'Let’s free up some space.', bannerBtn: 'Free up space',
+        noneT: 'No analysis yet', noneS: 'The result of your first analysis will show up here.'
+      }
+    };
+    const mk = (o) => {
+      const lang = o.lang || 'fr';
+      const crit = !!o.crit;
+      return {
+        caption: o.caption, theme: o.theme, lang,
+        cls: o.min ? 'win win--min' : 'win',
+        nav: nav(lang, 0), navLabel: lang === 'fr' ? 'Navigation principale' : 'Main navigation',
+        t: T[lang], crit, illus: !!o.illus,
+        ctaCls: crit ? 'btn btn--secondary btn--lg' : 'btn btn--primary btn--lg',
+        hasLast: !o.first, noLast: !!o.first,
+        freeV: crit ? (lang === 'fr' ? '666 Mo' : '666 MB') : (lang === 'fr' ? '38 Go' : '38 GB'),
+        canV: crit ? (lang === 'fr' ? '13,7 Go' : '13.7 GB') : (lang === 'fr' ? '5,6 Go' : '5.6 GB'),
+        canSub: crit ? (lang === 'fr' ? 'dont 12,2 Go sans risque' : 'of which 12.2 GB are safe') : (lang === 'fr' ? 'dont 4,2 Go sans risque' : 'of which 4.2 GB are safe')
+      };
+    };
+    return {
+      wins: [
+        mk({ theme: 'light', illus: true, caption: 'Clair · mode simple · français' }),
+        mk({ theme: 'dark', illus: true, caption: 'Sombre · mode simple · français' }),
+        mk({ theme: 'light', illus: true, crit: true, caption: 'Clair · espace critique (bandeau)' }),
+        mk({ theme: 'dark', illus: true, crit: true, caption: 'Sombre · espace critique (bandeau)' }),
+        mk({ theme: 'light', illus: true, first: true, caption: 'Clair · première utilisation (aucune analyse)' }),
+        mk({ theme: 'light', illus: false, min: true, caption: 'Clair · taille minimale 720 × 520' }),
+        mk({ theme: 'light', lang: 'en', caption: 'Clair · anglais · variante typographique' }),
+        mk({ theme: 'dark', lang: 'en', caption: 'Sombre · anglais · variante typographique' })
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

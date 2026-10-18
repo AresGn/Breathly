@@ -51,7 +51,7 @@ flowchart TD
     class A0,A1,B1,B2,B3,B4,B5 done
     class C progress
     class B8,B9,D,E,F,G,H,I todo
-    class B7 progress
+    class B7 done
     class B6 na
 ```
 
@@ -69,7 +69,7 @@ Protection de `main` : appliquée le 2026-10-18 (voir `CONTRIBUTING.md` §5).
 | 2.4 États | fait | `docs/design/0001-machines-a-etats.md` : analyse, nettoyage, entrée d'historique ; prototype jetable `etats.py` (sondes négatives détectées) ; machines V0.2+ à écrire avant leur version |
 | 2.5 Design du système | fait | `docs/design/0002-systeme.md` : carte des modules, dépendances sans cycle (prototype `graphe.py`, conforme au PRD §5), processus et qui écrit quoi, contrat Tauri, composition des recommandations ; 4 points ouverts (asynchrone, API de progression, mémoire de l'analyse, chemins Windows) |
 | 2.6 Base | sans objet | pas de base de données ; le format des fichiers locaux relève d'un ADR (2.3) |
-| 2.7 Maquettes | en cours | dossier de commande prêt : `docs/design/0003-ecrans.md` (à soumettre à Claude Design) ; **maquettes à produire** (≈ 20 écrans, clair et sombre), puis à déposer dans `docs/design/maquettes/` |
+| 2.7 Maquettes | fait (écarts à traiter) | 20 écrans livrés le 2026-10-18 dans `docs/design/maquettes/` (clair et sombre, jetons `breathly.css`) ; reste : libellés anglais appliqués, logo à vectoriser, texte à 200 %, polices à embarquer en WOFF2 |
 | 2.8 Sécurité | à faire | `docs/policies/modele-de-menaces.md` ; adapter `securite.md` (règles écrites pour une API) |
 | 2.9 Prototype | à faire | Tauri v2 + Svelte 5 (et mesure de la RAM de la fenêtre) ; native messaging (Firefox, Chromium, flatpak/snap) ; suppression vers la corbeille sur Linux et Windows ; détection d'« inutilisé » sur X11, Wayland et Windows ; température et CPU par OS |
 | 3 · Règles | en cours | `AGENTS.md` rempli ; `make kit-todo` renvoie encore des lignes (SECURITY.md, CODE_OF_CONDUCT.md, guide de démarrage, menaces) ; protection de `main` appliquée le 2026-10-18 |

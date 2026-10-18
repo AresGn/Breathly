@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Écarts, questions et licences</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./breathly.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="gal" style="width: 1500px; min-height: 2300px">
+<h1 class="gal-title">Écarts, questions ouvertes et licences</h1>
+<p class="gal-note">Ce qui, dans le dossier de commande, était ambigu, contradictoire ou irréalisable, et le choix fait dans les maquettes. À valider par le propriétaire avant le passage au code.</p>
+
+<section class="win" data-theme="light" style="width: 1404px; min-height: 0; flex-direction: column; padding: 40px; gap: 40px; border-radius: 24px">
+
+  <div class="stack">
+    <h2 class="h2">Questions ouvertes du dossier (§11) : propositions</h2>
+    <div class="card card--flush"><div class="list">
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">1</span><div class="item-main"><span class="item-name">Tutoiement ou vouvoiement</span><span class="item-desc">Proposition : vouvoiement partout. Le profil « bureautique et famille » attend le respect, et le ton rassurant passe mieux avec « vous ». Tous les textes sont dans des tableaux de traduction : passer au tutoiement ne demande qu’une relecture des textes.</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">2</span><div class="item-main"><span class="item-name">Logo et icône de l’application</span><span class="item-desc">Proposition : une tuile arrondie couleur accent, un point central et un anneau ouvert (le souffle). Aucune forme de bouclier ou d’éclair. L’icône de l’application est la même tuile à 512 px, sans le mot. À dessiner en vectoriel propre avant diffusion : le tracé actuel est celui des maquettes.</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">3</span><div class="item-main"><span class="item-name">Illustration d’accueil ou accueil purement typographique</span><span class="item-desc">Proposition : une petite illustration (quatre cercles, deux teintes) sur l’accueil et les états vides, très discrète. L’accueil typographique est montré dans les cadres anglais de H1 pour comparer : les deux marchent, l’illustration donne plus de chaleur au profil « famille ».</span></div></div>
+    </div></div>
+  </div>
+
+  <div class="stack">
+    <h2 class="h2">Points ambigus, contradictoires ou irréalisables</h2>
+    <div class="card card--flush"><div class="list">
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">1</span><div class="item-main"><span class="item-name">Le total « libérable » compte-t-il la Décision personnelle ?</span><span class="item-desc">S1 : non. Le total (13,7 Go) ne compte que Sans risque et À vérifier ; les 8,4 Go de gros fichiers sont montrés à part et grisés dans la barre. Un total qui inclurait un fichier que Breathly ne supprime jamais serait trompeur.</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">2</span><div class="item-main"><span class="item-name">L’exemple « Vous allez libérer 8,4 Go » (§9)</span><span class="item-desc">8,4 Go est la taille de la vidéo, qui est Décision personnelle donc jamais sélectionnable. N1 utilise des totaux cohérents avec la sélection (12,2 Go, ou 13,7 Go avec les éléments À vérifier). Le texte est conservé tel quel, seul le chiffre change.</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">3</span><div class="item-main"><span class="item-name">« Libéré maintenant » et « envoyé à la corbeille »</span><span class="item-desc">Hypothèse de travail : les caches sont supprimés définitivement (libérés tout de suite), les dossiers de projet et installeurs vont à la corbeille (espace rendu seulement au vidage). Si une règle fait autrement, N1 et N4 suivent le même schéma sans changer de forme.</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">4</span><div class="item-main"><span class="item-name">« Vider la corbeille » : « distinct » et « jamais coché »</span><span class="item-desc">Dessiné comme une ligne à part, avec une case décochée, dans une section « Corbeille ». Si elle est cochée avec d’autres éléments, la confirmation forte N5 devrait s’afficher en plus de N1 : non dessiné. Variante possible : un simple bouton, sans case.</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">5</span><div class="item-main"><span class="item-name">Niveau de risque d’une recommandation</span><span class="item-desc">Les trois libellés sont définis pour les éléments à nettoyer. D1 les réutilise pour les recommandations (zram et fermeture de logiciels : À vérifier ; explication de la chauffe : Sans risque). À confirmer, ou à remplacer par un autre repère.</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">6</span><div class="item-main"><span class="item-name">Commande du réglage zram (D3)</span><span class="item-desc">Confirmée : « sudo apt install zram-tools » (Debian stable, Ubuntu 22.04 et suivants, Mint). Sous Fedora, le swap sur zram est déjà actif : la recommandation n’y apparaît pas. D3 n’existe pas sous Windows.</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">7</span><div class="item-main"><span class="item-name">Seuils de R2</span><span class="item-desc">Confirmés : espace libre 2 Go, disque occupé 90 %, swap 50 % seulement si la RAM disponible est sous 15 %, température 80 °C au repos. Pas de seuil de RAM ni de processeur en V0.1 (prévus en V0.2 avec le suivi des logiciels inutilisés).</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">8</span><div class="item-main"><span class="item-name">Anglais : pas de glossaire fourni</span><span class="item-desc">Les textes anglais de H1 et N1 sont des propositions (« Analyze my PC », « Sent to the trash »…). Les libellés de risque anglais ne sont pas dessinés, faute de vocabulaire de référence : à fournir, avec les unités Go/Mo → GB/MB déjà appliquées.</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">9</span><div class="item-main"><span class="item-name">États d’historique : un quatrième état</span><span class="item-desc">Le dossier prévoit annulable, annulé, plus annulable. L’« entrée incertaine » du §7 a besoin d’un libellé : « Incertain » est ajouté sur Y1. Les suppressions définitives sont affichées « Plus annulable » dès le départ (Y3 les appelle « non annulables »).</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">10</span><div class="item-main"><span class="item-name">Le mode simple et le nom « node_modules »</span><span class="item-desc">Le dossier le cite, mais le mode simple interdit les noms bruts. S2 l’appelle « Dossier de projet ancien » ; le nom technique et le chemin apparaissent en mode avancé.</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">11</span><div class="item-main"><span class="item-name">Trois clics, sans marge</span><span class="item-desc">Parcours 1 : Analyser mon PC (1), Nettoyer ce qui est sans risque (2), Nettoyer sur N1 (3). H2 puis S1 s’enchaînent seuls. Toute étape supplémentaire (information, permission) ferait passer à quatre clics.</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">12</span><div class="item-main"><span class="item-name">Taille de la fenêtre et texte à 200 %</span><span class="item-desc">Montré : 960 × 640 et 720 × 520 (H1 : barre latérale réduite à 72 px). Non maquetté : l’agrandissement du texte à 200 % ; comportement proposé : une seule colonne à la place des grilles à deux colonnes, défilement vertical. Les écrans longs (D1, S2, Y1) sont montrés en pleine hauteur ; dans l’application ils défilent.</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">13</span><div class="item-main"><span class="item-name">Barre de titre et animations</span><span class="item-desc">Aucune barre de titre n’est dessinée : les décorations natives diffèrent entre Windows et Linux. Aucune animation n’est maquettée ; proposition : seul l’anneau de H2 tourne (transformation CSS) et seulement si prefers-reduced-motion n’est pas demandé.</span></div></div>
+      <div class="item item--static" style="align-items: flex-start"><span class="reco-rank">14</span><div class="item-main"><span class="item-name">Anciens noyaux (6,6 Go)</span><span class="item-desc">Présents dans les données d’exemple, mais à ne pas proposer en V0.1 : absents de S1, S2 et N1 comme demandé.</span></div></div>
+    </div></div>
+  </div>
+
+  <div class="stack">
+    <h2 class="h2">Parcours et écrans correspondants</h2>
+    <div class="card card--flush"><div class="list">
+      <div class="item item--static" style="min-height: 52px"><span class="item-name" style="width: 300px">1 · Première utilisation, 3 clics</span><span class="item-main"><span class="item-desc">H1 → H2 → S1 → N1 (cadre « sans risque seulement ») → N4</span></span></div>
+      <div class="item item--static" style="min-height: 52px"><span class="item-name" style="width: 300px">2 · Espace critique</span><span class="item-main"><span class="item-desc">H1 (cadres « espace critique ») → S2 → N1 → N4</span></span></div>
+      <div class="item item--static" style="min-height: 52px"><span class="item-name" style="width: 300px">3 · Choix manuel</span><span class="item-main"><span class="item-desc">S2 (cadre « choix manuel ») → N2 → N3</span></span></div>
+      <div class="item item--static" style="min-height: 52px"><span class="item-name" style="width: 300px">4 · Arrêt en cours de route</span><span class="item-main"><span class="item-desc">N3 (cadre « arrêt demandé ») → N4 (cadre « arrêté par l’utilisateur »)</span></span></div>
+      <div class="item item--static" style="min-height: 52px"><span class="item-name" style="width: 300px">5 · Annulation</span><span class="item-main"><span class="item-desc">Y1 → Y2 (réussite, emplacement occupé, corbeille vidée)</span></span></div>
+      <div class="item item--static" style="min-height: 52px"><span class="item-name" style="width: 300px">6 · Libérer vraiment</span><span class="item-main"><span class="item-desc">N4 (deux chiffres distincts) → N5</span></span></div>
+      <div class="item item--static" style="min-height: 52px"><span class="item-name" style="width: 300px">7 · Réglage Linux</span><span class="item-main"><span class="item-desc">D1 → D3</span></span></div>
+      <div class="item item--static" style="min-height: 52px"><span class="item-name" style="width: 300px">8 · Chauffe</span><span class="item-main"><span class="item-desc">D1 → D2</span></span></div>
+    </div></div>
+  </div>
+
+  <div class="stack">
+    <h2 class="h2">Licences</h2>
+    <div class="card card--flush"><div class="list">
+      <div class="item item--static" style="min-height: 52px"><span class="item-name" style="width: 300px">Bricolage Grotesque (titres)</span><span class="item-main"><span class="item-desc">SIL Open Font License 1.1. Libre d’usage, d’embarquement et de redistribution.</span></span></div>
+      <div class="item item--static" style="min-height: 52px"><span class="item-name" style="width: 300px">Hanken Grotesk (texte)</span><span class="item-main"><span class="item-desc">SIL Open Font License 1.1. Libre d’usage, d’embarquement et de redistribution.</span></span></div>
+      <div class="item item--static" style="min-height: 52px"><span class="item-name" style="width: 300px">DM Mono (mode avancé)</span><span class="item-main"><span class="item-desc">SIL Open Font License 1.1. Libre d’usage, d’embarquement et de redistribution.</span></span></div>
+      <div class="item item--static" style="min-height: 52px"><span class="item-name" style="width: 300px">Icônes</span><span class="item-main"><span class="item-desc">Dessinées à la main pour ces maquettes, grille 24 px, trait 1,75 px, extrémités arrondies, dans l’esprit de Lucide (licence ISC). Remplaçables par la bibliothèque Lucide embarquée, sans changer de style.</span></span></div>
+      <div class="item item--static" style="min-height: 52px"><span class="item-name" style="width: 300px">Logo et illustration</span><span class="item-main"><span class="item-desc">Originaux, dessinés pour ce projet, sans emprunt. Libres de droits pour Breathly.</span></span></div>
+    </div></div>
+    <p class="small muted" style="margin: 0">Hors ligne : dans ces maquettes, les polices sont chargées depuis Google Fonts pour la seule prévisualisation. L’application doit embarquer les fichiers de polices (WOFF2) : elle n’ouvre aucune connexion et n’appelle aucune ressource externe.</p>
+  </div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1500,"height":2300}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

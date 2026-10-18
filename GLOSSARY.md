@@ -125,7 +125,7 @@ _À éviter_: heuristique, filtre, pattern
 Fichier TOML qui décrit un réglage (zram, swappiness…) : OS, distribution, paquet, effet, retour arrière. Module : `system-tune`.
 
 **Niveau de risque**:
-Classement partout identique : 🟢 **Sans risque** (se recrée seul), 🟡 **À vérifier** (dossier recréable, ancien téléchargement), 🔴 **Décision personnelle** (jamais sélectionnable).
+Classement partout identique (libellés anglais : Safe, Review, Personal decision) : 🟢 **Sans risque** (se recrée seul), 🟡 **À vérifier** (dossier recréable, ancien téléchargement), 🔴 **Décision personnelle** (jamais sélectionnable).
 _À éviter_: score, gravité, priorité
 
 **Cache**:
@@ -165,7 +165,8 @@ Journal local de chaque action : date, élément, taille, destination, et annula
 _À éviter_: logs, journal d'audit
 
 **Annulation**:
-Restauration depuis la corbeille d'un élément nettoyé.
+Restauration depuis la corbeille d'un élément nettoyé. États affichés d'une entrée de l'historique : **annulable**, **annulé**, **plus annulable** (suppression définitive, vidée, perdue, échec, ignorée) et **incertain** (arrêt brutal pendant l'action).
+_À éviter_: « non annulable » dans les écrans (on dit « plus annulable »)
 
 ### Alertes et droits
 

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>D3 · Réglage recommandé (Linux)</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./breathly.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="gal" style="width: 2064px; min-height: 1900px">
+<svg class="spr" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" style="fill:var(--color-accent)"/><circle cx="16" cy="16" r="4.5" style="fill:var(--color-on-accent)"/><circle cx="16" cy="16" r="9.5" style="fill:none;stroke:var(--color-on-accent);stroke-width:2;stroke-linecap:round;stroke-dasharray:44 16"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  <symbol id="i-disk" viewBox="0 0 24 24"><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M5.5 14 8 4h8l2.5 10"/><path d="M7 17.5h.01M11 17.5h.01"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/><path d="M12 8v4.5l3 2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6A1.5 1.5 0 0 0 14 4.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8h.01"/></symbol>
+</svg>
+
+<h1 class="gal-title">D3 · Réglage recommandé (Linux)</h1>
+<p class="gal-note">US-015, parcours 7. Mémoire compressée (zram) : explication en mots simples, bouton « Copier la commande », commande exacte dans un bloc replié « Voir la commande ». Breathly n’exécute rien. Le dernier cadre montre le bloc déplié et la confirmation de copie (aide à la copie de commande).</p>
+
+<div class="gal-grid">
+<sc-for list="{{wins}}" as="w" hint-placeholder-count="3">
+<figure class="gal-fig">
+  <figcaption class="gal-cap">{{w.caption}}</figcaption>
+  <div class="win" data-theme="{{w.theme}}" lang="fr">
+    <aside class="side">
+      <div class="brand"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span class="brand-name">Breathly</span></div>
+      <nav class="nav" aria-label="Navigation principale">
+        <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="#" aria-current="{{n.current}}" aria-label="{{n.label}}"><svg class="ic" aria-hidden="true"><use href="{{n.icon}}"/></svg><span class="nav-label">{{n.label}}</span></a>
+        </sc-for>
+      </nav>
+      <p class="side-foot">Tout reste sur votre ordinateur.</p>
+    </aside>
+
+    <section class="main" style="gap: 20px">
+      <div class="row"><button class="btn btn--ghost" style="padding-left: 0"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg>État du PC</button></div>
+      <div class="head">
+        <h1 class="h1">Activer la mémoire compressée</h1>
+        <div class="row row--wrap">
+          <span class="risk risk--verify"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg>À vérifier</span>
+          <span class="chip">Debian, Ubuntu et Mint</span>
+        </div>
+      </div>
+
+      <div class="card stack">
+        <h2 class="h3">Pourquoi ce réglage ?</h2>
+        <p style="margin: 0">Votre swap, l’espace de secours sur le disque, est presque pleine : <b>7,5 Go sur 7,6 Go</b>. Quand elle est pleine, le PC ralentit.</p>
+        <p style="margin: 0">La mémoire compressée garde plus de données dans la RAM en les compressant, au lieu de les écrire sur le disque. Votre mémoire de 16 Go est mieux utilisée.</p>
+      </div>
+
+      <div class="banner banner--info">
+        <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+        <div class="grow"><span class="banner-title">Breathly n’exécute rien.</span> Vous copiez la commande et vous la collez vous-même dans un terminal. Le système vous demandera votre mot de passe (élévation).</div>
+      </div>
+
+      <div class="card stack">
+        <div class="row" style="align-items: flex-start"><span class="reco-rank">1</span>
+          <div class="grow stack" style="gap: 10px">
+            <div class="h3">Copiez la commande</div>
+            <div class="row row--wrap">
+              <button class="btn btn--primary"><svg class="ic" aria-hidden="true"><use href="#i-copy"/></svg>{{w.copyLabel}}</button>
+              <sc-if value="{{w.copied}}" hint-placeholder-val="{{ false }}"><span class="status status--ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Commande copiée</span></sc-if>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="align-items: flex-start"><span class="reco-rank">2</span>
+          <div class="grow"><div class="h3">Ouvrez un terminal</div><div class="small muted">Dans le menu de votre système, cherchez « Terminal ».</div></div>
+        </div>
+        <div class="row" style="align-items: flex-start"><span class="reco-rank">3</span>
+          <div class="grow"><div class="h3">Collez, puis validez</div><div class="small muted">Collez avec Ctrl + Maj + V, appuyez sur Entrée, puis saisissez votre mot de passe.</div></div>
+        </div>
+
+        <sc-if value="{{w.open}}" hint-placeholder-val="{{ false }}">
+        <details open>
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg>Voir la commande</summary>
+          <div class="stack" style="gap: 8px; padding-top: 4px">
+            <div class="code">sudo apt install zram-tools</div>
+            <div class="small muted">Pour revenir en arrière plus tard : <span class="adv" style="word-break: normal">sudo apt remove zram-tools</span></div>
+          </div>
+        </details>
+        </sc-if>
+        <sc-if value="{{w.closed}}" hint-placeholder-val="{{ true }}">
+        <details>
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg>Voir la commande</summary>
+          <div class="code">sudo apt install zram-tools</div>
+        </details>
+        </sc-if>
+      </div>
+    </section>
+  </div>
+</figure>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2064,"height":1900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const labels = ['Accueil', 'Diagnostic', 'Espace disque', 'Historique', 'Réglages'];
+    const icons = ['#i-home', '#i-activity', '#i-disk', '#i-history', '#i-sliders'];
+    return {
+      nav: labels.map((l, i) => ({ label: l, icon: icons[i], current: i === 1 ? 'page' : 'false' })),
+      wins: [
+        { theme: 'light', caption: 'Clair · commande repliée', open: false, closed: true, copied: false, copyLabel: 'Copier la commande' },
+        { theme: 'dark', caption: 'Sombre · commande repliée', open: false, closed: true, copied: false, copyLabel: 'Copier la commande' },
+        { theme: 'light', caption: 'Clair · commande dépliée, copie confirmée', open: true, closed: false, copied: true, copyLabel: 'Copier à nouveau' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

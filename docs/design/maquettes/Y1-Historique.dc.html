@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Y1 · Historique</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./breathly.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="gal" style="width: 2064px; min-height: 3300px">
+<svg class="spr" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" style="fill:var(--color-accent)"/><circle cx="16" cy="16" r="4.5" style="fill:var(--color-on-accent)"/><circle cx="16" cy="16" r="9.5" style="fill:none;stroke:var(--color-on-accent);stroke-width:2;stroke-linecap:round;stroke-dasharray:44 16"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  <symbol id="i-disk" viewBox="0 0 24 24"><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M5.5 14 8 4h8l2.5 10"/><path d="M7 17.5h.01M11 17.5h.01"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/><path d="M12 8v4.5l3 2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2h.01"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2.5h8.5A1.5 1.5 0 0 1 21 10v8.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 19V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M14 3.5V8h4"/></symbol>
+</svg>
+
+<h1 class="gal-title">Y1 · Historique</h1>
+<p class="gal-note">US-040, US-041 ; parcours 5. Date, élément, taille, destination et état (annulable, annulé, plus annulable). Le bouton Annuler n’apparaît que sur les éléments annulables. Mode avancé : chemin et règle. Variantes : historique vide, et entrée incertaine après un arrêt brutal de Breathly (l’état est dit honnêtement, sans deviner).</p>
+
+<div class="gal-grid">
+<sc-for list="{{wins}}" as="w" hint-placeholder-count="6">
+<figure class="gal-fig">
+  <figcaption class="gal-cap">{{w.caption}}</figcaption>
+  <div class="win" data-theme="{{w.theme}}" lang="fr">
+    <aside class="side">
+      <div class="brand"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span class="brand-name">Breathly</span></div>
+      <nav class="nav" aria-label="Navigation principale">
+        <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="#" aria-current="{{n.current}}" aria-label="{{n.label}}"><svg class="ic" aria-hidden="true"><use href="{{n.icon}}"/></svg><span class="nav-label">{{n.label}}</span></a>
+        </sc-for>
+      </nav>
+      <p class="side-foot">Tout reste sur votre ordinateur.</p>
+    </aside>
+
+    <section class="main" style="gap: 20px">
+      <div class="head">
+        <div class="row row--between row--wrap">
+          <div class="row row--wrap" style="gap: 12px">
+            <h1 class="h1">Historique</h1>
+            <sc-if value="{{w.adv}}" hint-placeholder-val="{{ false }}"><span class="status status--info">Mode avancé</span></sc-if>
+          </div>
+          <sc-if value="{{w.hasGroups}}" hint-placeholder-val="{{ true }}"><button class="btn btn--secondary btn--sm">Effacer les entrées non annulables</button></sc-if>
+        </div>
+        <p class="lead">Tout ce que Breathly a nettoyé. Ce qui est allé à la corbeille peut être annulé.</p>
+      </div>
+
+      <sc-if value="{{w.empty}}" hint-placeholder-val="{{ false }}">
+      <div class="card card--flat">
+        <div class="empty">
+          <svg class="illus" viewBox="0 0 168 168" aria-hidden="true">
+            <circle cx="84" cy="84" r="80" style="fill:var(--color-accent-soft)"/>
+            <circle cx="84" cy="84" r="52" style="fill:none;stroke:var(--color-accent);stroke-width:2;opacity:.45"/>
+            <circle cx="84" cy="84" r="16" style="fill:var(--color-accent)"/>
+          </svg>
+          <h2 class="h2">Aucun nettoyage pour l’instant</h2>
+          <p class="lead" style="text-align: center">Quand vous nettoierez, vous retrouverez ici ce qui a été fait, et vous pourrez l’annuler.</p>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-for list="{{w.groups}}" as="g" hint-placeholder-count="2">
+      <div class="stack" style="gap: 8px">
+        <div class="row row--between"><h2 class="h3">{{g.title}}</h2><span class="small muted">{{g.meta}}</span></div>
+        <div class="card card--flush">
+          <div class="list">
+            <sc-for list="{{g.rows}}" as="r" hint-placeholder-count="4">
+            <div class="item item--static" style="min-height: 68px; gap: 12px; padding: 12px 16px">
+              <svg class="ic item-icon" aria-hidden="true"><use href="{{r.icon}}"/></svg>
+              <div class="item-main">
+                <span class="item-name">{{r.name}}</span>
+                <span class="item-desc">{{r.meta}}</span>
+                <sc-if value="{{r.adv}}" hint-placeholder-val="{{ false }}"><span class="adv">{{r.path}} · règle {{r.rule}}</span></sc-if>
+                <sc-if value="{{r.note}}" hint-placeholder-val="{{ false }}"><span class="item-desc" style="color: var(--color-warn-fg); font-weight: 500">{{r.note}}</span></sc-if>
+              </div>
+              <span class="item-size" style="min-width: 64px">{{r.size}}</span>
+              <span class="{{r.stCls}}" style="min-width: 0"><svg class="ic" aria-hidden="true"><use href="{{r.stIcon}}"/></svg>{{r.stLabel}}</span>
+              <span style="width: 92px; display: flex; justify-content: flex-end">
+                <sc-if value="{{r.btn}}" hint-placeholder-val="{{ false }}"><button class="{{r.btnCls}}">{{r.btn}}</button></sc-if>
+              </span>
+            </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      </sc-for>
+    </section>
+  </div>
+</figure>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2064,"height":3300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const labels = ['Accueil', 'Diagnostic', 'Espace disque', 'Historique', 'Réglages'];
+    const icons = ['#i-home', '#i-activity', '#i-disk', '#i-history', '#i-sliders'];
+    const nav = labels.map((l, i) => ({ label: l, icon: icons[i], current: i === 3 ? 'page' : 'false' }));
+    const ST = {
+      can: ['status status--info', '#i-undo', 'Annulable'],
+      undone: ['status status--ok', '#i-check', 'Annulé'],
+      gone: ['status status--neutral', '#i-lock', 'Plus annulable'],
+      unsure: ['status status--warn', '#i-alert', 'Incertain']
+    };
+    const DEST = { bin: 'Envoyé à la corbeille', del: 'Supprimé définitivement' };
+    const row = (adv, o) => ({
+      icon: o.file ? '#i-file' : '#i-folder', name: o.name, meta: o.time + ' · ' + DEST[o.dest], size: o.size,
+      adv: adv, path: o.path, rule: o.rule, note: o.note || '',
+      stCls: ST[o.st][0], stIcon: ST[o.st][1], stLabel: ST[o.st][2],
+      btn: o.st === 'can' ? 'Annuler' : (o.st === 'unsure' ? 'Voir la corbeille' : ''), btnCls: o.st === 'unsure' ? 'btn btn--ghost btn--sm' : 'btn btn--secondary btn--sm'
+    });
+    const mkGroups = (adv, uncertain) => [
+      { title: 'Nettoyage du 18 octobre, 05 h 02', meta: '13,7 Go', rows: [
+        row(adv, { name: 'Cache de npm', time: '05 h 02', dest: 'del', size: '4,2 Go', st: 'gone', path: '~/.npm/_cacache', rule: 'cache.npm' }),
+        row(adv, { name: 'Cache de Cargo', time: '05 h 02', dest: 'del', size: '6,1 Go', st: 'gone', path: '~/.cargo/registry/cache', rule: 'cache.cargo' }),
+        row(adv, { name: 'Cache de Firefox', time: '05 h 03', dest: 'del', size: '1,9 Go', st: 'gone', path: '~/.cache/mozilla/firefox', rule: 'cache.firefox' }),
+        row(adv, { name: 'Dossier de projet ancien', time: '05 h 03', dest: 'bin', size: '1,3 Go', st: 'can', path: '~/projets/vieux-site/node_modules', rule: 'project.node_modules' }),
+        uncertain
+          ? row(adv, { name: 'Ancien installeur (.deb)', file: true, time: '05 h 03', dest: 'bin', size: '180 Mo', st: 'unsure', path: '~/Téléchargements/zoom_amd64.deb', rule: 'download.installer', note: 'Breathly s’est arrêté pendant ce nettoyage : nous ne savons pas si cet élément a été déplacé. Vérifiez la corbeille.' })
+          : row(adv, { name: 'Ancien installeur (.deb)', file: true, time: '05 h 03', dest: 'bin', size: '180 Mo', st: 'can', path: '~/Téléchargements/zoom_amd64.deb', rule: 'download.installer' })
+      ] },
+      { title: 'Nettoyage du 12 octobre, 18 h 10', meta: '2,5 Go', rows: [
+        row(adv, { name: 'Anciens téléchargements (6 fichiers)', time: '18 h 10', dest: 'bin', size: '640 Mo', st: 'undone', path: '~/Téléchargements/*.deb', rule: 'download.installer' }),
+        row(adv, { name: 'Cache de Brave', time: '18 h 11', dest: 'del', size: '1,9 Go', st: 'gone', path: '~/.cache/BraveSoftware', rule: 'cache.brave' })
+      ] }
+    ];
+    const mk = (o) => ({ caption: o.caption, theme: o.theme, adv: !!o.adv, empty: !!o.empty, hasGroups: !o.empty, groups: o.empty ? [] : mkGroups(!!o.adv, !!o.uncertain) });
+    return {
+      nav,
+      wins: [
+        mk({ theme: 'light', caption: 'Clair · mode simple' }),
+        mk({ theme: 'dark', caption: 'Sombre · mode simple' }),
+        mk({ theme: 'light', adv: true, caption: 'Clair · mode avancé (chemin et règle)' }),
+        mk({ theme: 'dark', adv: true, caption: 'Sombre · mode avancé' }),
+        mk({ theme: 'light', empty: true, caption: 'Clair · historique vide' }),
+        mk({ theme: 'light', uncertain: true, caption: 'Clair · entrée incertaine après un arrêt brutal' })
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

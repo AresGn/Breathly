@@ -53,7 +53,7 @@
 - US-011.3 : Breathly ne ferme aucun logiciel en V0.1 ; aucune action de fermeture n'est proposée. [auto]
 
 **US-012.** En tant qu'utilisateur, je veux recevoir au plus 5 recommandations classées par impact, afin de savoir quoi faire en premier.
-- US-012.1 : au plus 5 recommandations, chacune avec titre en langage simple, gain estimé, niveau de risque et un bouton d'action ou d'explication (D2). [auto]
+- US-012.1 : au plus 5 recommandations, chacune avec titre en langage simple, gain estimé, niveau de risque et un bouton d'action ou d'explication (D2) ; le niveau de risque réutilise les trois libellés des éléments : une explication sans action est Sans risque, une action de l'utilisateur sur le système est À vérifier *(décision)*. [auto]
 - US-012.2 : s'il n'y a rien à recommander, l'écran le dit au lieu de rester vide. [auto]
 - US-012.3 : les recommandations sont classées par gravité (alerte critique, alerte, conseil), puis, à gravité égale et pour une même ressource, par gain estimé dans son unité (Go de disque, Go de RAM) ; deux ressources différentes ne se comparent pas par le gain. [auto]
 
@@ -141,12 +141,14 @@
 **US-037.** En tant qu'utilisateur, je veux vider la corbeille depuis Breathly après avoir vu ce qu'elle contient, afin de libérer réellement l'espace des fichiers déjà nettoyés.
 - US-037.1 : « Vider la corbeille » est un élément 🟡 distinct, jamais coché par défaut (règle « corbeille » du §8). [auto]
 - US-037.2 : avant confirmation, Breathly affiche le nombre d'éléments et la taille qui seront détruits, avec l'avertissement « suppression définitive, impossible à annuler ». [auto]
+- US-037.4 *(décision)* : si « Vider la corbeille » est cochée avec d'autres éléments, N1 liste tout, puis la confirmation forte N5 (nombre, taille, « impossible à annuler ») s'affiche en plus avant toute action. [auto]
 - US-037.3 : sans confirmation, la corbeille n'est pas modifiée ; après confirmation, l'écran affiche l'espace libéré et l'historique l'inscrit comme suppression définitive. [auto]
 
 ## Historique et annulation
 
 **US-040.** En tant qu'utilisateur, je veux consulter l'historique de ce que Breathly a fait, afin de vérifier qu'il n'a touché que ce qui était prévu.
 - US-040.1 : chaque action est inscrite : date, élément, taille, destination (corbeille ou définitive), y compris chaque annulation et chaque vidage de la corbeille (S6, invariant 5). [auto]
+- US-040.8 *(décision)* : l'historique affiche pour chaque entrée un état parmi « annulable », « annulé », « plus annulable » (suppression définitive, plus dans la corbeille, vidée, échec, ignorée) et « incertain » (après un arrêt brutal). [manuel]
 - US-040.2 : l'historique est un fichier local ; aucune donnée n'en sort de la machine. [auto]
 - US-040.3 *(décision)* : l'utilisateur peut effacer les entrées qui ne sont plus annulables (suppression définitive, élément qui n'est plus dans la corbeille) ; les entrées annulables restent. [auto]
 - US-040.4 *(décision)* : les entrées de plus de 12 mois sont supprimées automatiquement ; cette durée est une valeur de départ à confirmer par l'ADR de l'historique. [auto]
@@ -247,6 +249,7 @@
 - Historique : effacement limité aux entrées non annulables (US-040.3) ; conservation 12 mois puis rotation (US-040.4).
 - Persistance de la chauffe : 3 relevés du même diagnostic (US-013.2).
 - Machines à états (design 0001) : arrêt d'un nettoyage après l'élément en cours (US-036.3) ; une seule analyse à la fois par type (US-001.4) ; entrée `pending` avant l'action et vérifiée après un plantage (US-040.5, US-040.6) ; état « non annulable » vérifié à la demande seulement (US-040.7).
+- Maquettes (2026-10-18) : vidage coché avec d'autres éléments, N1 puis N5 (US-037.4) ; niveau de risque des recommandations sur la même échelle (US-012.1) ; libellés d'état de l'historique (US-040.8) ; logo provisoire à vectoriser avant la première publication.
 - Les 11 précisions ajoutées en rédigeant les stories (US-001.3, 002.1, 002.2, 003.1, 004.3, 012.3, 020.4, 032.2, 034.3, 041.2, 073.3) sont toutes conservées.
 
 ---

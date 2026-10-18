@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>N1 · Confirmation</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./breathly.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="gal" style="width: 2064px; min-height: 3200px">
+<svg class="spr" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" style="fill:var(--color-accent)"/><circle cx="16" cy="16" r="4.5" style="fill:var(--color-on-accent)"/><circle cx="16" cy="16" r="9.5" style="fill:none;stroke:var(--color-on-accent);stroke-width:2;stroke-linecap:round;stroke-dasharray:44 16"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  <symbol id="i-disk" viewBox="0 0 24 24"><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M5.5 14 8 4h8l2.5 10"/><path d="M7 17.5h.01M11 17.5h.01"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/><path d="M12 8v4.5l3 2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2h.01"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2.5h8.5A1.5 1.5 0 0 1 21 10v8.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 19V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M14 3.5V8h4"/></symbol>
+</svg>
+
+<h1 class="gal-title">N1 · Confirmation</h1>
+<p class="gal-note">US-030.2. Ce qui va à la corbeille (récupérable) est séparé de ce qui est supprimé définitivement (caches). Rien n’est fait avant le clic sur « Nettoyer ». Variantes : clair/sombre, anglais (vérification de la longueur des textes), sans risque seulement (parcours 1, trois clics), et un élément sans corbeille disponible.</p>
+
+<div class="gal-grid">
+<sc-for list="{{wins}}" as="w" hint-placeholder-count="6">
+<figure class="gal-fig">
+  <figcaption class="gal-cap">{{w.caption}}</figcaption>
+  <div class="win" data-theme="{{w.theme}}" lang="{{w.lang}}">
+    <aside class="side">
+      <div class="brand"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span class="brand-name">Breathly</span></div>
+      <nav class="nav" aria-label="{{w.t.navLabel}}">
+        <sc-for list="{{w.nav}}" as="n" hint-placeholder-count="5">
+        <a href="#" aria-current="{{n.current}}" aria-label="{{n.label}}"><svg class="ic" aria-hidden="true"><use href="{{n.icon}}"/></svg><span class="nav-label">{{n.label}}</span></a>
+        </sc-for>
+      </nav>
+      <p class="side-foot">{{w.t.foot}}</p>
+    </aside>
+
+    <section class="main" style="gap: 20px">
+      <div class="head">
+        <h1 class="h1">{{w.t.title}}</h1>
+        <p class="lead">{{w.lead}}</p>
+      </div>
+
+      <sc-if value="{{w.noBin}}" hint-placeholder-val="{{ false }}">
+      <div class="banner banner--warn" role="alert">
+        <svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>
+        <div class="grow"><span class="banner-title">Aucune corbeille disponible pour un élément.</span> Il serait supprimé définitivement. Retirez-le de la liste si vous hésitez.</div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{w.hasTrash}}" hint-placeholder-val="{{ true }}">
+      <div class="stack" style="gap: 8px">
+        <div class="row" style="gap: 10px"><svg class="ic" aria-hidden="true" style="color: var(--color-accent)"><use href="#i-undo"/></svg><h2 class="h3">{{w.t.trashTitle}}</h2><span class="small muted">{{w.trashMeta}}</span></div>
+        <p class="small muted" style="margin: 0">{{w.t.trashHint}}</p>
+        <div class="card card--flush"><div class="list">
+          <sc-for list="{{w.trashItems}}" as="i" hint-placeholder-count="2">
+          <div class="item item--static" style="min-height: 52px"><svg class="ic item-icon" aria-hidden="true"><use href="{{i.icon}}"/></svg><span class="item-main"><span class="item-name">{{i.name}}</span></span><span class="item-size">{{i.size}}</span></div>
+          </sc-for>
+        </div></div>
+      </div>
+      </sc-if>
+
+      <div class="stack" style="gap: 8px">
+        <div class="row" style="gap: 10px"><svg class="ic" aria-hidden="true" style="color: var(--color-alert-fg)"><use href="#i-trash"/></svg><h2 class="h3">{{w.t.delTitle}}</h2><span class="small muted">{{w.delMeta}}</span></div>
+        <p class="small muted" style="margin: 0">{{w.t.delHint}}</p>
+        <div class="card card--flush"><div class="list">
+          <sc-for list="{{w.delItems}}" as="i" hint-placeholder-count="3">
+          <div class="item item--static" style="min-height: 52px">
+            <svg class="ic item-icon" aria-hidden="true"><use href="{{i.icon}}"/></svg>
+            <span class="item-main"><span class="item-name">{{i.name}}</span></span>
+            <sc-if value="{{i.flag}}" hint-placeholder-val="{{ false }}"><span class="status status--warn"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Pas de corbeille</span><button class="btn btn--ghost btn--sm">Retirer</button></sc-if>
+            <span class="item-size">{{i.size}}</span>
+          </div>
+          </sc-for>
+        </div></div>
+      </div>
+
+      <div class="card card--soft stack" style="gap: 6px">
+        <div class="row row--between"><span>{{w.t.sTotal}}</span><b class="num">{{w.total}}</b></div>
+        <div class="row row--between"><span>{{w.t.sNow}}</span><b class="num">{{w.now}}</b></div>
+        <sc-if value="{{w.hasTrash}}" hint-placeholder-val="{{ true }}"><div class="row row--between"><span class="muted">{{w.t.sLater}}</span><span class="num muted">{{w.later}}</span></div></sc-if>
+      </div>
+
+      <div class="row row--between" style="margin-top: auto">
+        <button class="btn btn--ghost" style="padding-left: 0"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg>{{w.t.back}}</button>
+        <div class="row"><button class="btn btn--secondary">{{w.t.sim}}</button><button class="btn btn--primary">{{w.t.go}}</button></div>
+      </div>
+    </section>
+  </div>
+</figure>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2064,"height":3200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const NAVL = { fr: ['Accueil', 'Diagnostic', 'Espace disque', 'Historique', 'Réglages'], en: ['Home', 'Diagnostic', 'Disk space', 'History', 'Settings'] };
+    const NAVI = ['#i-home', '#i-activity', '#i-disk', '#i-history', '#i-sliders'];
+    const nav = (lang) => NAVL[lang].map((l, i) => ({ label: l, icon: NAVI[i], current: i === 2 ? 'page' : 'false' }));
+    const T = {
+      fr: { navLabel: 'Navigation principale', foot: 'Tout reste sur votre ordinateur.', title: 'Prêt à nettoyer ?',
+        trashTitle: 'Envoyé à la corbeille', trashHint: 'Vous pourrez les restaurer depuis l’historique.',
+        delTitle: 'Supprimé définitivement', delHint: 'Des caches : ils se recréent tout seuls et ne passent pas par la corbeille.',
+        sTotal: 'Espace concerné', sNow: 'Libéré tout de suite', sLater: 'Libéré après le vidage de la corbeille',
+        back: 'Retour', sim: 'Simuler', go: 'Nettoyer' },
+      en: { navLabel: 'Main navigation', foot: 'Everything stays on your computer.', title: 'Ready to clean up?',
+        trashTitle: 'Sent to the trash', trashHint: 'You can restore them from the history.',
+        delTitle: 'Permanently deleted', delHint: 'Caches: they rebuild themselves and skip the trash.',
+        sTotal: 'Space involved', sNow: 'Freed right away', sLater: 'Freed once the trash is emptied',
+        back: 'Back', sim: 'Simulate', go: 'Clean up' }
+    };
+    const N = {
+      fr: { npm: 'Cache de npm', cargo: 'Cache de Cargo', ff: 'Cache de Firefox', proj: 'Dossier de projet ancien', deb: 'Ancien installeur (.deb)', u: ['4,2 Go', '6,1 Go', '1,9 Go', '1,3 Go', '180 Mo'] },
+      en: { npm: 'npm cache', cargo: 'Cargo cache', ff: 'Firefox cache', proj: 'Old project folder', deb: 'Old installer (.deb)', u: ['4.2 GB', '6.1 GB', '1.9 GB', '1.3 GB', '180 MB'] }
+    };
+    const mk = (o) => {
+      const lang = o.lang || 'fr'; const n = N[lang]; const fr = lang === 'fr';
+      const caches = [
+        { icon: '#i-folder', name: n.npm, size: n.u[0] }, { icon: '#i-folder', name: n.cargo, size: n.u[1] }, { icon: '#i-folder', name: n.ff, size: n.u[2] }
+      ];
+      let trashItems = [{ icon: '#i-folder', name: n.proj, size: n.u[3] }, { icon: '#i-file', name: n.deb, size: n.u[4] }];
+      let delItems = caches; let lead, total, now, later, trashMeta, delMeta; let hasTrash = true;
+      if (o.safeOnly) {
+        hasTrash = false; trashItems = [];
+        lead = fr ? 'Vous allez libérer 12,2 Go. Rien n’est supprimé avant votre accord.' : 'You are about to free 12.2 GB. Nothing is deleted before you agree.';
+        total = fr ? '12,2 Go' : '12.2 GB'; now = total; later = ''; delMeta = fr ? '3 éléments · 12,2 Go' : '3 items · 12.2 GB'; trashMeta = '';
+      } else if (o.noBin) {
+        trashItems = [{ icon: '#i-folder', name: n.proj, size: n.u[3] }];
+        delItems = caches.concat([{ icon: '#i-file', name: fr ? 'Ancien installeur (.deb) · disque externe' : 'Old installer (.deb) · external drive', size: n.u[4], flag: true }]);
+        lead = 'Vous allez libérer 13,7 Go. Rien n’est supprimé avant votre accord.';
+        total = '13,7 Go'; now = '12,4 Go'; later = '1,3 Go'; trashMeta = '1 élément · 1,3 Go'; delMeta = '4 éléments · 12,4 Go';
+      } else {
+        lead = fr ? 'Vous allez libérer 13,7 Go. Rien n’est supprimé avant votre accord.' : 'You are about to free 13.7 GB. Nothing is deleted before you agree.';
+        total = fr ? '13,7 Go' : '13.7 GB'; now = fr ? '12,2 Go' : '12.2 GB'; later = fr ? '1,5 Go' : '1.5 GB';
+        trashMeta = fr ? '2 éléments · 1,5 Go' : '2 items · 1.5 GB'; delMeta = fr ? '3 éléments · 12,2 Go' : '3 items · 12.2 GB';
+      }
+      return { caption: o.caption, theme: o.theme, lang, nav: nav(lang), t: T[lang], lead, hasTrash, noBin: !!o.noBin, trashItems, delItems, total, now, later, trashMeta, delMeta };
+    };
+    return {
+      wins: [
+        mk({ theme: 'light', caption: 'Clair · français · sélection manuelle (corbeille + suppression définitive)' }),
+        mk({ theme: 'dark', caption: 'Sombre · français' }),
+        mk({ theme: 'light', lang: 'en', caption: 'Clair · anglais' }),
+        mk({ theme: 'dark', lang: 'en', caption: 'Sombre · anglais' }),
+        mk({ theme: 'light', safeOnly: true, caption: 'Clair · sans risque seulement (parcours 1)' }),
+        mk({ theme: 'light', noBin: true, caption: 'Clair · aucune corbeille disponible pour un élément' })
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

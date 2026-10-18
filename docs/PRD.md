@@ -446,7 +446,7 @@ npx web-ext lint --source-dir extension/dist/firefox
 2. ~~**Licence**~~ → MIT ✅
 3. ~~**macOS**~~ → **après la V1.0** ✅
 4. ~~**Hébergement**~~ → https://github.com/AresGn/Breathly ✅
-5. ~~**Identité visuelle**~~ → **maquette cliquable de 4 écrans** (accueil avec bandeau d'espace faible, diagnostic, disque, onglets ; mode simple et avancé) dans `docs/design/`, validée avant d'écrire l'interface ✅ (à produire)
+5. ~~**Identité visuelle**~~ → **maquette cliquable de 4 écrans** (accueil avec bandeau d'espace faible, diagnostic, disque, onglets ; mode simple et avancé) dans `docs/design/`, validée avant d'écrire l'interface ✅ (livrées le 2026-10-18 : `docs/design/maquettes/`)
 6. **Seuils de chauffe** (D5) : valeurs de départ à valider sur du matériel varié (portable, fixe, Windows sans droits).
 7. **Définition de « inutilisé »** (A1) : à prototyper sur X11, Wayland et Windows (étape 2.9).
 8. **Paquets et distributions** pour `system-tune` (Y3) : zram-tools, zram-generator, etc. à vérifier dans la documentation de chaque distribution avant la V0.4.

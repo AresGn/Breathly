@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>D1 · État du PC</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./breathly.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="gal" style="width: 2064px; min-height: 5400px">
+<svg class="spr" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" style="fill:var(--color-accent)"/><circle cx="16" cy="16" r="4.5" style="fill:var(--color-on-accent)"/><circle cx="16" cy="16" r="9.5" style="fill:none;stroke:var(--color-on-accent);stroke-width:2;stroke-linecap:round;stroke-dasharray:44 16"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  <symbol id="i-disk" viewBox="0 0 24 24"><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M5.5 14 8 4h8l2.5 10"/><path d="M7 17.5h.01M11 17.5h.01"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/><path d="M12 8v4.5l3 2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2h.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8h.01"/></symbol>
+  <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0z"/><path d="M12 9v7"/></symbol>
+  <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></symbol>
+  <symbol id="i-ram" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="9" rx="1.5"/><path d="M7 16v3M11 16v3M15 16v3M7 11v1M11 11v1M15 11v1"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+</svg>
+
+<h1 class="gal-title">D1 · État du PC</h1>
+<p class="gal-note">US-010 à US-014. Cartes de mesure, au plus 5 recommandations classées (quatre ici), Top 10 par mémoire et par processeur, section « À examiner » (jamais « suspect » ni « virus »). Mode simple : aucun chemin ni nom de processus brut. Mode avancé : noms de processus, PID, chemins, détail des mesures. États : chargement, rien à recommander, mesure non disponible (« Non disponible », jamais une valeur inventée). L’écran défile dans l’application ; il est montré ici en pleine hauteur.</p>
+
+<div class="gal-grid">
+<sc-for list="{{wins}}" as="w" hint-placeholder-count="4">
+<figure class="gal-fig">
+  <figcaption class="gal-cap">{{w.caption}}</figcaption>
+  <div class="win" data-theme="{{w.theme}}" lang="fr">
+    <aside class="side">
+      <div class="brand"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span class="brand-name">Breathly</span></div>
+      <nav class="nav" aria-label="Navigation principale">
+        <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="#" aria-current="{{n.current}}" aria-label="{{n.label}}"><svg class="ic" aria-hidden="true"><use href="{{n.icon}}"/></svg><span class="nav-label">{{n.label}}</span></a>
+        </sc-for>
+      </nav>
+      <p class="side-foot">Tout reste sur votre ordinateur.</p>
+    </aside>
+
+    <section class="main">
+      <div class="head">
+        <div class="row row--wrap" style="gap: 12px">
+          <h1 class="h1">État de votre PC</h1>
+          <sc-if value="{{w.adv}}" hint-placeholder-val="{{ false }}"><span class="status status--info">Mode avancé</span></sc-if>
+        </div>
+        <p class="lead">{{w.sub}}</p>
+      </div>
+
+      <div class="grid2">
+        <sc-for list="{{w.cards}}" as="c" hint-placeholder-count="5">
+        <div class="{{c.cls}}">
+          <div class="mcard-head"><svg class="ic" aria-hidden="true"><use href="{{c.icon}}"/></svg>{{c.label}}</div>
+          <sc-if value="{{w.loading}}" hint-placeholder-val="{{ false }}">
+            <div class="skel skel--lg" style="width: 55%"></div>
+            <div class="skel" style="height: 10px; border-radius: 999px"></div>
+            <div class="skel" style="width: 40%"></div>
+          </sc-if>
+          <sc-if value="{{w.ready}}" hint-placeholder-val="{{ true }}">
+            <div class="mcard-value"><span class="big">{{c.big}}</span><span class="muted">{{c.unit}}</span></div>
+            <sc-if value="{{c.hasMeter}}" hint-placeholder-val="{{ true }}">
+            <div class="{{c.meterCls}}"><i style="width: {{c.pct}}"></i></div>
+            </sc-if>
+            <div class="row row--wrap" style="gap: 12px">
+              <span class="{{c.stCls}}"><svg class="ic" aria-hidden="true"><use href="{{c.stIcon}}"/></svg>{{c.stLabel}}</span>
+              <sc-if value="{{c.link}}" hint-placeholder-val="{{ false }}"><button class="btn btn--ghost btn--sm">Comprendre la chauffe</button></sc-if>
+            </div>
+            <p class="note">{{c.note}}</p>
+            <sc-if value="{{w.adv}}" hint-placeholder-val="{{ false }}"><div class="adv">{{c.adv}}</div></sc-if>
+          </sc-if>
+        </div>
+        </sc-for>
+      </div>
+
+      <div class="stack">
+        <h2 class="h2">À faire en priorité</h2>
+        <sc-if value="{{w.loading}}" hint-placeholder-val="{{ false }}">
+        <div class="card card--flush">
+          <div class="reco"><div class="skel skel--lg" style="width: 32px; border-radius: 50%"></div><div class="grow stack" style="gap: 8px"><div class="skel" style="width: 60%"></div><div class="skel" style="width: 85%"></div></div></div>
+          <div class="reco"><div class="skel skel--lg" style="width: 32px; border-radius: 50%"></div><div class="grow stack" style="gap: 8px"><div class="skel" style="width: 50%"></div><div class="skel" style="width: 75%"></div></div></div>
+          <div class="reco"><div class="skel skel--lg" style="width: 32px; border-radius: 50%"></div><div class="grow stack" style="gap: 8px"><div class="skel" style="width: 65%"></div><div class="skel" style="width: 80%"></div></div></div>
+        </div>
+        </sc-if>
+        <sc-if value="{{w.hasRecos}}" hint-placeholder-val="{{ true }}">
+        <div class="card card--flush">
+          <sc-for list="{{w.recos}}" as="r" hint-placeholder-count="4">
+          <div class="reco">
+            <span class="reco-rank">{{r.rank}}</span>
+            <div class="reco-main">
+              <div class="reco-title">{{r.title}}</div>
+              <div class="reco-desc">{{r.desc}}</div>
+              <div class="row row--wrap" style="gap: 12px">
+                <span class="{{r.riskCls}}"><svg class="ic" aria-hidden="true"><use href="{{r.riskIcon}}"/></svg>{{r.riskLabel}}</span>
+                <span class="small muted">{{r.gain}}</span>
+              </div>
+              <sc-if value="{{w.adv}}" hint-placeholder-val="{{ false }}"><div class="adv">{{r.adv}}</div></sc-if>
+            </div>
+            <button class="btn btn--secondary btn--sm">{{r.btn}}</button>
+          </div>
+          </sc-for>
+        </div>
+        </sc-if>
+        <sc-if value="{{w.noRecos}}" hint-placeholder-val="{{ false }}">
+        <div class="card card--flat">
+          <div class="empty" style="padding: 32px 24px">
+            <svg class="ic ic--lg" aria-hidden="true" style="color: var(--color-success-fg)"><use href="#i-check"/></svg>
+            <div class="h3">Rien à recommander pour l’instant</div>
+            <p class="small muted" style="margin: 0; max-width: 44ch">Votre PC va bien. Relancez une analyse si vous le trouvez lent.</p>
+          </div>
+        </div>
+        </sc-if>
+      </div>
+
+      <div class="stack">
+        <h2 class="h2">Ce qui consomme le plus</h2>
+        <div class="grid2">
+          <div class="card card--flush">
+            <div class="group-head"><svg class="ic" aria-hidden="true"><use href="#i-ram"/></svg><span class="grow">Logiciels · mémoire (RAM)</span></div>
+            <sc-if value="{{w.loading}}" hint-placeholder-val="{{ false }}">
+              <div class="rank-row"><div class="skel grow"></div></div><div class="rank-row"><div class="skel grow"></div></div><div class="rank-row"><div class="skel grow"></div></div><div class="rank-row"><div class="skel grow"></div></div><div class="rank-row"><div class="skel grow"></div></div>
+            </sc-if>
+            <sc-for list="{{w.ramRows}}" as="r" hint-placeholder-count="10">
+            <div class="rank-row"><span class="rn">{{r.n}}</span><div class="grow"><div>{{r.name}}</div><sc-if value="{{w.adv}}" hint-placeholder-val="{{ false }}"><div class="adv">{{r.adv}}</div></sc-if></div><span class="val">{{r.val}}</span></div>
+            </sc-for>
+          </div>
+          <div class="card card--flush">
+            <div class="group-head"><svg class="ic" aria-hidden="true"><use href="#i-cpu"/></svg><span class="grow">Logiciels · processeur (CPU)</span></div>
+            <sc-if value="{{w.loading}}" hint-placeholder-val="{{ false }}">
+              <div class="rank-row"><div class="skel grow"></div></div><div class="rank-row"><div class="skel grow"></div></div><div class="rank-row"><div class="skel grow"></div></div><div class="rank-row"><div class="skel grow"></div></div><div class="rank-row"><div class="skel grow"></div></div>
+            </sc-if>
+            <sc-for list="{{w.cpuRows}}" as="r" hint-placeholder-count="10">
+            <div class="rank-row"><span class="rn">{{r.n}}</span><div class="grow"><div>{{r.name}}</div><sc-if value="{{w.adv}}" hint-placeholder-val="{{ false }}"><div class="adv">{{r.adv}}</div></sc-if></div><span class="val">{{r.val}}</span></div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <h2 class="h2">À examiner</h2>
+        <sc-if value="{{w.inspect}}" hint-placeholder-val="{{ true }}">
+        <div class="card">
+          <div class="row" style="align-items: flex-start; gap: 16px">
+            <span class="status status--warn" style="margin-top: 2px"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg>À examiner</span>
+            <div class="grow stack" style="gap: 8px">
+              <div class="h3">Un processus que nous ne connaissons pas</div>
+              <p class="small" style="margin: 0">Ce processus consomme beaucoup (640 Mo de mémoire) et nous ne le connaissons pas. Vérifiez-le avec l’antivirus de votre système.</p>
+              <p class="small muted" style="margin: 0">« À examiner » ne veut pas dire dangereux : Breathly n’est pas un antivirus et ne juge pas ce processus.</p>
+              <sc-if value="{{w.adv}}" hint-placeholder-val="{{ false }}"><div class="adv">svchostd · PID 4182 · utilisateur « marie »<br>/usr/lib/.cache/svchostd · lancé il y a 3 h · 640 Mo</div></sc-if>
+            </div>
+            <button class="btn btn--secondary btn--sm">Voir les détails</button>
+          </div>
+        </div>
+        </sc-if>
+        <sc-if value="{{w.noInspect}}" hint-placeholder-val="{{ false }}">
+        <div class="card card--flat"><p class="small muted" style="margin: 0">Rien à examiner pour l’instant : tous les processus gourmands sont connus.</p></div>
+        </sc-if>
+        <sc-if value="{{w.loading}}" hint-placeholder-val="{{ false }}">
+        <div class="card card--flat"><div class="skel" style="width: 70%"></div></div>
+        </sc-if>
+      </div>
+    </section>
+  </div>
+</figure>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2064,"height":5400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const labels = ['Accueil', 'Diagnostic', 'Espace disque', 'Historique', 'Réglages'];
+    const icons = ['#i-home', '#i-activity', '#i-disk', '#i-history', '#i-sliders'];
+    const nav = labels.map((l, i) => ({ label: l, icon: icons[i], current: i === 1 ? 'page' : 'false' }));
+    const ST = { ok: ['status status--ok', '#i-check'], warn: ['status status--warn', '#i-alert'], alert: ['status status--alert', '#i-alert'], na: ['status status--na', '#i-info'] };
+    const RISK = { safe: ['risk risk--safe', '#i-check', 'Sans risque'], verify: ['risk risk--verify', '#i-eye', 'À vérifier'] };
+    const card = (o) => ({
+      cls: o.wide ? 'card mcard mcard--wide' : 'card mcard', icon: o.icon, label: o.label, big: o.big, unit: o.unit,
+      hasMeter: o.pct != null, pct: o.pct + '%', meterCls: o.meter || 'meter',
+      stCls: ST[o.st][0], stIcon: ST[o.st][1], stLabel: o.stLabel, note: o.note, adv: o.adv, link: !!o.link
+    });
+    const bad = [
+      card({ wide: true, icon: '#i-disk', label: 'Disque', big: '666 Mo', unit: 'libres sur 221 Go', pct: 99.7, meter: 'meter meter--alert meter--lg', st: 'alert', stLabel: 'Presque plein', note: 'Moins de 2 Go : c’est ce qui ralentit le plus votre PC.', adv: '/dev/nvme0n1p2 · ext4 · monté sur /' }),
+      card({ icon: '#i-ram', label: 'Mémoire (RAM)', big: '13,9 Go', unit: 'utilisés sur 16 Go', pct: 87, meter: 'meter meter--warn', st: 'warn', stLabel: 'Très utilisée', note: 'Il reste peu de mémoire disponible : le PC peut ralentir.', adv: 'utilisée 13,9 Go · cache 2,1 Go · disponible 2,1 Go' }),
+      card({ icon: '#i-swap', label: 'Swap', big: '7,5 Go', unit: 'utilisés sur 7,6 Go', pct: 98, meter: 'meter meter--alert', st: 'alert', stLabel: 'Presque pleine', note: 'Le swap est un espace de secours sur le disque. Quand il est plein, le PC ralentit.', adv: '/swapfile · 7,6 Go · swappiness 60 · zram : absent' }),
+      card({ icon: '#i-cpu', label: 'Processeur (CPU)', big: '10 %', unit: 'de charge', pct: 10, meter: 'meter', st: 'ok', stLabel: 'Tranquille', note: 'Le processeur travaille peu.', adv: '8 cœurs · charge moyenne 0,42 / 0,38 / 0,35' }),
+      card({ icon: '#i-thermo', label: 'Chauffe', big: '70 °C', unit: 'du processeur', pct: 70, meter: 'meter meter--warn', st: 'warn', stLabel: 'Élevée pour cette charge', note: 'Le processeur travaille peu mais chauffe quand même.', adv: 'coretemp · Package id 0 · seuil haut 100 °C', link: true })
+    ];
+    const calm = [
+      card({ wide: true, icon: '#i-disk', label: 'Disque', big: '148 Go', unit: 'libres sur 221 Go', pct: 33, meter: 'meter meter--lg', st: 'ok', stLabel: 'Confortable', note: 'Il vous reste de la marge.', adv: '/dev/nvme0n1p2 · ext4 · monté sur /' }),
+      card({ icon: '#i-ram', label: 'Mémoire (RAM)', big: '6,2 Go', unit: 'utilisés sur 16 Go', pct: 39, st: 'ok', stLabel: 'À l’aise', note: 'Il reste beaucoup de mémoire disponible.', adv: 'utilisée 6,2 Go · cache 3,4 Go · disponible 9,8 Go' }),
+      card({ icon: '#i-swap', label: 'Swap', big: '0,3 Go', unit: 'utilisés sur 7,6 Go', pct: 4, st: 'ok', stLabel: 'Peu utilisée', note: 'Le swap est un espace de secours : il est à peine utilisé.', adv: '/swapfile · 7,6 Go · swappiness 60' }),
+      card({ icon: '#i-cpu', label: 'Processeur (CPU)', big: '4 %', unit: 'de charge', pct: 4, st: 'ok', stLabel: 'Tranquille', note: 'Le processeur travaille peu.', adv: '8 cœurs · charge moyenne 0,12 / 0,10 / 0,09' }),
+      { cls: 'card mcard', icon: '#i-thermo', label: 'Chauffe', big: 'Non disponible', unit: '', hasMeter: false, pct: '0%', meterCls: 'meter', stCls: ST.na[0], stIcon: ST.na[1], stLabel: 'Non disponible', note: 'Votre ordinateur ne fournit pas cette mesure. Breathly n’invente aucune valeur.', adv: 'aucun capteur lm-sensors / coretemp détecté', link: false }
+    ];
+    const recos = [
+      { rank: 1, title: 'Libérer de l’espace sur le disque', desc: 'Il reste 666 Mo. Des caches peuvent être nettoyés sans risque.', risk: 'safe', gain: 'Gain estimé : jusqu’à 12,2 Go d’espace', btn: 'Voir les éléments', adv: 'règles : cache.npm · cache.cargo · cache.firefox' },
+      { rank: 2, title: 'Libérer de la mémoire en fermant des logiciels', desc: 'Firefox et VS Code utilisent à eux deux 6,6 Go de mémoire. Pensez à enregistrer votre travail avant.', risk: 'verify', gain: 'Gain estimé : jusqu’à 6,6 Go de mémoire', btn: 'Voir les logiciels', adv: 'firefox (PID 2210) · code (PID 3184)' },
+      { rank: 3, title: 'Activer la mémoire compressée', desc: 'Votre swap est presque pleine, ce qui ralentit le PC. Un réglage de Linux peut aider.', risk: 'verify', gain: 'Gain estimé : moins de ralentissements', btn: 'Voir comment', adv: 'zram · paquet zram-tools · élévation requise' },
+      { rank: 4, title: 'Comprendre pourquoi le processeur chauffe', desc: '70 °C alors que le processeur travaille peu (10 %). Une explication et des vérifications simples.', risk: 'safe', gain: 'Pas de gain mesurable : une explication', btn: 'Comprendre', adv: 'coretemp · Package id 0 · 70 °C pour 10 % de charge' }
+    ].map(r => ({ rank: r.rank, title: r.title, desc: r.desc, riskCls: RISK[r.risk][0], riskIcon: RISK[r.risk][1], riskLabel: RISK[r.risk][2], gain: r.gain, btn: r.btn, adv: r.adv }));
+    const names = [
+      ['Firefox', 'firefox · PID 2210'], ['VS Code', 'code · PID 3184'], ['OBS Studio', 'obs · PID 4021'], ['Brave', 'brave · PID 2877'], ['Slack', 'slack · PID 3390'],
+      ['Spotify', 'spotify · PID 3555'], ['Thunderbird', 'thunderbird · PID 2954'], ['LibreOffice', 'soffice.bin · PID 4310'], ['Discord', 'Discord · PID 3702'], ['Nextcloud', 'nextcloud · PID 2701']
+    ];
+    const ramBad = ['3,4', '3,2', '1,8', '1,2', '0,9', '0,7', '0,6', '0,5', '0,4', '0,2'];
+    const ramCalm = ['1,6', '1,4', '0,6', '0,5', '0,4', '0,3', '0,3', '0,2', '0,2', '0,1'];
+    const cpuOrder = [2, 0, 1, 3, 5, 4, 8, 6, 7, 9];
+    const cpuBad = ['3,8', '2,2', '1,1', '0,9', '0,7', '0,5', '0,4', '0,2', '0,1', '0,1'];
+    const cpuCalm = ['1,4', '0,9', '0,6', '0,4', '0,3', '0,2', '0,1', '0,1', '0,0', '0,0'];
+    const ramRows = (v) => names.map((n, i) => ({ n: i + 1, name: n[0], adv: n[1], val: v[i] + ' Go' }));
+    const cpuRows = (v) => cpuOrder.map((k, i) => ({ n: i + 1, name: names[k][0], adv: names[k][1], val: v[i] + ' %' }));
+    const mk = (o) => ({
+      caption: o.caption, theme: o.theme, adv: !!o.adv, loading: !!o.loading, ready: !o.loading,
+      sub: o.loading ? 'Analyse en cours… Les résultats apparaissent dès qu’ils sont prêts.' : (o.calm ? 'Analysé il y a 2 minutes. Tout va bien.' : 'Analysé il y a 2 minutes. Voici ce qui ralentit votre ordinateur.'),
+      cards: o.calm ? calm : bad,
+      recos: o.calm || o.loading ? [] : recos, hasRecos: !o.calm && !o.loading, noRecos: !!o.calm,
+      ramRows: o.loading ? [] : ramRows(o.calm ? ramCalm : ramBad),
+      cpuRows: o.loading ? [] : cpuRows(o.calm ? cpuCalm : cpuBad),
+      inspect: !o.calm && !o.loading, noInspect: !!o.calm
+    });
+    return {
+      nav,
+      wins: [
+        mk({ theme: 'light', caption: 'Clair · mode simple' }),
+        mk({ theme: 'dark', caption: 'Sombre · mode simple' }),
+        mk({ theme: 'light', adv: true, caption: 'Clair · mode avancé' }),
+        mk({ theme: 'dark', adv: true, caption: 'Sombre · mode avancé' }),
+        mk({ theme: 'light', loading: true, caption: 'Clair · chargement' }),
+        mk({ theme: 'light', calm: true, caption: 'Clair · rien à recommander, chauffe non disponible' })
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

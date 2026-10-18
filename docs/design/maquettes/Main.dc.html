@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Direction visuelle</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./breathly.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="gal" style="width: 1760px; min-height: 1500px">
+<svg class="spr" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" style="fill:var(--color-accent)"/><circle cx="16" cy="16" r="4.5" style="fill:var(--color-on-accent)"/><circle cx="16" cy="16" r="9.5" style="fill:none;stroke:var(--color-on-accent);stroke-width:2;stroke-linecap:round;stroke-dasharray:44 16"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2h.01"/></symbol>
+</svg>
+
+<h1 class="gal-title">Breathly — Direction visuelle</h1>
+<p class="gal-note">Direction proposée : « Respirer ». Calme et aéré : beaucoup d’espace, coins arrondis, couleurs douces teintées de vert-bleu, une seule action principale par écran. Les deux thèmes sont dessinés ensemble ; le niveau de risque n’est jamais porté par la couleur seule (icône + libellé + couleur). À valider avant les écrans.</p>
+
+<div style="display: flex; gap: 24px; align-items: flex-start">
+<sc-for list="{{panels}}" as="p" hint-placeholder-count="2">
+<section class="win" data-theme="{{p.theme}}" style="width: 820px; flex-direction: column; gap: 32px; padding: 40px; border-radius: 24px; min-height: 0">
+
+  <div class="row" style="gap: 16px">
+    <svg style="width: 56px; height: 56px" viewBox="0 0 32 32" role="img" aria-label="Logo Breathly"><use href="#mark"/></svg>
+    <div class="stack" style="gap: 2px">
+      <div style="font: 600 44px/1 var(--font-display); letter-spacing: -0.02em">Breathly</div>
+      <div class="muted">Let your PC breathe. · {{p.label}}</div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h2 class="h3 muted">Palette</h2>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+      <div class="stack" style="gap: 6px"><div style="height: 64px; border-radius: 12px; border: 1px solid var(--color-border); background: var(--color-bg)"></div><div class="small"><b>Fond</b><br><span class="adv">{{p.bg}}</span></div></div>
+      <div class="stack" style="gap: 6px"><div style="height: 64px; border-radius: 12px; border: 1px solid var(--color-border); background: var(--color-surface)"></div><div class="small"><b>Surface</b><br><span class="adv">{{p.surface}}</span></div></div>
+      <div class="stack" style="gap: 6px"><div style="height: 64px; border-radius: 12px; border: 1px solid var(--color-border); background: var(--color-text)"></div><div class="small"><b>Texte</b><br><span class="adv">{{p.text}}</span></div></div>
+      <div class="stack" style="gap: 6px"><div style="height: 64px; border-radius: 12px; background: var(--color-accent)"></div><div class="small"><b>Accent</b><br><span class="adv">{{p.accent}}</span></div></div>
+    </div>
+    <div class="row row--wrap">
+      <span class="risk risk--safe"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Sans risque</span>
+      <span class="risk risk--verify"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg>À vérifier</span>
+      <span class="risk risk--personal"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Décision personnelle</span>
+      <span class="status status--alert"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Alerte</span>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h2 class="h3 muted">Typographie</h2>
+    <div style="font: 600 38px/1.15 var(--font-display); letter-spacing: -0.02em">Voyons pourquoi votre PC est lent.</div>
+    <div class="small muted">Titres — Bricolage Grotesque 600</div>
+    <div style="font-size: 18px">C’est le cache de npm. Il se recrée tout seul. Rien n’est supprimé avant votre accord.</div>
+    <div class="small muted">Texte — Hanken Grotesk 400 / 500 / 600 · 16 px, interligne 1,5</div>
+    <div class="code">~/.npm/_cacache · règle cache.npm</div>
+    <div class="small muted">Mode avancé — DM Mono 400</div>
+  </div>
+
+  <div class="stack">
+    <h2 class="h3 muted">Formes et ton</h2>
+    <div class="row row--wrap">
+      <button class="btn btn--primary">Nettoyer</button>
+      <button class="btn btn--secondary">Simuler</button>
+      <button class="btn btn--ghost">Voir les détails</button>
+    </div>
+    <div class="row" style="gap: 20px; align-items: center">
+      <svg class="illus" viewBox="0 0 168 168" role="img" aria-label="Illustration : cercles concentriques évoquant le souffle">
+        <circle cx="84" cy="84" r="80" style="fill:var(--color-accent-soft)"/>
+        <circle cx="84" cy="84" r="56" style="fill:none;stroke:var(--color-accent);stroke-width:2;opacity:.45"/>
+        <circle cx="84" cy="84" r="36" style="fill:var(--color-accent);opacity:.18"/>
+        <circle cx="84" cy="84" r="16" style="fill:var(--color-accent)"/>
+        <path d="M28 118a64 64 0 0 1 6-68" style="fill:none;stroke:var(--color-accent);stroke-width:3;stroke-linecap:round"/>
+      </svg>
+      <div class="card grow" style="padding: 20px">
+        <div class="h3">Carte · coins 16 px</div>
+        <div class="small muted" style="margin: 4px 0 12px">Bordure fine, ombre quasi nulle, jamais de flou d’arrière-plan.</div>
+        <div class="meter"><i style="width: 62%"></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+</sc-for>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin-top: 32px">
+  <div class="stack" style="gap: 8px"><h2 class="h3">Calme</h2><p class="small" style="margin: 0">Verts-bleus désaturés, fonds chauds-neutres, beaucoup de vide. Aucun rouge vif : l’alerte est un rose-brique doux.</p></div>
+  <div class="stack" style="gap: 8px"><h2 class="h3">Léger pour WebKitGTK</h2><p class="small" style="margin: 0">Pas de flou, pas de dégradés, une seule ombre (dialogue). Illustrations : 4 cercles, 2 teintes, vectoriel.</p></div>
+  <div class="stack" style="gap: 8px"><h2 class="h3">Pas un antivirus</h2><p class="small" style="margin: 0">Ni bouclier, ni « PC protégé », ni gros bouton « Optimiser ». Le logo est un souffle, pas une défense.</p></div>
+  <div class="stack" style="gap: 8px"><h2 class="h3">Hors ligne</h2><p class="small" style="margin: 0">Polices et icônes embarquées dans Breathly. Ici, les polices sont chargées seulement pour la prévisualisation.</p></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1760,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      panels: [
+        { theme: 'light', label: 'Thème clair', bg: '#F4F6F3', surface: '#FFFFFF', text: '#1B2A2A', accent: '#1F6F6B' },
+        { theme: 'dark', label: 'Thème sombre', bg: '#111A19', surface: '#1A2524', text: '#E6EEEC', accent: '#5FC4BB' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
