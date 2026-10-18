@@ -1,0 +1,277 @@
+// Essai jetable (ticket #69) : course entre la vérification d'un chemin et l'action de suppression.
+// Tout se passe dans un dossier temporaire ; la corbeille est redirigée par XDG_DATA_HOME vers ce dossier.
+use std::ffi::CString;
+use std::fs;
+use std::os::unix::ffi::OsStrExt;
+use std::os::unix::fs::{symlink, MetadataExt};
+use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use std::time::Instant;
+
+fn cpath(p: &Path) -> CString { CString::new(p.as_os_str().as_bytes()).unwrap() }
+
+/// Échange atomique de deux entrées (renameat2 RENAME_EXCHANGE).
+fn exchange(a: &Path, b: &Path) -> bool {
+    let (ca, cb) = (cpath(a), cpath(b));
+    unsafe { libc::syscall(libc::SYS_renameat2, libc::AT_FDCWD, ca.as_ptr(), libc::AT_FDCWD, cb.as_ptr(), libc::RENAME_EXCHANGE) == 0 }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum Out { Done, Refused, DetectedAndRestored }
+
+// ---- variantes -------------------------------------------------------------------------------
+
+fn guard(path: &Path, allowed: &Path) -> bool {
+    fs::canonicalize(path).map(|c| c.starts_with(allowed)).unwrap_or(false)
+}
+
+fn v0_naif(path: &Path, allowed: &Path) -> Out {
+    if !guard(path, allowed) { return Out::Refused; }
+    if trash::delete(path).is_ok() { Out::Done } else { Out::Refused }
+}
+
+fn v1_recanoniser(path: &Path, allowed: &Path) -> Out {
+    if !guard(path, allowed) { return Out::Refused; }
+    if !guard(path, allowed) { return Out::Refused; } // juste avant d'agir
+    if trash::delete(path).is_ok() { Out::Done } else { Out::Refused }
+}
+
+/// Identité (dev, ino) de chaque composant du chemin, sans suivre de lien ; None si un composant est un lien.
+fn chain_identity(path: &Path, allowed: &Path) -> Option<Vec<(u64, u64)>> {
+    let rel = path.strip_prefix(allowed).ok()?;
+    let mut cur = allowed.to_path_buf();
+    let mut v = vec![];
+    for c in rel.components() {
+        cur.push(c);
+        let md = fs::symlink_metadata(&cur).ok()?;
+        if md.file_type().is_symlink() { return None; }
+        v.push((md.dev(), md.ino()));
+    }
+    Some(v)
+}
+
+fn v2_identite(path: &Path, allowed: &Path) -> Out {
+    let Some(before) = chain_identity(path, allowed) else { return Out::Refused };
+    if !guard(path, allowed) { return Out::Refused; }
+    let Some(after) = chain_identity(path, allowed) else { return Out::Refused }; // juste avant d'agir
+    if before != after { return Out::Refused; }
+    if trash::delete(path).is_ok() { Out::Done } else { Out::Refused }
+}
+
+fn trash_files_dir() -> PathBuf { PathBuf::from(std::env::var("XDG_DATA_HOME").unwrap()).join("Trash/files") }
+
+/// V3 : vérification après l'action, sans lister la corbeille dans le cas normal. On retient le chemin canonique
+/// attendu et son identité avant d'agir ; après `trash::delete`, la cible attendue doit avoir disparu. Si elle
+/// existe encore avec la même identité, la bibliothèque a mis à la corbeille autre chose : on restaure
+/// les éléments récents dont l'origine est hors du dossier autorisé.
+fn v3_verif_apres(path: &Path, allowed: &Path) -> Out {
+    let Ok(expected) = fs::canonicalize(path) else { return Out::Refused };
+    if !expected.starts_with(allowed) { return Out::Refused; }
+    let Ok(md) = fs::symlink_metadata(&expected) else { return Out::Refused };
+    let want = (md.dev(), md.ino());
+    let t0 = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64 - 2;
+    if trash::delete(path).is_err() { return Out::Refused; }
+    let still = fs::symlink_metadata(&expected).map(|m| (m.dev(), m.ino()) == want).unwrap_or(false);
+    if !still { return Out::Done; }
+    let Ok(items) = trash::os_limited::list() else { return Out::Refused };
+    let wrong: Vec<_> = items.into_iter().filter(|i| i.time_deleted >= t0 && !i.original_path().starts_with(allowed)).collect();
+    let _ = trash::os_limited::restore_all(wrong);
+    Out::DetectedAndRestored
+}
+
+/// V3c : on retient les identifiants présents dans la corbeille avant l'action ; après, le nouvel élément doit avoir
+/// pour origine le chemin canonique vérifié (la bibliothèque enregistre le chemin résolu, vérifié par essai) ;
+/// sinon on restaure ce nouvel élément, qui retourne à son vrai emplacement.
+fn v3c_origine_enregistree(path: &Path, allowed: &Path) -> Out {
+    use std::collections::HashSet;
+    let Ok(expected) = fs::canonicalize(path) else { return Out::Refused };
+    if !expected.starts_with(allowed) { return Out::Refused; }
+    let ids = |v: Vec<trash::TrashItem>| v.into_iter().map(|i| (i.id.clone(), i)).collect::<Vec<_>>();
+    let before: HashSet<_> = trash::os_limited::list().map(ids).unwrap_or_default().into_iter().map(|(k, _)| k).collect();
+    if trash::delete(path).is_err() { return Out::Refused; }
+    let after = trash::os_limited::list().map(ids).unwrap_or_default();
+    let new: Vec<_> = after.into_iter().filter(|(k, _)| !before.contains(k)).map(|(_, i)| i).collect();
+    let wrong: Vec<_> = new.into_iter().filter(|i| i.original_path() != expected).collect();
+    if wrong.is_empty() { return Out::Done; }
+    let _ = trash::os_limited::restore_all(wrong);
+    Out::DetectedAndRestored
+}
+
+/// V4 (suppression définitive) : parcours par descripteurs, O_NOFOLLOW à chaque niveau, unlinkat relatif.
+fn v4_descripteurs(path: &Path, allowed: &Path) -> Out {
+    let Ok(rel) = path.strip_prefix(allowed) else { return Out::Refused };
+    let comps: Vec<_> = rel.components().collect();
+    let (last, parents) = comps.split_last().unwrap();
+    let root = cpath(allowed);
+    let flags = libc::O_RDONLY | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC;
+    let mut fd = unsafe { libc::open(root.as_ptr(), flags) };
+    if fd < 0 { return Out::Refused; }
+    for c in parents {
+        let cc = CString::new(c.as_os_str().as_bytes()).unwrap();
+        let nfd = unsafe { libc::openat(fd, cc.as_ptr(), flags) };
+        unsafe { libc::close(fd) };
+        if nfd < 0 { return Out::Refused; } // lien symbolique ou dossier disparu : refus
+        fd = nfd;
+    }
+    let name = CString::new(last.as_os_str().as_bytes()).unwrap();
+    let mut st: libc::stat = unsafe { std::mem::zeroed() };
+    let ok = unsafe { libc::fstatat(fd, name.as_ptr(), &mut st, libc::AT_SYMLINK_NOFOLLOW) } == 0
+        && (st.st_mode & libc::S_IFMT) == libc::S_IFREG;
+    let r = if ok { unsafe { libc::unlinkat(fd, name.as_ptr(), 0) } } else { -1 };
+    unsafe { libc::close(fd) };
+    if r == 0 { Out::Done } else { Out::Refused }
+}
+
+fn rm_any(p: &Path) {
+    match fs::symlink_metadata(p) {
+        Ok(m) if m.is_dir() => { let _ = fs::remove_dir_all(p); }
+        Ok(_) => { let _ = fs::remove_file(p); }
+        Err(_) => {}
+    }
+}
+
+/// V5 (corbeille) : l'entrée vérifiée est d'abord déplacée par `renameat` (relatif aux descripteurs, sans suivre de lien)
+/// dans un dossier de quarantaine privé du même volume ; la bibliothèque ne voit ensuite qu'un chemin que l'on maîtrise.
+fn v5_quarantaine(path: &Path, allowed: &Path, quarantine: &Path, n: usize) -> Out {
+    let Ok(rel) = path.strip_prefix(allowed) else { return Out::Refused };
+    let comps: Vec<_> = rel.components().collect();
+    let (last, parents) = comps.split_last().unwrap();
+    let flags = libc::O_RDONLY | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC;
+    let root = cpath(allowed);
+    let mut fd = unsafe { libc::open(root.as_ptr(), flags) };
+    if fd < 0 { return Out::Refused; }
+    for c in parents {
+        let cc = CString::new(c.as_os_str().as_bytes()).unwrap();
+        let nfd = unsafe { libc::openat(fd, cc.as_ptr(), flags) };
+        unsafe { libc::close(fd) };
+        if nfd < 0 { return Out::Refused; }
+        fd = nfd;
+    }
+    let name = CString::new(last.as_os_str().as_bytes()).unwrap();
+    let mut st: libc::stat = unsafe { std::mem::zeroed() };
+    let regular = unsafe { libc::fstatat(fd, name.as_ptr(), &mut st, libc::AT_SYMLINK_NOFOLLOW) } == 0
+        && (st.st_mode & libc::S_IFMT) == libc::S_IFREG;
+    let qroot = cpath(quarantine);
+    let qfd = unsafe { libc::open(qroot.as_ptr(), flags) };
+    let qname = CString::new(format!("q{n}")).unwrap();
+    let moved = regular && qfd >= 0 && unsafe { libc::renameat(fd, name.as_ptr(), qfd, qname.as_ptr()) } == 0;
+    unsafe { libc::close(fd); if qfd >= 0 { libc::close(qfd); } }
+    if !moved { return Out::Refused; }
+    if trash::delete(quarantine.join(format!("q{n}"))).is_ok() { Out::Done } else { Out::Refused }
+}
+
+/// Suppression récursive relative à un descripteur, sans suivre de lien.
+fn rm_rec_at(parent: libc::c_int, name: &CString) -> bool {
+    let mut st: libc::stat = unsafe { std::mem::zeroed() };
+    if unsafe { libc::fstatat(parent, name.as_ptr(), &mut st, libc::AT_SYMLINK_NOFOLLOW) } != 0 { return false; }
+    if (st.st_mode & libc::S_IFMT) != libc::S_IFDIR {
+        return unsafe { libc::unlinkat(parent, name.as_ptr(), 0) } == 0;
+    }
+    let fl = libc::O_RDONLY | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC;
+    let dfd = unsafe { libc::openat(parent, name.as_ptr(), fl) };
+    if dfd < 0 { return false; }
+    let dir = unsafe { libc::fdopendir(dfd) };
+    if dir.is_null() { unsafe { libc::close(dfd) }; return false; }
+    let mut ok = true;
+    let mut names: Vec<CString> = vec![];
+    loop {
+        let e = unsafe { libc::readdir(dir) };
+        if e.is_null() { break; }
+        let n = unsafe { std::ffi::CStr::from_ptr((*e).d_name.as_ptr()) }.to_owned();
+        if n.as_bytes() == b"." || n.as_bytes() == b".." { continue; }
+        names.push(n);
+    }
+    for n in &names { ok &= rm_rec_at(dfd, n); }
+    unsafe { libc::closedir(dir) };
+    ok && unsafe { libc::unlinkat(parent, name.as_ptr(), libc::AT_REMOVEDIR) } == 0
+}
+
+/// D6 : suppression définitive d'un DOSSIER de cache, entièrement relative aux descripteurs.
+fn d6_dossier_descripteurs(path: &Path, allowed: &Path) -> Out {
+    let Ok(rel) = path.strip_prefix(allowed) else { return Out::Refused };
+    let comps: Vec<_> = rel.components().collect();
+    let (last, parents) = comps.split_last().unwrap();
+    let flags = libc::O_RDONLY | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC;
+    let root = cpath(allowed);
+    let mut fd = unsafe { libc::open(root.as_ptr(), flags) };
+    if fd < 0 { return Out::Refused; }
+    for c in parents {
+        let cc = CString::new(c.as_os_str().as_bytes()).unwrap();
+        let nfd = unsafe { libc::openat(fd, cc.as_ptr(), flags) };
+        unsafe { libc::close(fd) };
+        if nfd < 0 { return Out::Refused; }
+        fd = nfd;
+    }
+    let name = CString::new(last.as_os_str().as_bytes()).unwrap();
+    let r = rm_rec_at(fd, &name);
+    unsafe { libc::close(fd) };
+    if r { Out::Done } else { Out::Refused }
+}
+
+fn d0_dossier_naif(path: &Path, allowed: &Path) -> Out {
+    if !guard(path, allowed) { return Out::Refused; }
+    if fs::remove_dir_all(path).is_ok() { Out::Done } else { Out::Refused }
+}
+
+// ---- banc ------------------------------------------------------------------------------------
+
+fn main() {
+    let a: Vec<String> = std::env::args().collect();
+    let variant = a[1].as_str();
+    let trials: usize = a[2].parse().unwrap();
+    let t = PathBuf::from(&a[3]); // dossier temporaire dédié
+    let _ = fs::remove_dir_all(&t);
+    fs::create_dir_all(&t).unwrap();
+    let t = fs::canonicalize(&t).unwrap();
+    unsafe { std::env::set_var("XDG_DATA_HOME", t.join("xdg")) };
+    let allowed = t.join("allowed");
+    let protected = t.join("protected");
+    fs::create_dir_all(&allowed).unwrap();
+    fs::create_dir_all(&protected).unwrap();
+    fs::create_dir_all(t.join("quarantine")).unwrap();
+    let slot = allowed.join("slot");      // composant échangé
+    let alt = allowed.join("slot_alt");   // lien vers le dossier protégé
+    let dir_mode = variant.starts_with('d');
+    let target = if dir_mode { slot.join("cachedir") } else { slot.join("target.bin") };
+    let (mut done, mut refused, mut detected, mut incidents) = (0usize, 0, 0, 0);
+    let start = Instant::now();
+    for i in 0..trials {
+        rm_any(&slot); rm_any(&alt);
+        fs::create_dir_all(&slot).unwrap();
+        if dir_mode {
+            fs::create_dir_all(target.join("sous")).unwrap();
+            for k in 0..5 { fs::write(target.join(format!("f{k}.bin")), "c").unwrap(); fs::write(target.join("sous").join(format!("g{k}.bin")), "c").unwrap(); }
+            fs::create_dir_all(protected.join("cachedir")).unwrap();
+            fs::write(protected.join("cachedir/keep.bin"), "protégé").unwrap();
+        } else {
+            fs::write(&target, format!("cache {i}")).unwrap();
+            fs::write(protected.join("target.bin"), format!("protégé {i}")).unwrap();
+        }
+        symlink(&protected, &alt).unwrap();
+        let stop = Arc::new(AtomicBool::new(false));
+        let (s2, a2, b2) = (stop.clone(), slot.clone(), alt.clone());
+        let h = std::thread::spawn(move || { while !s2.load(Ordering::Relaxed) { exchange(&a2, &b2); } });
+        let out = match variant {
+            "v0" => v0_naif(&target, &allowed),
+            "v1" => v1_recanoniser(&target, &allowed),
+            "v2" => v2_identite(&target, &allowed),
+            "v3" => v3_verif_apres(&target, &allowed),
+            "v3c" => v3c_origine_enregistree(&target, &allowed),
+            "v4" => v4_descripteurs(&target, &allowed),
+            "d0" => d0_dossier_naif(&target, &allowed),
+            "d6" => d6_dossier_descripteurs(&target, &allowed),
+            "v5" => v5_quarantaine(&target, &allowed, &t.join("quarantine"), i),
+            _ => panic!("variante"),
+        };
+        stop.store(true, Ordering::Relaxed);
+        h.join().unwrap();
+        match out { Out::Done => done += 1, Out::Refused => refused += 1, Out::DetectedAndRestored => detected += 1 }
+        let sentinel = if dir_mode { protected.join("cachedir/keep.bin") } else { protected.join("target.bin") };
+        if !sentinel.exists() { incidents += 1; }
+        // vider la corbeille de l'essai pour ne pas grossir
+        if i % 200 == 199 { let _ = fs::remove_dir_all(t.join("xdg")); }
+    }
+    let ms = start.elapsed().as_millis();
+    println!("variante={variant} essais={trials} faits={done} refus={refused} detecte_et_restaure={detected} FICHIER_PROTEGE_PERDU={incidents} duree_totale_ms={ms} par_essai_us={}", ms * 1000 / trials as u128);
+}

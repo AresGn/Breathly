@@ -1,0 +1,23 @@
+use std::{fs, path::PathBuf};
+fn main() {
+    let t = PathBuf::from(std::env::args().nth(1).unwrap());
+    let _ = fs::remove_dir_all(&t); fs::create_dir_all(&t).unwrap();
+    let t = fs::canonicalize(&t).unwrap();
+    unsafe { std::env::set_var("XDG_DATA_HOME", t.join("xdg")) };
+    fs::create_dir_all(t.join("allowed/slot")).unwrap(); fs::create_dir_all(t.join("quarantine")).unwrap();
+    let original = t.join("allowed/slot/cache.bin");
+    fs::write(&original, "contenu").unwrap();
+    let rel = |p: &std::path::Path| p.strip_prefix(&t).map(|r| format!("T/{}", r.display())).unwrap_or_else(|_| p.display().to_string());
+    // 1. quarantaine puis corbeille
+    let q = t.join("quarantine/q0");
+    fs::rename(&original, &q).unwrap();
+    trash::delete(&q).unwrap();
+    let items = trash::os_limited::list().unwrap();
+    println!("origine enregistrée par la corbeille : {}", rel(&items[0].original_path()));
+    // 2. annulation : la bibliothèque restaure vers la quarantaine, Breathly déplace ensuite vers l'origine (stockée dans son historique)
+    trash::os_limited::restore_all(items).unwrap();
+    println!("après restore_all : quarantaine={} origine={}", q.exists(), original.exists());
+    fs::rename(&q, &original).unwrap();
+    println!("après déplacement vers l'origine : origine={} contenu={:?}", original.exists(), fs::read_to_string(&original).unwrap());
+    // 3. cas où le dossier d'origine a disparu entre-temps
+}
