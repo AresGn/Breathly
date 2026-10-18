@@ -1,0 +1,63 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	let pct = $state(40);
+	let rapport = $state('en attente');
+	const violations: string[] = [];
+	if (typeof document !== 'undefined') {
+		document.addEventListener('securitypolicyviolation', (e) => {
+			violations.push(`${e.violatedDirective} (${e.blockedURI || 'inline'})`);
+		});
+	}
+	onMount(async () => {
+		await document.fonts.load('32px EssaiPolice', 'Abc');
+		const img = document.getElementById('img') as HTMLImageElement;
+		const w = (id: string) => Math.round(document.getElementById(id)!.getBoundingClientRect().width);
+		const lignes = [
+			`police EssaiPolice chargee: ${document.fonts.check('32px EssaiPolice')} (statut ${[...document.fonts].map((f) => f.status).join(',')})`,
+			`image chargee: ${img.complete && img.naturalWidth > 0} (${img.naturalWidth}px)`,
+			`attribut style statique: largeur ${w('b1')}px (attendu 200)`,
+			`attribut style dynamique {pct}: largeur ${w('b2')}px (attendu 200)`,
+			`directive style:width: largeur ${w('b3')}px (attendu 200)`,
+			`CSSOM element.style: largeur ${w('b4')}px (attendu 200)`
+		];
+		let evalOk: string;
+		try { evalOk = String(new Function('return 1')()); } catch (e) { evalOk = 'bloque: ' + (e as Error).name; }
+		lignes.push(`eval/new Function: ${evalOk}`);
+		const h = document.createElement('div');
+		h.innerHTML = '<div id="b5" style="width: 200px; height: 5px"></div>';
+		document.body.appendChild(h);
+		lignes.push(`innerHTML avec attribut style: largeur ${w('b5')}px (attendu 200)`);
+		const x = document.createElement('div');
+		x.id = 'b6'; x.setAttribute('style', 'width: 200px; height: 5px'); document.body.appendChild(x);
+		lignes.push(`setAttribute('style'): largeur ${w('b6')}px (attendu 200)`);
+		await new Promise((r) => setTimeout(r, 300));
+		lignes.push(`violations CSP signalees: ${violations.length ? violations.join(' ; ') : 'aucune'}`);
+		rapport = lignes.join('\n');
+	});
+</script>
+
+<main>
+	<p style="font-family: EssaiPolice, serif; font-size: 32px;" id="txt">Abc Breathly (police)</p>
+	<img id="img" src="/essai.png" alt="essai" width="64" />
+	<div class="piste"><div id="b1" class="barre" style="width: 200px"></div></div>
+	<div class="piste"><div id="b2" class="barre" style="width: {pct * 5}px"></div></div>
+	<div class="piste"><div id="b3" class="barre" style:width="{pct * 5}px"></div></div>
+	<div class="piste"><div id="b4" class="barre" use:cssom></div></div>
+	<pre>{rapport}</pre>
+</main>
+
+<script module lang="ts">
+	export function cssom(node: HTMLElement) {
+		node.style.width = '200px';
+	}
+</script>
+
+<style>
+	@font-face {
+		font-family: 'EssaiPolice';
+		src: url('/fonts/essai.woff2') format('woff2');
+	}
+	.piste { width: 300px; background: #ddd; margin: 4px 0; }
+	.barre { height: 12px; background: teal; }
+	pre { font-size: 14px; }
+</style>
