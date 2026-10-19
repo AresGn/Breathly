@@ -217,72 +217,144 @@ mod essai {
         if ok { Out::Done } else { Out::Refused }
     }
 
-    /// On garde ouvert chaque dossier du chemin sans partage de suppression : un autre processus ne peut ni les renommer
-    /// ni les remplacer tant que le verrou est tenu. Puis on vérifie qu'aucun n'est un point d'analyse, puis on agit.
-    fn chaine_verrouillee(path: &Path, allowed: &Path, hook: Hook) -> Out {
-        let Ok(rel) = path.strip_prefix(allowed) else { return Out::Refused };
+    /// Ouvre, sans partage de suppression, la racine autorisée et chaque dossier du chemin (le dernier composant aussi si
+    /// `avec_final`) ; refuse si l'un d'eux est un point d'analyse. Tant que ces handles vivent, un autre processus ne peut
+    /// ni les renommer ni les supprimer, donc ni les remplacer par une jonction.
+    fn verrouiller(path: &Path, allowed: &Path, avec_final: bool) -> Option<Vec<fs::File>> {
+        let rel = path.strip_prefix(allowed).ok()?;
         let mut cur = allowed.to_path_buf();
-        let mut handles = vec![];
         let mut chain = vec![allowed.to_path_buf()];
-        for c in rel.parent().into_iter().flat_map(|p| p.components()) { cur.push(c); chain.push(cur.clone()); }
+        let comps: Vec<_> = rel.components().collect();
+        let n = if avec_final { comps.len() } else { comps.len().saturating_sub(1) };
+        for c in comps.iter().take(n) { cur.push(c); chain.push(cur.clone()); }
+        let mut handles = vec![];
         for d in &chain {
-            let Ok(h) = OpenOptions::new().read(true).share_mode(SHARE_READ_WRITE)
-                .custom_flags(FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS).open(d) else { return Out::Refused };
-            if h.metadata().map(|m| m.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0).unwrap_or(true) { return Out::Refused; }
+            let h = OpenOptions::new().read(true).share_mode(SHARE_READ_WRITE)
+                .custom_flags(FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS).open(d).ok()?;
+            if h.metadata().map(|m| m.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0).unwrap_or(true) { return None; }
             handles.push(h);
         }
+        Some(handles)
+    }
+
+    fn chaine_verrouillee(path: &Path, allowed: &Path, hook: Hook) -> Out {
+        let Some(handles) = verrouiller(path, allowed, false) else { return Out::Refused };
         hook();
         let out = if fs::remove_file(path).is_ok() { Out::Done } else { Out::Refused };
         drop(handles);
         out
     }
 
+    /// Corbeille : mêmes dossiers verrouillés, puis `trash::delete(chemin)`.
+    fn trash_chaine(path: &Path, allowed: &Path, hook: Hook) -> Out {
+        let Some(handles) = verrouiller(path, allowed, false) else { return Out::Refused };
+        hook();
+        let out = if trash::delete(path).is_ok() { Out::Done } else { Out::Refused };
+        drop(handles);
+        out
+    }
+
+    /// Dossiers (suppression définitive) : naïf = vérifier puis `remove_dir_all(chemin)`.
+    fn rd_naif(path: &Path, allowed: &Path, hook: Hook) -> Out {
+        let Ok(c) = fs::canonicalize(path) else { return Out::Refused };
+        if !inside(&c, &fs::canonicalize(allowed).unwrap_or_default()) { return Out::Refused; }
+        hook();
+        if fs::remove_dir_all(path).is_ok() { Out::Done } else { Out::Refused }
+    }
+
+    /// Dossiers : seuls les parents sont verrouillés (le dernier composant reste échangeable).
+    fn rd_chaine_parents(path: &Path, allowed: &Path, hook: Hook) -> Out {
+        let Some(handles) = verrouiller(path, allowed, false) else { return Out::Refused };
+        hook();
+        let out = if fs::remove_dir_all(path).is_ok() { Out::Done } else { Out::Refused };
+        drop(handles);
+        out
+    }
+
+    /// Dossiers : parents ET dossier final verrouillés ; le contenu est supprimé sous le verrou, puis on lâche le handle
+    /// du dossier final et on retire le dossier (vide, ou une jonction : `remove_dir` ne détruit jamais la cible d'une jonction).
+    fn rd_chaine_complete(path: &Path, allowed: &Path, hook: Hook) -> Out {
+        let Some(mut handles) = verrouiller(path, allowed, true) else { return Out::Refused };
+        hook();
+        let mut ok = true;
+        if let Ok(rd) = fs::read_dir(path) {
+            for e in rd.flatten() {
+                let p = e.path();
+                let reparse = is_reparse(&p);
+                ok &= if reparse { fs::remove_dir(&p).or_else(|_| fs::remove_file(&p)).is_ok() }
+                      else if p.is_dir() { fs::remove_dir_all(&p).is_ok() } else { fs::remove_file(&p).is_ok() };
+            }
+        } else { ok = false; }
+        let dernier = handles.pop();
+        drop(dernier);
+        ok &= fs::remove_dir(path).is_ok();
+        drop(handles);
+        if ok { Out::Done } else { Out::Refused }
+    }
+
     struct Course { done: usize, refused: usize, lost: usize, vue: usize, ms: u128 }
 
-    /// `vue` : nombre d'essais où `slot` a été observé comme la jonction au moins une fois pendant la fenêtre (échange déclenché).
-    fn course(t: &Path, tag: &str, trials: usize, delai_us: u64, nom: &str, variant: fn(&Path, &Path, Hook) -> Out) -> Course {
+    #[derive(Clone, Copy)]
+    enum Kind { Fichier, DossierParent, DossierFinal }
+
+    /// `vue` : nombre d'essais où la jonction a été observée en place au moins une fois pendant la fenêtre.
+    /// Fichier : `slot\<nom>` ; DossierParent : `slot\cachedir` (on échange `slot`) ; DossierFinal : `cachedir` (on l'échange lui-même).
+    fn course(t: &Path, tag: &str, trials: usize, delai_us: u64, nom: &str, kind: Kind, variant: fn(&Path, &Path, Hook) -> Out) -> Course {
         use std::cell::{Cell, RefCell};
         let allowed = t.join(format!("allowed_{tag}"));
         let protected = t.join(format!("protected_{tag}"));
-        let slot = allowed.join("slot");
-        let alt = allowed.join("slot_alt");
-        let tmp = allowed.join("slot_tmp");
         let _ = fs::create_dir_all(&allowed);
         let _ = fs::create_dir_all(&protected);
-        let target = slot.join(nom);
+        let slot = allowed.join("slot");
+        let (a, b, c, target, junction_to, sentinel) = match kind {
+            Kind::Fichier => (slot.clone(), allowed.join("slot_alt"), allowed.join("slot_tmp"), slot.join(nom), protected.clone(), protected.join(nom)),
+            Kind::DossierParent => (slot.clone(), allowed.join("slot_alt"), allowed.join("slot_tmp"), slot.join("cachedir"), protected.clone(), protected.join("cachedir").join("keep.bin")),
+            Kind::DossierFinal => (allowed.join("cachedir"), allowed.join("cachedir_alt"), allowed.join("cachedir_tmp"), allowed.join("cachedir"), protected.join("cachedir"), protected.join("cachedir").join("keep.bin")),
+        };
         let (mut done, mut refused, mut lost) = (0, 0, 0);
         let vue = Cell::new(0usize);
         let start = std::time::Instant::now();
         for i in 0..trials {
-            rm_any(&slot); rm_any(&alt); rm_any(&tmp);
-            let _ = fs::create_dir_all(&slot);
-            let _ = fs::write(&target, format!("cache {i}"));
-            let _ = fs::write(protected.join(nom), format!("protégé {i}"));
-            if !mklink_j(&alt, &protected) { continue; }
+            for p in [&slot, &a, &b, &c, &allowed.join("slot_alt"), &allowed.join("slot_tmp")] { rm_any(p); }
+            let _ = fs::create_dir_all(&protected);
+            match kind {
+                Kind::Fichier => {
+                    let _ = fs::create_dir_all(&slot);
+                    let _ = fs::write(&target, format!("cache {i}"));
+                    let _ = fs::write(&sentinel, format!("protégé {i}"));
+                }
+                Kind::DossierParent | Kind::DossierFinal => {
+                    let _ = fs::create_dir_all(target.join("sous"));
+                    for k in 0..5 { let _ = fs::write(target.join(format!("f{k}.bin")), "c"); let _ = fs::write(target.join("sous").join(format!("g{k}.bin")), "c"); }
+                    let _ = fs::create_dir_all(protected.join("cachedir"));
+                    let _ = fs::write(&sentinel, "protégé");
+                }
+            }
+            if !mklink_j(&b, &junction_to) { continue; }
             let stop = Arc::new(AtomicBool::new(false));
             let swapper: RefCell<Option<std::thread::JoinHandle<()>>> = RefCell::new(None);
             let hook = || {
-                let (s2, a, b, c) = (stop.clone(), slot.clone(), alt.clone(), tmp.clone());
+                let (s2, a2, b2, c2) = (stop.clone(), a.clone(), b.clone(), c.clone());
                 *swapper.borrow_mut() = Some(std::thread::spawn(move || {
                     while !s2.load(Ordering::Relaxed) {
-                        if fs::rename(&a, &c).is_ok() {
-                            let _ = fs::rename(&b, &a);
-                            let _ = fs::rename(&c, &b);
+                        if fs::rename(&a2, &c2).is_ok() {
+                            let _ = fs::rename(&b2, &a2);
+                            let _ = fs::rename(&c2, &b2);
                         }
                     }
                 }));
-                // Pendant toute la fenêtre, on échantillonne l'état de `slot` : « vue » compte les essais où l'on a
-                // observé au moins une fois la jonction à sa place (le fil perturbateur a donc bien agi dans la fenêtre).
+                // Pendant toute la fenêtre, on échantillonne l'état du composant échangé : « vue » compte les essais où l'on
+                // a observé au moins une fois la jonction à sa place (le fil perturbateur a donc bien agi dans la fenêtre).
                 let end = std::time::Instant::now() + std::time::Duration::from_micros(delai_us);
                 let mut vu = false;
-                while std::time::Instant::now() < end { if !vu && is_reparse(&slot) { vu = true; } }
+                while std::time::Instant::now() < end { if !vu && is_reparse(&a) { vu = true; } }
                 if vu { vue.set(vue.get() + 1); }
             };
             let out = variant(&target, &allowed, &hook);
             stop.store(true, Ordering::Relaxed);
             if let Some(h) = swapper.borrow_mut().take() { let _ = h.join(); }
             if out == Out::Done { done += 1 } else { refused += 1 }
-            if !protected.join(nom).exists() { lost += 1; }
+            if !sentinel.exists() { lost += 1; }
         }
         Course { done, refused, lost, vue: vue.get(), ms: start.elapsed().as_millis() }
     }
@@ -328,8 +400,18 @@ mod essai {
         r.push(format!("B5 course, {trials} essais par variante : entre sa vérification et son action, chaque variante laisse un fil alterner « slot » (dossier réel) et « slot_alt » (jonction vers un dossier protégé) pendant {delai_us} µs. « vue » = essais où la jonction a été observée en place au moins une fois pendant la fenêtre. Fichiers protégés perdus :"));
         let variantes: [(&str, fn(&Path, &Path, Hook) -> Out); 3] = [("naïf (canonicalize puis remove_file)", naive), ("par handle (vérification et suppression par le même handle)", par_handle), ("chaîne verrouillée (dossiers tenus ouverts)", chaine_verrouillee)];
         for (name, f) in variantes {
-            let c = course(t, "c", trials, delai_us, "target.bin", f);
+            let c = course(t, "c", trials, delai_us, "target.bin", Kind::Fichier, f);
             r.push(format!("   - {name} : {} perdus sur {trials} (jonction vue {}, faits {}, refus {}), {} ms", c.lost, c.vue, c.done, c.refused, c.ms));
+        }
+        // B6 : dossiers (suppression définitive d'un dossier de cache)
+        let essais_d = trials.min(200);
+        let dossiers: [(&str, fn(&Path, &Path, Hook) -> Out); 3] = [("naïf (remove_dir_all après vérification)", rd_naif), ("parents verrouillés seulement", rd_chaine_parents), ("parents et dossier final verrouillés", rd_chaine_complete)];
+        for (titre, kind, tag) in [("B6a on échange un dossier PARENT (slot) du chemin", Kind::DossierParent, "dp"), ("B6b on échange le DERNIER composant (cachedir) lui-même", Kind::DossierFinal, "df")] {
+            r.push(format!("{titre}, {essais_d} essais par variante, fenêtre de {delai_us} µs :"));
+            for (name, f) in dossiers {
+                let c = course(t, tag, essais_d, delai_us, "cachedir", kind, f);
+                r.push(format!("   - {name} : {} perdus sur {essais_d} (jonction vue {}, faits {}, refus {}), {} ms", c.lost, c.vue, c.done, c.refused, c.ms));
+            }
         }
         if corbeille { section_corbeille(r, t, trials.min(200), delai_us); }
     }
@@ -348,8 +430,11 @@ mod essai {
                 res.map_or_else(|e| format!("ERREUR {e}"), |_| "OK".into()), !protected.join("breathly-essai-protege.bin").exists()));
         }
         rm_any(&lien);
-        let c = course(t, "t", trials, delai_us, "breathly-essai-cible.bin", trash_naif);
+        let c = course(t, "t", trials, delai_us, "breathly-essai-cible.bin", Kind::Fichier, trash_naif);
         r.push(format!("C2 course avec trash::delete naïf, {delai_us} µs entre vérification et action : {} fichiers protégés perdus sur {trials} essais (jonction vue {}, suppressions faites {}, refus {}), {} ms",
+            c.lost, c.vue, c.done, c.refused, c.ms));
+        let c = course(t, "t2", trials, delai_us, "breathly-essai-cible.bin", Kind::Fichier, trash_chaine);
+        r.push(format!("C2b course avec dossiers verrouillés puis trash::delete, {delai_us} µs : {} fichiers protégés perdus sur {trials} essais (jonction vue {}, suppressions faites {}, refus {}), {} ms",
             c.lost, c.vue, c.done, c.refused, c.ms));
         // nettoyage de la corbeille : seulement les éléments d'essai
         match trash::os_limited::list() {
