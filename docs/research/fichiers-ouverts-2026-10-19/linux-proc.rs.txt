@@ -1,0 +1,97 @@
+// Essai jetable (ticket #70) : un fichier est-il ouvert par un autre processus ? Linux, sans programme externe.
+// Ne lit que /proc (liens des descripteurs, cartes mémoire) ; n'affiche aucun chemin du système, que des comptes.
+use std::collections::HashSet;
+use std::fs;
+use std::os::unix::fs::MetadataExt;
+use std::path::Path;
+use std::time::Instant;
+
+#[derive(Default, Debug)]
+struct Scan { processus: usize, illisibles: usize, descripteurs: usize, ms: u128 }
+
+/// Instantané des (dev, ino) de tous les descripteurs ouverts lisibles, et des fichiers cartographiés en mémoire.
+fn instantane(avec_maps: bool, moi: u32) -> (HashSet<(u64, u64)>, HashSet<(u64, u64)>, Scan) {
+    let t = Instant::now();
+    let (mut fds, mut maps, mut sc) = (HashSet::new(), HashSet::new(), Scan::default());
+    for e in fs::read_dir("/proc").into_iter().flatten().flatten() {
+        let Some(pid) = e.file_name().to_str().and_then(|s| s.parse::<u32>().ok()) else { continue };
+        if pid == moi { continue; }
+        sc.processus += 1;
+        match fs::read_dir(format!("/proc/{pid}/fd")) {
+            Ok(rd) => for f in rd.flatten() {
+                if let Ok(md) = fs::metadata(f.path()) { fds.insert((md.dev(), md.ino())); sc.descripteurs += 1; }
+            },
+            Err(_) => sc.illisibles += 1,
+        }
+        if avec_maps {
+            if let Ok(txt) = fs::read_to_string(format!("/proc/{pid}/maps")) {
+                for l in txt.lines() {
+                    // adresses perms offset major:minor inode chemin (le chemin peut contenir des espaces) : on lit dev et inode
+                    let mut it = l.splitn(6, ' ');
+                    let (_a, _p, _o, dev, ino) = (it.next(), it.next(), it.next(), it.next(), it.next());
+                    let (Some(dev), Some(ino)) = (dev, ino) else { continue };
+                    let Ok(ino) = ino.trim().parse::<u64>() else { continue };
+                    if ino == 0 { continue; }
+                    let mut d = dev.split(':');
+                    let (Some(ma), Some(mi)) = (d.next().and_then(|x| u32::from_str_radix(x, 16).ok()), d.next().and_then(|x| u32::from_str_radix(x, 16).ok())) else { continue };
+                    maps.insert((libc::makedev(ma, mi), ino));
+                }
+            }
+        }
+    }
+    sc.ms = t.elapsed().as_millis();
+    (fds, maps, sc)
+}
+
+fn tenir_cartographie(p: &str) {
+    use std::os::fd::AsRawFd;
+    let f = fs::File::open(p).unwrap();
+    unsafe {
+        let m = libc::mmap(std::ptr::null_mut(), 1, libc::PROT_READ, libc::MAP_SHARED, f.as_raw_fd(), 0);
+        assert!(m != libc::MAP_FAILED);
+    }
+    drop(f); // le descripteur est fermé, la cartographie reste
+    std::thread::sleep(std::time::Duration::from_secs(12));
+}
+
+fn main() {
+    if std::env::args().nth(1).as_deref() == Some("--tenir") { tenir_cartographie(&std::env::args().nth(2).unwrap()); return; }
+    let dir = std::env::args().nth(1).unwrap();
+    let dir = Path::new(&dir);
+    let _ = fs::remove_dir_all(dir);
+    fs::create_dir_all(dir).unwrap();
+    let me = std::process::id();
+    let mk = |n: &str| { let p = dir.join(n); fs::write(&p, "x").unwrap(); p };
+    let (f_rw, f_ro, f_map, f_lock, f_free) = (mk("rw"), mk("ro"), mk("map"), mk("lock"), mk("libre"));
+    let key = |p: &Path| { let m = fs::metadata(p).unwrap(); (m.dev(), m.ino()) };
+    // processus enfants : ouverture lecture-écriture, lecture seule, cartographie sans descripteur, verrou consultatif
+    let sh = |script: String| std::process::Command::new("sh").arg("-c").arg(script).spawn().unwrap();
+    let mut kids = vec![];
+    kids.push(sh(format!("exec 3<>{}; sleep 12", f_rw.display())));
+    kids.push(sh(format!("exec 3<{}; sleep 12", f_ro.display())));
+    kids.push(std::process::Command::new(std::env::current_exe().unwrap()).arg("--tenir").arg(&f_map).spawn().unwrap());
+    kids.push(sh(format!("flock {} sleep 12", f_lock.display())));
+    std::thread::sleep(std::time::Duration::from_millis(700));
+    let (fds, maps, sc) = instantane(true, me);
+    println!("instantané : {} processus, {} illisibles (autre compte ou droits), {} descripteurs lus, {} ms", sc.processus, sc.illisibles, sc.descripteurs, sc.ms);
+    let verdict = |n: &str, p: &Path| println!("{n:28} descripteur : {:5}  cartographie : {:5}", fds.contains(&key(p)), maps.contains(&key(p)));
+    verdict("ouvert en lecture-écriture", &f_rw);
+    verdict("ouvert en lecture seule", &f_ro);
+    verdict("cartographié, descripteur fermé", &f_map);
+    verdict("verrou consultatif (flock)", &f_lock);
+    verdict("jamais ouvert (témoin)", &f_free);
+    // verrou consultatif : le détecte-t-on par try_lock de la bibliothèque standard ?
+    let lock_try = |p: &Path| fs::File::open(p).and_then(|f| f.try_lock_shared().map(|_| ()).map_err(|e| match e { std::fs::TryLockError::WouldBlock => std::io::Error::from(std::io::ErrorKind::WouldBlock), std::fs::TryLockError::Error(e) => e }));
+    println!("try_lock_shared sur le fichier verrouillé (flock exclusif d'un autre processus) : {:?}", lock_try(&f_lock).map_err(|e| e.kind()));
+    println!("try_lock_shared sur le fichier ouvert sans verrou : {:?}", lock_try(&f_rw).map_err(|e| e.kind()));
+    // coût : deuxième instantané, sans les cartes
+    let (_, _, sc2) = instantane(false, me);
+    println!("instantané sans cartes : {} ms ; avec cartes : {} ms", sc2.ms, sc.ms);
+    // vérification par lot : 1 000 fichiers contre le même instantané
+    let t = Instant::now();
+    let mut n = 0;
+    for i in 0..1000 { if fds.contains(&(i as u64, i as u64)) { n += 1; } }
+    println!("1 000 consultations de l'instantané : {} µs (positifs : {n})", t.elapsed().as_micros());
+    for k in &mut kids { let _ = k.kill(); }
+    let _ = fs::remove_dir_all(dir);
+}
