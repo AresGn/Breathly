@@ -43,4 +43,4 @@ Le garde-fou S5 (invariant 3 d'`AGENTS.md`, US-034.1) interdit de supprimer un f
 
 ## Impact sur l'architecture
 
-Un port de plus dans `breathly-platform` (design 0002 §5), sans changement du graphe de dépendances (design 0002 §3). Le design 0002 §9 (point sur la détection d'un fichier ouvert) passe à « décidé » dans la PR du ticket #73.
+Un port de plus dans `breathly-platform` (design 0002 §5), sans changement du graphe de dépendances (design 0002 §3). Le design 0002 §5 (traits de `platform`) et la liste d'`AGENTS.md` listent le nouveau port dans la PR du ticket #73 ; `docs/policies/securite.md` §3 n'a plus de point ouvert sur ce sujet.
