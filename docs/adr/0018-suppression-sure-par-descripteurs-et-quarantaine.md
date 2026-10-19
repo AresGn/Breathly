@@ -1,6 +1,6 @@
 # ADR 0018 : Suppression sûre par descripteurs et quarantaine
 
-- **Statut** : accepté pour Linux ; Windows : à essayer (voir « Décision »)
+- **Statut** : accepté ; Linux par la décision ci-dessous, Windows par la note du 2026-10-19 en fin de document
 - **Date** : 2026-10-18
 - **Décideurs** : propriétaire du dépôt (AresGn)
 
@@ -41,7 +41,7 @@ Breathly vérifie les garde-fous S5 pour chaque élément au moment d'agir (SEC2
 - **Reprise après un arrêt brutal** (US-040.6). Une entrée « pending » dont l'élément est retrouvé dans la quarantaine est remise à son origine si elle est libre ; sinon elle devient « incertaine » avec un message.
 - **Code.** Ces opérations sont du code `unsafe` de `breathly-platform` (seul crate qui peut en avoir, ADR 0011), derrière un trait de suppression avec un faux de test, chacune avec son `#[allow(unsafe_code, reason)]`, son commentaire `// SAFETY:` et une relecture explicite. Aucun `cfg(target_os)` ailleurs.
 - **Dépendance.** `libc` est accepté en dépendance directe de `breathly-platform` (MIT OR Apache-2.0, version 0.2.190 publiée le 2026-10-02, déjà présente dans l'arbre par `sysinfo`). Elle s'ajoute à la liste de l'ADR 0012 ; toute autre bibliothèque se redemande (PRD §14).
-- **Windows.** La même idée (ouverture relative à un handle de dossier, sans suivre les points d'analyse) est à écrire et **à essayer sur la machine de validation** avant la release : sa forme exacte, ses jonctions et ses chemins longs se décident avec le ticket #49. En attendant cet essai, le comportement Windows n'est **pas** décidé par cet ADR, et il est **non vérifié** ; la release V0.1 Windows ne part pas avec une suppression sans cette protection sans décision écrite du propriétaire.
+- **Windows.** Voir la note du 2026-10-19 en fin de document (essai fait ; stratégie par dossiers verrouillés).
 
 ## Conséquences
 
@@ -54,3 +54,26 @@ Breathly vérifie les garde-fous S5 pour chaque élément au moment d'agir (SEC2
 ## Impact sur l'architecture
 
 Le trait de suppression est dans `breathly-platform` (design 0002 §5) ; `breathly-disk` n'a aucun appel système direct. Le graphe de dépendances (design 0002 §3) ne change pas. `docs/policies/securite.md` §3 (« Suppression sûre ») passe à « décidé » dans la PR du ticket #72.
+
+## Note du 2026-10-19 : Windows
+
+Essai fait sur Windows 11 (poste client, sans droits administrateur), détail et limites dans `docs/research/2026-10-19-essai-windows.md` (programme : `docs/research/essais-windows/`). Même méthode que sous Linux : un fil échange un dossier du chemin et une jonction vers un dossier protégé entre la vérification et l'action (trois renommages, faute d'échange atomique), avec une fenêtre de 10 ms ; « jonction vue » vérifie que l'échange a eu lieu.
+
+| Variante | Perdus |
+|---|---|
+| fichier, vérifier puis `remove_file(chemin)` | 120 / 300 |
+| dossier, vérifier puis `remove_dir_all(chemin)`, parent échangé | 57 / 200 |
+| `trash::delete(chemin)` naïf | 64 / 100 |
+| dossiers de la chaîne tenus ouverts sans partage de suppression, puis fichier / dossier / `trash::delete` | 0 / 300, 0 / 200, 0 / 100 |
+| suppression d'un fichier par handle | 0 / 300 |
+
+**Décision pour Windows (choisie par le propriétaire le 2026-10-19) : dossiers verrouillés, puis opération de la bibliothèque standard.** Aucune quarantaine, aucun `unsafe`, aucune dépendance de plus.
+
+- Avant d'agir, `breathly-platform` ouvre la racine de la règle puis chaque dossier du chemin (`OpenOptions` en lecture, `share_mode` lecture et écriture **sans** partage de suppression, `FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT`) et **refuse** si l'un porte l'attribut `FILE_ATTRIBUTE_REPARSE_POINT` (raison `path_changed`). Tant que ces handles vivent, un autre processus ne peut ni renommer ni supprimer ces dossiers, donc ni les remplacer par une jonction (essai : erreur 32).
+- Fichier (🟢 définitif ou 🟡 corbeille) : `remove_file` ou `trash::delete(chemin)` **pendant** que les handles vivent.
+- Dossier 🟢 : le dernier dossier est aussi tenu ouvert ; son contenu est supprimé sous le verrou (une entrée point d'analyse est retirée par `remove_dir`, jamais suivie) ; puis le handle du dossier final est relâché et `remove_dir` retire le dossier (vide, ou une jonction : `remove_dir` ne détruit jamais la cible d'une jonction).
+- Les handles sont relâchés dès la fin de l'élément. Un dossier impossible à ouvrir (utilisé par un autre programme, antivirus) donne un refus **sans perte** : élément ignoré avec explication (`path_busy`, US-036.4).
+- **Un refus de la corbeille reste une erreur de l'élément**, jamais une suppression définitive (invariant 2) : voir l'ADR 0019.
+- Le banc d'essai devient un **test de régression sous Windows** (CI `windows-latest`, ticket #29) : la variante naïve doit perdre le fichier protégé, la variante retenue jamais.
+
+**Non vérifié (Windows).** Windows 10, disques réseau, ReFS, FAT ; liens symboliques de dossier ; un fichier ouvert par un autre programme pendant `trash::delete` (la boîte « Recycle Bin Access Denied » peut-elle apparaître malgré le verrouillage ?) ; la protection des ancêtres de la racine d'une règle, isolément ; un antivirus qui garde un dossier ouvert.
