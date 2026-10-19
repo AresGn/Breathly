@@ -1,0 +1,10 @@
+Résultats transmis par l'agent Windows (poste client Windows 11, build 10.0.26300, sans droits administrateur), commit 0b81cca, `cargo run --release -- --ouverts`.
+
+D1 l'autre processus tient le fichier ouvert : exclusif (FileShare.None)
+     ouverture avec accès DELETE : ERREUR uncategorized error (code 32) ; ouverture en lecture : ERREUR uncategorized error (code 32) ; try_lock_shared : ERREUR uncategorized error (code 32) ; remove_file : ERREUR uncategorized error (code 32)
+D2 l'autre processus tient le fichier ouvert : lecture et écriture partagées, sans partage de suppression
+     ouverture avec accès DELETE : ERREUR uncategorized error (code 32) ; ouverture en lecture : OK ; try_lock_shared : obtenu ; remove_file : ERREUR uncategorized error (code 32)
+D3 l'autre processus tient le fichier ouvert : lecture et écriture partagées, AVEC partage de suppression
+     ouverture avec accès DELETE : OK (non détecté) ; ouverture en lecture : OK ; try_lock_shared : obtenu ; remove_file : OK (supprimé)
+D4 l'autre processus tient le fichier ouvert : lecture seule, lecture partagée
+     ouverture avec accès DELETE : ERREUR uncategorized error (code 32) ; ouverture en lecture : OK ; try_lock_shared : obtenu ; remove_file : ERREUR uncategorized error (code 32)

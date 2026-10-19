@@ -449,6 +449,39 @@ mod essai {
         }
     }
 
+    // ------------------------------------------------------------------------------------ D : fichiers ouverts (ticket #70)
+
+    fn section_ouverts(r: &mut Report, t: &Path) {
+        r.push("== D. Fichier ouvert par un autre processus (ticket #70) ==");
+        let dir = t.join("ouverts");
+        let _ = fs::create_dir_all(&dir);
+        let modes = [
+            ("exclusif (FileShare.None)", "ReadWrite", "None"),
+            ("lecture et écriture partagées, sans partage de suppression", "ReadWrite", "ReadWrite"),
+            ("lecture et écriture partagées, AVEC partage de suppression", "ReadWrite", "ReadWrite,Delete"),
+            ("lecture seule, lecture partagée", "Read", "Read"),
+        ];
+        for (i, (nom, acces, partage)) in modes.iter().enumerate() {
+            let p = dir.join(format!("f{i}.bin"));
+            let _ = fs::write(&p, "x");
+            let cmd = format!("$f=[IO.File]::Open('{}','Open','{acces}','{partage}'); Start-Sleep 20", p.display());
+            let child = Command::new("powershell").args(["-NoProfile", "-NonInteractive", "-Command", &cmd]).spawn();
+            let Ok(mut child) = child else { r.push(format!("D{} {nom} : PowerShell indisponible", i + 1)); continue };
+            std::thread::sleep(std::time::Duration::from_millis(3000));
+            let supprimable = OpenOptions::new().access_mode(DELETE | FILE_READ_ATTRIBUTES).share_mode(SHARE_ALL)
+                .custom_flags(FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS).open(&p);
+            let lisible = OpenOptions::new().read(true).share_mode(SHARE_ALL).open(&p);
+            let verrou = fs::File::open(&p).map(|f| match f.try_lock_shared() { Ok(()) => "obtenu".to_string(), Err(e) => format!("refusé ({e})") });
+            let suppression = fs::remove_file(&p);
+            r.push(format!("D{} l'autre processus tient le fichier ouvert : {nom}\n     ouverture avec accès DELETE : {} ; ouverture en lecture : {} ; try_lock_shared : {} ; remove_file : {}",
+                i + 1, supprimable.as_ref().map_or_else(err, |_| "OK (non détecté)".into()), lisible.as_ref().map_or_else(err, |_| "OK".into()),
+                verrou.map_or_else(|e| err(&e), |v| v), suppression.as_ref().map_or_else(err, |_| "OK (supprimé)".into())));
+            drop(supprimable); drop(lisible);
+            let _ = child.kill();
+            let _ = child.wait();
+        }
+    }
+
     pub fn run() {
         let args: Vec<String> = std::env::args().collect();
         let corbeille = args.iter().any(|a| a == "--corbeille");
@@ -461,8 +494,13 @@ mod essai {
         r.push(format!("Essai Windows, {}", std::env::consts::ARCH));
         r.push(format!("Windows : {}", Command::new("cmd").args(["/C", "ver"]).output().map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string()).unwrap_or_default()));
         r.push(format!("Dossier de travail : <TEMP> ({} essais par variante de course, délai de {} µs entre vérification et action ; option --corbeille : {})", trials, delai_us, corbeille));
-        section_chemins(&mut r, &t);
-        section_suppression(&mut r, &t, trials, delai_us, corbeille);
+        if args.iter().any(|a| a == "--ouverts") {
+            section_ouverts(&mut r, &t);
+        } else {
+            section_chemins(&mut r, &t);
+            section_suppression(&mut r, &t, trials, delai_us, corbeille);
+            section_ouverts(&mut r, &t);
+        }
         let _ = fs::remove_dir_all(&t);
         r.push(format!("Dossier temporaire supprimé : {}", !t.exists()));
         let _ = fs::write("rapport-essai-windows.txt", r.lines.join("\n") + "\n");

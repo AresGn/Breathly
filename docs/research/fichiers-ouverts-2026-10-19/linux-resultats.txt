@@ -1,0 +1,10 @@
+instantané : 342 processus, 175 illisibles (autre compte ou droits), 5045 descripteurs lus, 104 ms
+ouvert en lecture-écriture   descripteur : true   cartographie : false
+ouvert en lecture seule      descripteur : true   cartographie : false
+cartographié, descripteur fermé descripteur : false  cartographie : true 
+verrou consultatif (flock)   descripteur : true   cartographie : false
+jamais ouvert (témoin)       descripteur : false  cartographie : false
+try_lock_shared sur le fichier verrouillé (flock exclusif d'un autre processus) : Err(WouldBlock)
+try_lock_shared sur le fichier ouvert sans verrou : Ok(())
+instantané sans cartes : 11 ms ; avec cartes : 104 ms
+1 000 consultations de l'instantané : 34 µs (positifs : 1)
