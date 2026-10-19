@@ -1,0 +1,11 @@
+# Essai jetable pour Windows (tickets #49 et #69). Hors de l'espace de travail du dépôt : voir README.md.
+[package]
+name = "breathly-essai-windows"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+trash = "=5.2.9"
+
+[workspace]

@@ -1,0 +1,23 @@
+# Essai jetable sous Windows (tickets #49 et #69), lancé à la main. Voir docs/research/essais-windows/README.md.
+name: essai-windows
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  essai:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # La version de Rust vient de rust-toolchain.toml (ADR 0011).
+      - run: rustup toolchain install --profile minimal
+      - name: Essai
+        working-directory: docs/research/essais-windows
+        run: cargo run --release --locked -- --essais 300 --delai-us 10000 --corbeille
+      - name: Rapport
+        if: always()
+        working-directory: docs/research/essais-windows
+        run: Get-Content rapport-essai-windows.txt
