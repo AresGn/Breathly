@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+# Relevé jetable n°3 (ticket #102, suite de la revue de la PR #147) : règle complète de l'ADR 0021
+# appliquée par logiciel regroupé, RSS additionnée contre PSS, threads du noyau par PF_KTHREAD,
+# exécutables supprimés et montages AppImage. N'affiche que des comptes et des pourcentages.
+import os, glob, time, collections, re, stat
+
+PF_KTHREAD = 0x00200000  # include/linux/sched.h (en-têtes 6.1)
+TEMP = ("/tmp/", "/var/tmp/", "/dev/shm/", "/run/user/")
+
+def read(p):
+    try:
+        with open(p) as f: return f.read()
+    except OSError: return None
+
+hz = os.sysconf("SC_CLK_TCK"); page = os.sysconf("SC_PAGE_SIZE")
+memtotal = int(re.search(r"MemTotal:\s+(\d+)", read("/proc/meminfo")).group(1)) * 1024
+
+def snap():
+    o = {}
+    for d in os.listdir("/proc"):
+        if not d.isdigit(): continue
+        s = read(f"/proc/{d}/stat")
+        if not s: continue
+        f = s[s.rfind(")")+2:].split()
+        o[int(d)] = dict(flags=int(f[6]), ticks=int(f[11])+int(f[12]), rss=int(f[21]))
+    return o
+a = snap(); time.sleep(5); b = snap()
+
+dpkg = set()
+for l in glob.glob("/var/lib/dpkg/info/*.list"):
+    t = read(l)
+    if t: dpkg.update(x.strip() for x in t.splitlines())
+def known(p): return p in dpkg or ("/usr"+p) in dpkg or (p.startswith("/usr") and p[4:] in dpkg)
+
+def protected(path):
+    p = path
+    while True:
+        try: st = os.stat(p)
+        except OSError: return None
+        if st.st_uid != 0 or st.st_mode & (stat.S_IWGRP | stat.S_IWOTH): return False
+        if p == "/": return True
+        p = os.path.dirname(p)
+
+def pss(pid):
+    t = read(f"/proc/{pid}/smaps_rollup")
+    m = t and re.search(r"^Pss:\s+(\d+) kB", t, re.M)
+    return int(m.group(1)) * 1024 if m else None
+
+c = collections.Counter()
+groups = collections.defaultdict(lambda: dict(rss=0, pss=0, pss_ok=True, cpu=0.0, unknown=False, unusual=False))
+for pid, s in b.items():
+    if s["flags"] & PF_KTHREAD: c["noyau (PF_KTHREAD)"] += 1; continue
+    try: exe = os.readlink(f"/proc/{pid}/exe")
+    except OSError: c["illisible"] += 1; continue
+    deleted = exe.endswith(" (deleted)")
+    path = exe[:-len(" (deleted)")] if deleted else exe
+    if deleted:
+        c["supprimé"] += 1
+        if os.path.exists(path) and known(path): c["supprimé, chemin d'origine présent et fourni par un paquet"] += 1
+    if any(path.startswith(t + ".mount_") for t in TEMP): c["montage AppImage"] += 1
+    g = groups[path]
+    g["rss"] += s["rss"] * page
+    p = pss(pid)
+    if p is None: g["pss_ok"] = False
+    else: g["pss"] += p
+    if pid in a: g["cpu"] += (s["ticks"] - a[pid]["ticks"]) / hz / 5 * 100
+    appimage = any(path.startswith(t + ".mount_") for t in TEMP)
+    replaced = deleted and os.path.exists(path) and (protected(path) or known(path))
+    g["unusual"] |= (deleted and not replaced) or (path.startswith(TEMP) and not appimage) or path.startswith("/memfd:")
+    g["unknown"] |= protected(path) is False and not known(path)
+
+print("processus par catégorie:", dict(c))
+print("logiciels regroupés:", len(groups))
+ram_rss = sorted(g["rss"] / memtotal * 100 for g in groups.values())
+ram_pss = sorted(g["pss"] / memtotal * 100 for g in groups.values() if g["pss_ok"])
+print("plus gros logiciel, % de la RAM totale : RSS additionnée", round(ram_rss[-1], 1), "| PSS additionnée", round(ram_pss[-1], 1))
+print("logiciels dont la PSS est lisible pour chaque processus:", len(ram_pss))
+for mem in ("rss", "pss"):
+    greedy = [g for g in groups.values() if (mem == "rss" or g["pss_ok"]) and (g[mem] / memtotal >= .10 or g["cpu"] >= 25)]
+    print(f"gourmands ({mem.upper()} >= 10 % ou CPU >= 25 % d'un cœur):", len(greedy),
+          "| dont inconnus:", sum(g["unknown"] for g in greedy))
+print("logiciels inconnus:", sum(g["unknown"] for g in groups.values()),
+      "| à emplacement inhabituel:", sum(g["unusual"] for g in groups.values()))
+print("À EXAMINER (inconnu et gourmand, ou inhabituel), RSS:",
+      sum((g["unknown"] and (g["rss"]/memtotal >= .10 or g["cpu"] >= 25)) or g["unusual"] for g in groups.values()),
+      "| PSS:", sum((g["unknown"] and g["pss_ok"] and (g["pss"]/memtotal >= .10 or g["cpu"] >= 25)) or g["unusual"] for g in groups.values()))

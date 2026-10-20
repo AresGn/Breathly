@@ -93,6 +93,10 @@ _À éviter_: service seul, daemon (réservé au code du service Breathly)
 Étiquette d'un processus ou service système inconnu et gourmand, ou lancé depuis un emplacement inhabituel. Elle renvoie vers l'antivirus du système ; Breathly n'est pas un antivirus.
 _À éviter_: suspect, malveillant, virus, sain, infecté, « à vérifier » (réservé au niveau de risque 🟡)
 
+**Non vérifiable**:
+Processus ou service système dont Breathly ne peut pas lire l'exécutable (autre compte, droits). Jamais « à examiner » ; seul leur nombre est affiché, en mode avancé (ADR 0021).
+_À éviter_: inconnu, caché, protégé
+
 **Navigateur**:
 Firefox, Zen, LibreWolf, Chrome, Chromium, Brave, Edge, Opera, Vivaldi… défini dans un fichier TOML. Module : `browser-guard`.
 
