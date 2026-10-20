@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+# Relevé jetable n°2 (ticket #102) : regroupement par exécutable, protection en écriture, paquet connu.
+# N'affiche que des comptes et des pourcentages.
+import os, glob, time, collections, re, stat
+
+def read(p):
+    try:
+        with open(p) as f: return f.read()
+    except OSError: return None
+
+hz = os.sysconf("SC_CLK_TCK"); page = os.sysconf("SC_PAGE_SIZE")
+def snap():
+    o = {}
+    for d in os.listdir("/proc"):
+        if not d.isdigit(): continue
+        s = read(f"/proc/{d}/stat")
+        if not s: continue
+        f = s[s.rfind(")")+2:].split()
+        o[int(d)] = (int(f[11])+int(f[12]), int(f[21]))
+    return o
+a = snap(); time.sleep(5); b = snap()
+
+dpkg = set()
+for l in glob.glob("/var/lib/dpkg/info/*.list"):
+    t = read(l)
+    if t: dpkg.update(x.strip() for x in t.splitlines())
+# usrmerge : /bin -> /usr/bin
+def known(p): return p in dpkg or ("/usr"+p) in dpkg or (p.startswith("/usr") and p[4:] in dpkg)
+
+def protected(path):
+    """vrai si le fichier et chacun de ses dossiers appartiennent à root et ne sont pas modifiables par le groupe ou les autres"""
+    p = path
+    while True:
+        try: st = os.stat(p)
+        except OSError: return None
+        if st.st_uid != 0 or st.st_mode & (stat.S_IWGRP | stat.S_IWOTH): return False
+        if p == "/": return True
+        p = os.path.dirname(p)
+
+def home_kind(exe):
+    r = exe[len(os.path.expanduser("~"))+1:].split("/")
+    if r[0] in ("Downloads","Téléchargements"): return "Telechargements"
+    if r[0] in (".local",): return ".local"
+    if r[0] in (".cache",): return ".cache"
+    if r[0].startswith("."): return "autre cache/config caché"
+    return "dossier non caché"
+
+groups = collections.defaultdict(lambda: [0.0, 0, 0])
+res = collections.Counter(); home = collections.Counter()
+for pid, (t1, rss) in b.items():
+    if rss == 0: continue
+    try: exe = os.readlink(f"/proc/{pid}/exe")
+    except OSError: res["illisible"] += 1; continue
+    if exe.endswith(" (deleted)"): res["supprime"] += 1; continue
+    g = groups[exe]; g[1] += rss*page; g[2] += 1
+    if pid in a: g[0] += (t1-a[pid][0])/hz/5*100
+    pr = protected(exe)
+    kn = known(exe)
+    res[("protege" if pr else "modifiable" if pr is False else "?", "paquet" if kn else "hors paquet")] += 1
+    if exe.startswith(os.path.expanduser("~")+"/"): home[home_kind(exe)] += 1
+
+print("exécutables distincts (logiciels regroupés par exécutable):", len(groups))
+print("processus par (protégé en écriture, connu du gestionnaire de paquets):")
+for k, v in sorted(res.items(), key=str): print("  ", k, v)
+print("processus dont l'exécutable est sous le dossier personnel:", dict(home))
+ram = [g[1]/2**20 for g in groups.values()]; cpu = [g[0] for g in groups.values()]
+q = lambda v, p: sorted(v)[min(len(v)-1, int(len(v)*p))]
+print("par logiciel: RAM Mo p50/p90/max", [round(q(ram,x)) for x in (.5,.9,.9999)], " CPU% cœur p50/p90/max", [round(q(cpu,x),1) for x in (.5,.9,.9999)])
+for s in (250,500,1000,2000): print(f"  logiciels RAM > {s} Mo: {sum(x>s for x in ram)}", end=" |")
+print()
+for s in (5,10,25,50): print(f"  logiciels CPU > {s}% d'un coeur: {sum(x>s for x in cpu)}", end=" |")
+print()

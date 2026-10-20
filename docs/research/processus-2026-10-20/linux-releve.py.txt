@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+# Relevé jetable (ticket #102). Lit /proc, n'affiche que des comptes et des pourcentages :
+# aucun nom de processus, aucun chemin complet, aucun identifiant.
+import os, time, collections, re
+
+def read(p, mode="r"):
+    try:
+        with open(p, mode) as f: return f.read()
+    except OSError: return None
+
+def snapshot():
+    out = {}
+    for d in os.listdir("/proc"):
+        if not d.isdigit(): continue
+        stat = read(f"/proc/{d}/stat")
+        if not stat: continue
+        rp = stat.rfind(")")
+        f = stat[rp+2:].split()
+        out[int(d)] = dict(ppid=int(f[1]), ticks=int(f[11])+int(f[12]), rss=int(f[21]))
+    return out
+
+ncpu = os.cpu_count(); hz = os.sysconf("SC_CLK_TCK"); page = os.sysconf("SC_PAGE_SIZE")
+a = snapshot(); t0 = time.time(); time.sleep(5); b = snapshot(); dt = time.time()-t0
+memtotal = int(re.search(r"MemTotal:\s+(\d+)", read("/proc/meminfo")).group(1))*1024
+
+def bucket_exe(exe):
+    if exe is None: return "illisible"
+    if exe.endswith(" (deleted)"): return "supprime"
+    for pre, name in (("/usr/","/usr"),("/bin/","/usr"),("/sbin/","/usr"),("/lib","/usr"),("/opt/","/opt"),
+                      ("/snap/","/snap"),("/var/lib/flatpak","flatpak"),("/home/","/home"),
+                      ("/tmp/","/tmp"),("/var/tmp","/tmp"),("/dev/shm","/tmp"),("/run/user","/tmp"),
+                      ("/nix/","/nix"),("/proc/","/proc"),("/memfd:","memfd")):
+        if exe.startswith(pre): return name
+    return "autre"
+
+rows = []
+for pid, s in b.items():
+    uid = None
+    st = read(f"/proc/{pid}/status")
+    if st:
+        m = re.search(r"Uid:\s+(\d+)", st); uid = int(m.group(1)) if m else None
+    try: exe = os.readlink(f"/proc/{pid}/exe")
+    except OSError: exe = None
+    kernel = (s["rss"] == 0 and exe is None and read(f"/proc/{pid}/cmdline") == "")
+    cg = read(f"/proc/{pid}/cgroup") or ""
+    kind = "service" if ".service" in cg and "/user.slice/" not in cg else ("session" if "/user.slice/" in cg else "autre")
+    cpu = 0.0
+    if pid in a: cpu = (s["ticks"]-a[pid]["ticks"])/hz/dt*100
+    rows.append(dict(uid=uid, exe=bucket_exe(exe), kernel=kernel, kind=kind, ram=s["rss"]*page, cpu=cpu))
+
+me = os.getuid()
+def pct(v, q):
+    v = sorted(v); return v[min(len(v)-1, int(len(v)*q))] if v else 0
+print("coeurs", ncpu, "RAM_totale_Mo", memtotal//2**20, "duree_s", round(dt,1))
+print("processus", len(rows), "noyau", sum(r["kernel"] for r in rows))
+user = [r for r in rows if not r["kernel"]]
+print("par compte: moi", sum(r["uid"]==me for r in user), "root", sum(r["uid"]==0 for r in user),
+      "autres", sum(r["uid"] not in (me,0) for r in user))
+print("par type de cgroup:", dict(collections.Counter(r["kind"] for r in user)))
+print("par emplacement de l'exécutable:", dict(collections.Counter(r["exe"] for r in user)))
+print("emplacement x compte (hors /usr):")
+c = collections.Counter((r["exe"], "moi" if r["uid"]==me else "root" if r["uid"]==0 else "autre") for r in user if r["exe"]!="/usr")
+for k, v in sorted(c.items()): print("  ", k, v)
+ram = [r["ram"]/2**20 for r in user]; cpu = [r["cpu"] for r in user]
+print("RAM Mo par processus  p50/p90/p99/max:", [round(pct(ram,q)) for q in (.5,.9,.99,1.0)])
+print("CPU %% d'un cœur       p50/p90/p99/max:", [round(pct(cpu,q),1) for q in (.5,.9,.99,.9999)])
+for s in (1,2,5,10,25,50,80):
+    print(f"  CPU > {s}% d'un coeur:", sum(x>s for x in cpu), end=" |")
+print()
+for s in (100,250,500,1000,2000):
+    print(f"  RAM > {s} Mo:", sum(x>s for x in ram), end=" |")
+print()
+print("part de la RAM totale par processus > 5%:", sum(r["ram"]/memtotal > .05 for r in user),
+      " > 10%:", sum(r["ram"]/memtotal > .10 for r in user))
+print("hors /usr, /snap, /opt (candidats 'inhabituel'):", sum(r["exe"] not in ("/usr","/snap","/opt") for r in user))

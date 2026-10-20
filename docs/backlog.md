@@ -1,6 +1,6 @@
 # Backlog de Breathly : vue globale des tickets
 
-Instantané du 2026-10-18, généré par `make backlog` (`tools/backlog.py`). **GitHub reste la source de vérité** : en cas de doute, ouvrir le ticket. Règles de travail : [`CONTRIBUTING.md`](../CONTRIBUTING.md) §2 ; gabarit et étiquettes : [`docs/agents/issue-tracker.md`](agents/issue-tracker.md).
+Instantané du 2026-10-19, généré par `make backlog` (`tools/backlog.py`). **GitHub reste la source de vérité** : en cas de doute, ouvrir le ticket. Règles de travail : [`CONTRIBUTING.md`](../CONTRIBUTING.md) §2 ; gabarit et étiquettes : [`docs/agents/issue-tracker.md`](agents/issue-tracker.md).
 
 **Lire ce fichier** : un ticket est **libre** quand tous ses bloqueurs sont fermés. Prendre d'abord les tickets libres de la milestone la plus basse. `ready-for-human` = décision ou travail humain (ADR, valeurs du client) ; `en-attente-decision` = bloqué par une décision non prise.
 
@@ -8,9 +8,9 @@ Instantané du 2026-10-18, généré par `make backlog` (`tools/backlog.py`). **
 
 | Milestone | Ouverts | Libres | Bloqués | Fermés |
 |---|---|---|---|---|
-| M0 · Socle | 24 | 9 | 15 | 0 |
-| M1 · Disque | 21 | 2 | 19 | 0 |
-| M2 · Nettoyage sûr | 33 | 2 | 31 | 0 |
+| M0 · Socle | 19 | 7 | 12 | 5 |
+| M1 · Disque | 19 | 0 | 19 | 2 |
+| M2 · Nettoyage sûr | 31 | 0 | 31 | 2 |
 | M3 · Diagnostic | 19 | 2 | 17 | 0 |
 | M4 · Livraison | 15 | 2 | 13 | 0 |
 
@@ -20,15 +20,6 @@ Instantané du 2026-10-18, généré par `make backlog` (`tools/backlog.py`). **
 
 | Ticket | App | Milestone | Étiquettes utiles |
 |---|---|---|---|
-| [#24](https://github.com/AresGn/Breathly/issues/24) Dépendances de V0.1 à approuver (PRD §14) | core | M0 · Socle | ready-for-human |
-| [#25](https://github.com/AresGn/Breathly/issues/25) Fils d'exécution standard ou environnement asynchrone | core | M0 · Socle | ready-for-human |
-| [#26](https://github.com/AresGn/Breathly/issues/26) API de progression de Tauri : événements ou canaux | desktop | M0 · Socle | ready-for-human |
-| [#27](https://github.com/AresGn/Breathly/issues/27) Crate de génération des types TypeScript depuis Rust | desktop | M0 · Socle | ready-for-human |
-| [#28](https://github.com/AresGn/Breathly/issues/28) Politique de contenu et capacités de Tauri par commande | desktop | M0 · Socle | ready-for-human |
-| [#48](https://github.com/AresGn/Breathly/issues/48) Parcours du disque : mesurer la mémoire et les fils, fixer les bornes et le nombre de gros éléments listés | core | M1 · Disque | ready-for-human |
-| [#49](https://github.com/AresGn/Breathly/issues/49) Chemins Windows très longs, jonctions et normalisation | core | M1 · Disque | ready-for-human |
-| [#69](https://github.com/AresGn/Breathly/issues/69) Suppression sûre : écart entre la vérification et l'action | core | M2 · Nettoyage sûr | ready-for-human |
-| [#70](https://github.com/AresGn/Breathly/issues/70) Détecter qu'un fichier est ouvert par un logiciel (Linux et Windows) | core | M2 · Nettoyage sûr | ready-for-human |
 | [#102](https://github.com/AresGn/Breathly/issues/102) Définir « processus inconnu », « emplacement inhabituel » et « service système » pour la section À examiner | core | M3 · Diagnostic | ready-for-human |
 | [#103](https://github.com/AresGn/Breathly/issues/103) Définir « forte charge » et « au repos » pour la chauffe | core | M3 · Diagnostic | ready-for-human |
 
@@ -37,6 +28,9 @@ Instantané du 2026-10-18, généré par `make backlog` (`tools/backlog.py`). **
 | Ticket | App | Milestone | Étiquettes utiles |
 |---|---|---|---|
 | [#29](https://github.com/AresGn/Breathly/issues/29) CI : compiler et tester aussi sous windows-latest | core | M0 · Socle | ready-for-agent |
+| [#30](https://github.com/AresGn/Breathly/issues/30) platform : traits de l'OS et faux de test | core | M0 · Socle | ready-for-agent |
+| [#31](https://github.com/AresGn/Breathly/issues/31) rules : schéma TOML, désérialisation stricte et validation | core | M0 · Socle | ready-for-agent |
+| [#34](https://github.com/AresGn/Breathly/issues/34) Contrat Tauri : socle (erreur stable, journaux, enregistrement et inventaire des commandes) | desktop | M0 · Socle | ready-for-agent |
 | [#39](https://github.com/AresGn/Breathly/issues/39) Textes : chargeur typé français et anglais, langue au démarrage et changement à chaud | desktop-ui | M0 · Socle | ready-for-agent |
 | [#40](https://github.com/AresGn/Breathly/issues/40) Thèmes clair, sombre et système, contraste AA | desktop-ui | M0 · Socle | ready-for-agent |
 | [#46](https://github.com/AresGn/Breathly/issues/46) Polices embarquées en WOFF2 avec leurs licences | desktop-ui | M0 · Socle | ready-for-agent |
@@ -47,15 +41,6 @@ Instantané du 2026-10-18, généré par `make backlog` (`tools/backlog.py`). **
 
 | Ticket | Assigné | Débloque |
 |---|---|---|
-| [#24](https://github.com/AresGn/Breathly/issues/24) Dépendances de V0.1 à approuver (PRD §14) | @AresGn | 12 ticket(s) #31, #33, #34, #38, #50, #56, #63, #71 … |
-| [#25](https://github.com/AresGn/Breathly/issues/25) Fils d'exécution standard ou environnement asynchrone | @AresGn | 3 ticket(s) #30, #36, #56 |
-| [#26](https://github.com/AresGn/Breathly/issues/26) API de progression de Tauri : événements ou canaux | @AresGn | 1 ticket(s) #36 |
-| [#27](https://github.com/AresGn/Breathly/issues/27) Crate de génération des types TypeScript depuis Rust | @AresGn | 1 ticket(s) #35 |
-| [#28](https://github.com/AresGn/Breathly/issues/28) Politique de contenu et capacités de Tauri par commande | @AresGn | 1 ticket(s) #34 |
-| [#48](https://github.com/AresGn/Breathly/issues/48) Parcours du disque : mesurer la mémoire et les fils, fixer les bornes et le nombre de gros éléments listés | @AresGn | 2 ticket(s) #56, #58 |
-| [#49](https://github.com/AresGn/Breathly/issues/49) Chemins Windows très longs, jonctions et normalisation | @AresGn | 2 ticket(s) #55, #74 |
-| [#69](https://github.com/AresGn/Breathly/issues/69) Suppression sûre : écart entre la vérification et l'action | @AresGn | 4 ticket(s) #74, #81, #82, #84 |
-| [#70](https://github.com/AresGn/Breathly/issues/70) Détecter qu'un fichier est ouvert par un logiciel (Linux et Windows) | @AresGn | 1 ticket(s) #73 |
 | [#102](https://github.com/AresGn/Breathly/issues/102) Définir « processus inconnu », « emplacement inhabituel » et « service système » pour la section À examiner | @AresGn | 1 ticket(s) #111 |
 | [#103](https://github.com/AresGn/Breathly/issues/103) Définir « forte charge » et « au repos » pour la chauffe | @AresGn | 2 ticket(s) #110, #135 |
 | [#131](https://github.com/AresGn/Breathly/issues/131) Mesurer la fenêtre et les installeurs sous Linux et sous Windows | @AresGn | 0 ticket(s)  |
@@ -68,21 +53,21 @@ Instantané du 2026-10-18, généré par `make backlog` (`tools/backlog.py`). **
 
 | Ticket | App | Assigné | État | Bloqué par (ouverts) |
 |---|---|---|---|---|
-| [#24](https://github.com/AresGn/Breathly/issues/24) Dépendances de V0.1 à approuver (PRD §14) | core | @AresGn | libre |  |
-| [#25](https://github.com/AresGn/Breathly/issues/25) Fils d'exécution standard ou environnement asynchrone | core | @AresGn | libre |  |
-| [#26](https://github.com/AresGn/Breathly/issues/26) API de progression de Tauri : événements ou canaux | desktop | @AresGn | libre |  |
-| [#27](https://github.com/AresGn/Breathly/issues/27) Crate de génération des types TypeScript depuis Rust | desktop | @AresGn | libre |  |
-| [#28](https://github.com/AresGn/Breathly/issues/28) Politique de contenu et capacités de Tauri par commande | desktop | @AresGn | libre |  |
+| [#24](https://github.com/AresGn/Breathly/issues/24) Dépendances de V0.1 à approuver (PRD §14) | core | @AresGn | fermé |  |
+| [#25](https://github.com/AresGn/Breathly/issues/25) Fils d'exécution standard ou environnement asynchrone | core | @AresGn | fermé |  |
+| [#26](https://github.com/AresGn/Breathly/issues/26) API de progression de Tauri : événements ou canaux | desktop | @AresGn | fermé |  |
+| [#27](https://github.com/AresGn/Breathly/issues/27) Crate de génération des types TypeScript depuis Rust | desktop | @AresGn | fermé |  |
+| [#28](https://github.com/AresGn/Breathly/issues/28) Politique de contenu et capacités de Tauri par commande | desktop | @AresGn | fermé |  |
 | [#29](https://github.com/AresGn/Breathly/issues/29) CI : compiler et tester aussi sous windows-latest | core | personne | libre |  |
-| [#30](https://github.com/AresGn/Breathly/issues/30) platform : traits de l'OS et faux de test | core | personne | bloqué | [#25](https://github.com/AresGn/Breathly/issues/25) |
-| [#31](https://github.com/AresGn/Breathly/issues/31) rules : schéma TOML, désérialisation stricte et validation | core | personne | bloqué | [#24](https://github.com/AresGn/Breathly/issues/24) |
+| [#30](https://github.com/AresGn/Breathly/issues/30) platform : traits de l'OS et faux de test | core | personne | libre |  |
+| [#31](https://github.com/AresGn/Breathly/issues/31) rules : schéma TOML, désérialisation stricte et validation | core | personne | libre |  |
 | [#32](https://github.com/AresGn/Breathly/issues/32) rules : règles intégrées au binaire et validation en CI | core | personne | bloqué | [#31](https://github.com/AresGn/Breathly/issues/31) |
-| [#33](https://github.com/AresGn/Breathly/issues/33) platform : chemins standard (configuration, état, dossiers de l'utilisateur) | core | personne | bloqué | [#24](https://github.com/AresGn/Breathly/issues/24), [#29](https://github.com/AresGn/Breathly/issues/29) |
-| [#34](https://github.com/AresGn/Breathly/issues/34) Contrat Tauri : socle (erreur stable, journaux, enregistrement et inventaire des commandes) | desktop | personne | bloqué | [#24](https://github.com/AresGn/Breathly/issues/24), [#28](https://github.com/AresGn/Breathly/issues/28) |
-| [#35](https://github.com/AresGn/Breathly/issues/35) Types TypeScript générés depuis Rust et contrôle de fraîcheur en CI | desktop | personne | bloqué | [#27](https://github.com/AresGn/Breathly/issues/27), [#34](https://github.com/AresGn/Breathly/issues/34) |
-| [#36](https://github.com/AresGn/Breathly/issues/36) Registre de tâches : lancement, annulation, progression, une seule analyse par type | desktop | personne | bloqué | [#25](https://github.com/AresGn/Breathly/issues/25), [#26](https://github.com/AresGn/Breathly/issues/26), [#34](https://github.com/AresGn/Breathly/issues/34) |
+| [#33](https://github.com/AresGn/Breathly/issues/33) platform : chemins standard (configuration, état, dossiers de l'utilisateur) | core | personne | bloqué | [#29](https://github.com/AresGn/Breathly/issues/29) |
+| [#34](https://github.com/AresGn/Breathly/issues/34) Contrat Tauri : socle (erreur stable, journaux, enregistrement et inventaire des commandes) | desktop | personne | libre |  |
+| [#35](https://github.com/AresGn/Breathly/issues/35) Types TypeScript générés depuis Rust et contrôle de fraîcheur en CI | desktop | personne | bloqué | [#34](https://github.com/AresGn/Breathly/issues/34) |
+| [#36](https://github.com/AresGn/Breathly/issues/36) Registre de tâches : lancement, annulation, progression, une seule analyse par type | desktop | personne | bloqué | [#34](https://github.com/AresGn/Breathly/issues/34) |
 | [#37](https://github.com/AresGn/Breathly/issues/37) Contrat des commandes get_settings et set_settings | desktop | personne | bloqué | [#34](https://github.com/AresGn/Breathly/issues/34), [#35](https://github.com/AresGn/Breathly/issues/35) |
-| [#38](https://github.com/AresGn/Breathly/issues/38) Réglages : stockage TOML, validation et commandes réelles (TS-07, partie réglages) | desktop | personne | bloqué | [#24](https://github.com/AresGn/Breathly/issues/24), [#33](https://github.com/AresGn/Breathly/issues/33), [#37](https://github.com/AresGn/Breathly/issues/37) |
+| [#38](https://github.com/AresGn/Breathly/issues/38) Réglages : stockage TOML, validation et commandes réelles (TS-07, partie réglages) | desktop | personne | bloqué | [#33](https://github.com/AresGn/Breathly/issues/33), [#37](https://github.com/AresGn/Breathly/issues/37) |
 | [#39](https://github.com/AresGn/Breathly/issues/39) Textes : chargeur typé français et anglais, langue au démarrage et changement à chaud | desktop-ui | personne | libre |  |
 | [#40](https://github.com/AresGn/Breathly/issues/40) Thèmes clair, sombre et système, contraste AA | desktop-ui | personne | libre |  |
 | [#41](https://github.com/AresGn/Breathly/issues/41) Couche d'API typée et faux services | desktop-ui | personne | bloqué | [#35](https://github.com/AresGn/Breathly/issues/35), [#37](https://github.com/AresGn/Breathly/issues/37) |
@@ -97,22 +82,22 @@ Instantané du 2026-10-18, généré par `make backlog` (`tools/backlog.py`). **
 
 | Ticket | App | Assigné | État | Bloqué par (ouverts) |
 |---|---|---|---|---|
-| [#48](https://github.com/AresGn/Breathly/issues/48) Parcours du disque : mesurer la mémoire et les fils, fixer les bornes et le nombre de gros éléments listés | core | @AresGn | libre |  |
-| [#49](https://github.com/AresGn/Breathly/issues/49) Chemins Windows très longs, jonctions et normalisation | core | @AresGn | libre |  |
-| [#50](https://github.com/AresGn/Breathly/issues/50) platform : adapter DiskInspector (Linux et Windows) | core | personne | bloqué | [#24](https://github.com/AresGn/Breathly/issues/24), [#29](https://github.com/AresGn/Breathly/issues/29), [#30](https://github.com/AresGn/Breathly/issues/30) |
+| [#48](https://github.com/AresGn/Breathly/issues/48) Parcours du disque : mesurer la mémoire et les fils, fixer les bornes et le nombre de gros éléments listés | core | @AresGn | fermé |  |
+| [#49](https://github.com/AresGn/Breathly/issues/49) Chemins Windows très longs, jonctions et normalisation | core | @AresGn | fermé |  |
+| [#50](https://github.com/AresGn/Breathly/issues/50) platform : adapter DiskInspector (Linux et Windows) | core | personne | bloqué | [#29](https://github.com/AresGn/Breathly/issues/29), [#30](https://github.com/AresGn/Breathly/issues/30) |
 | [#51](https://github.com/AresGn/Breathly/issues/51) Règles de départ : outils de développement (npm, pnpm, yarn, pip, Gradle, Cargo, Go, Playwright) | core | personne | bloqué | [#32](https://github.com/AresGn/Breathly/issues/32) |
 | [#52](https://github.com/AresGn/Breathly/issues/52) Règles de départ : caches des navigateurs, de VS Code et Cursor, anciennes versions d'outils, installeurs de Téléchargements | core | personne | bloqué | [#32](https://github.com/AresGn/Breathly/issues/32) |
 | [#53](https://github.com/AresGn/Breathly/issues/53) Règles de départ : Linux (~/.cache par sous-dossier connu, miniatures) | core | personne | bloqué | [#32](https://github.com/AresGn/Breathly/issues/32) |
 | [#54](https://github.com/AresGn/Breathly/issues/54) Règles de départ : Windows (%TEMP%, CrashDumps, miniatures) | core | personne | bloqué | [#32](https://github.com/AresGn/Breathly/issues/32) |
-| [#55](https://github.com/AresGn/Breathly/issues/55) disk-scan : résolution et normalisation des chemins des règles par système | core | personne | bloqué | [#32](https://github.com/AresGn/Breathly/issues/32), [#33](https://github.com/AresGn/Breathly/issues/33), [#49](https://github.com/AresGn/Breathly/issues/49) |
-| [#56](https://github.com/AresGn/Breathly/issues/56) disk-scan : moteur d'analyse (parcours, classement par niveau de risque, annulation) | core | personne | bloqué | [#24](https://github.com/AresGn/Breathly/issues/24), [#25](https://github.com/AresGn/Breathly/issues/25), [#30](https://github.com/AresGn/Breathly/issues/30), [#32](https://github.com/AresGn/Breathly/issues/32), [#48](https://github.com/AresGn/Breathly/issues/48), [#55](https://github.com/AresGn/Breathly/issues/55) |
+| [#55](https://github.com/AresGn/Breathly/issues/55) disk-scan : résolution et normalisation des chemins des règles par système | core | personne | bloqué | [#32](https://github.com/AresGn/Breathly/issues/32), [#33](https://github.com/AresGn/Breathly/issues/33) |
+| [#56](https://github.com/AresGn/Breathly/issues/56) disk-scan : moteur d'analyse (parcours, classement par niveau de risque, annulation) | core | personne | bloqué | [#30](https://github.com/AresGn/Breathly/issues/30), [#32](https://github.com/AresGn/Breathly/issues/32), [#55](https://github.com/AresGn/Breathly/issues/55) |
 | [#57](https://github.com/AresGn/Breathly/issues/57) disk-scan : tenir la cible S1 (500 000 fichiers en 60 s) et borner la mémoire | core | personne | bloqué | [#56](https://github.com/AresGn/Breathly/issues/56) |
-| [#58](https://github.com/AresGn/Breathly/issues/58) disk-scan : plus gros fichiers et dossiers, classés Décision personnelle | core | personne | bloqué | [#48](https://github.com/AresGn/Breathly/issues/48), [#56](https://github.com/AresGn/Breathly/issues/56) |
+| [#58](https://github.com/AresGn/Breathly/issues/58) disk-scan : plus gros fichiers et dossiers, classés Décision personnelle | core | personne | bloqué | [#56](https://github.com/AresGn/Breathly/issues/56) |
 | [#59](https://github.com/AresGn/Breathly/issues/59) disk-scan : dossiers de projet recréables (nom + fichier marqueur) | core | personne | bloqué | [#31](https://github.com/AresGn/Breathly/issues/31), [#56](https://github.com/AresGn/Breathly/issues/56) |
 | [#60](https://github.com/AresGn/Breathly/issues/60) diagnose : état « moins de 2 Go libres » (bandeau) | core | personne | bloqué | [#30](https://github.com/AresGn/Breathly/issues/30) |
 | [#61](https://github.com/AresGn/Breathly/issues/61) Contrat des commandes d'analyse du disque : start_disk_analysis, get_task_result, open_folder, get_low_space_status | desktop | personne | bloqué | [#34](https://github.com/AresGn/Breathly/issues/34), [#35](https://github.com/AresGn/Breathly/issues/35), [#36](https://github.com/AresGn/Breathly/issues/36) |
 | [#62](https://github.com/AresGn/Breathly/issues/62) Implémenter start_disk_analysis et la lecture du résultat | desktop | personne | bloqué | [#56](https://github.com/AresGn/Breathly/issues/56), [#58](https://github.com/AresGn/Breathly/issues/58), [#59](https://github.com/AresGn/Breathly/issues/59), [#61](https://github.com/AresGn/Breathly/issues/61) |
-| [#63](https://github.com/AresGn/Breathly/issues/63) Implémenter open_folder : seulement un dossier issu de la dernière analyse | desktop | personne | bloqué | [#24](https://github.com/AresGn/Breathly/issues/24), [#58](https://github.com/AresGn/Breathly/issues/58), [#61](https://github.com/AresGn/Breathly/issues/61) |
+| [#63](https://github.com/AresGn/Breathly/issues/63) Implémenter open_folder : seulement un dossier issu de la dernière analyse | desktop | personne | bloqué | [#58](https://github.com/AresGn/Breathly/issues/58), [#61](https://github.com/AresGn/Breathly/issues/61) |
 | [#64](https://github.com/AresGn/Breathly/issues/64) Implémenter l'état d'espace faible pour le bandeau | desktop | personne | bloqué | [#38](https://github.com/AresGn/Breathly/issues/38), [#50](https://github.com/AresGn/Breathly/issues/50), [#60](https://github.com/AresGn/Breathly/issues/60), [#61](https://github.com/AresGn/Breathly/issues/61) |
 | [#65](https://github.com/AresGn/Breathly/issues/65) Écran H1 Accueil : « Analyser mon PC », résumé et bandeau d'espace faible | desktop-ui | personne | bloqué | [#41](https://github.com/AresGn/Breathly/issues/41), [#43](https://github.com/AresGn/Breathly/issues/43), [#44](https://github.com/AresGn/Breathly/issues/44), [#61](https://github.com/AresGn/Breathly/issues/61) |
 | [#66](https://github.com/AresGn/Breathly/issues/66) Écran H2 Analyse en cours : progression et annulation | desktop-ui | personne | bloqué | [#41](https://github.com/AresGn/Breathly/issues/41), [#43](https://github.com/AresGn/Breathly/issues/43), [#44](https://github.com/AresGn/Breathly/issues/44), [#61](https://github.com/AresGn/Breathly/issues/61) |
@@ -123,22 +108,22 @@ Instantané du 2026-10-18, généré par `make backlog` (`tools/backlog.py`). **
 
 | Ticket | App | Assigné | État | Bloqué par (ouverts) |
 |---|---|---|---|---|
-| [#69](https://github.com/AresGn/Breathly/issues/69) Suppression sûre : écart entre la vérification et l'action | core | @AresGn | libre |  |
-| [#70](https://github.com/AresGn/Breathly/issues/70) Détecter qu'un fichier est ouvert par un logiciel (Linux et Windows) | core | @AresGn | libre |  |
-| [#71](https://github.com/AresGn/Breathly/issues/71) platform : adapter TrashProvider (bibliothèque trash, Linux et Windows) | core | personne | bloqué | [#24](https://github.com/AresGn/Breathly/issues/24), [#29](https://github.com/AresGn/Breathly/issues/29), [#30](https://github.com/AresGn/Breathly/issues/30) |
+| [#69](https://github.com/AresGn/Breathly/issues/69) Suppression sûre : écart entre la vérification et l'action | core | @AresGn | fermé |  |
+| [#70](https://github.com/AresGn/Breathly/issues/70) Détecter qu'un fichier est ouvert par un logiciel (Linux et Windows) | core | @AresGn | fermé |  |
+| [#71](https://github.com/AresGn/Breathly/issues/71) platform : adapter TrashProvider (bibliothèque trash, Linux et Windows) | core | personne | bloqué | [#29](https://github.com/AresGn/Breathly/issues/29), [#30](https://github.com/AresGn/Breathly/issues/30) |
 | [#72](https://github.com/AresGn/Breathly/issues/72) disk-clean : garde-fous S5 et VerifiedItem (TS-01, neuf garde-fous) | core | personne | bloqué | [#33](https://github.com/AresGn/Breathly/issues/33), [#56](https://github.com/AresGn/Breathly/issues/56) |
-| [#73](https://github.com/AresGn/Breathly/issues/73) disk-clean : garde-fou « fichier ouvert » (TS-01, dernier garde-fou) | core | personne | bloqué | [#70](https://github.com/AresGn/Breathly/issues/70), [#72](https://github.com/AresGn/Breathly/issues/72) |
-| [#74](https://github.com/AresGn/Breathly/issues/74) disk-clean : liens symboliques et jonctions non suivis (TS-02) | core | personne | bloqué | [#49](https://github.com/AresGn/Breathly/issues/49), [#69](https://github.com/AresGn/Breathly/issues/69), [#72](https://github.com/AresGn/Breathly/issues/72) |
+| [#73](https://github.com/AresGn/Breathly/issues/73) disk-clean : garde-fou « fichier ouvert » (TS-01, dernier garde-fou) | core | personne | bloqué | [#72](https://github.com/AresGn/Breathly/issues/72) |
+| [#74](https://github.com/AresGn/Breathly/issues/74) disk-clean : liens symboliques et jonctions non suivis (TS-02) | core | personne | bloqué | [#72](https://github.com/AresGn/Breathly/issues/72) |
 | [#75](https://github.com/AresGn/Breathly/issues/75) disk-clean : liste d'exclusion prioritaire (TS-08, TS-07 pour l'exclusion) | core | personne | bloqué | [#72](https://github.com/AresGn/Breathly/issues/72) |
 | [#76](https://github.com/AresGn/Breathly/issues/76) disk-clean : simulation et jeton de confirmation à usage unique (TS-04) | core | personne | bloqué | [#30](https://github.com/AresGn/Breathly/issues/30), [#72](https://github.com/AresGn/Breathly/issues/72), [#75](https://github.com/AresGn/Breathly/issues/75) |
-| [#77](https://github.com/AresGn/Breathly/issues/77) disk-clean : historique en JSON Lines (identifiant, événements, écriture, lecture, validation, TS-06 et TS-07) | core | personne | bloqué | [#24](https://github.com/AresGn/Breathly/issues/24), [#33](https://github.com/AresGn/Breathly/issues/33) |
+| [#77](https://github.com/AresGn/Breathly/issues/77) disk-clean : historique en JSON Lines (identifiant, événements, écriture, lecture, validation, TS-06 et TS-07) | core | personne | bloqué | [#33](https://github.com/AresGn/Breathly/issues/33) |
 | [#78](https://github.com/AresGn/Breathly/issues/78) disk-clean : rotation à 12 mois et effacement des entrées non annulables | core | personne | bloqué | [#30](https://github.com/AresGn/Breathly/issues/30), [#77](https://github.com/AresGn/Breathly/issues/77) |
 | [#79](https://github.com/AresGn/Breathly/issues/79) disk-clean : états d'une entrée (récupération après arrêt brutal, vérification à la demande) | core | personne | bloqué | [#30](https://github.com/AresGn/Breathly/issues/30), [#77](https://github.com/AresGn/Breathly/issues/77) |
 | [#80](https://github.com/AresGn/Breathly/issues/80) disk-clean : exécuteur de nettoyage (déroulement par élément, revérification, erreurs sans arrêt global) | core | personne | bloqué | [#72](https://github.com/AresGn/Breathly/issues/72), [#76](https://github.com/AresGn/Breathly/issues/76), [#77](https://github.com/AresGn/Breathly/issues/77) |
-| [#81](https://github.com/AresGn/Breathly/issues/81) disk-clean : fichiers de l'utilisateur envoyés à la corbeille | core | personne | bloqué | [#69](https://github.com/AresGn/Breathly/issues/69), [#80](https://github.com/AresGn/Breathly/issues/80) |
-| [#82](https://github.com/AresGn/Breathly/issues/82) disk-clean : suppression définitive des caches 🟢 seulement, et deux chiffres du résumé | core | personne | bloqué | [#69](https://github.com/AresGn/Breathly/issues/69), [#80](https://github.com/AresGn/Breathly/issues/80) |
+| [#81](https://github.com/AresGn/Breathly/issues/81) disk-clean : fichiers de l'utilisateur envoyés à la corbeille | core | personne | bloqué | [#80](https://github.com/AresGn/Breathly/issues/80) |
+| [#82](https://github.com/AresGn/Breathly/issues/82) disk-clean : suppression définitive des caches 🟢 seulement, et deux chiffres du résumé | core | personne | bloqué | [#80](https://github.com/AresGn/Breathly/issues/80) |
 | [#83](https://github.com/AresGn/Breathly/issues/83) disk-clean : arrêt demandé, résumé « arrêté par vous », interruption faute d'historique | core | personne | bloqué | [#80](https://github.com/AresGn/Breathly/issues/80) |
-| [#84](https://github.com/AresGn/Breathly/issues/84) disk-clean : vidage de la corbeille confirmé (élément 🟡 distinct) | core | personne | bloqué | [#69](https://github.com/AresGn/Breathly/issues/69), [#76](https://github.com/AresGn/Breathly/issues/76), [#77](https://github.com/AresGn/Breathly/issues/77), [#80](https://github.com/AresGn/Breathly/issues/80) |
+| [#84](https://github.com/AresGn/Breathly/issues/84) disk-clean : vidage de la corbeille confirmé (élément 🟡 distinct) | core | personne | bloqué | [#76](https://github.com/AresGn/Breathly/issues/76), [#77](https://github.com/AresGn/Breathly/issues/77), [#80](https://github.com/AresGn/Breathly/issues/80) |
 | [#85](https://github.com/AresGn/Breathly/issues/85) disk-clean : restauration depuis l'historique (annulation) | core | personne | bloqué | [#77](https://github.com/AresGn/Breathly/issues/77), [#79](https://github.com/AresGn/Breathly/issues/79) |
 | [#86](https://github.com/AresGn/Breathly/issues/86) Contrat des commandes de nettoyage, de vidage et d'historique | desktop | personne | bloqué | [#34](https://github.com/AresGn/Breathly/issues/34), [#35](https://github.com/AresGn/Breathly/issues/35), [#36](https://github.com/AresGn/Breathly/issues/36) |
 | [#87](https://github.com/AresGn/Breathly/issues/87) Implémenter simulate_cleanup | desktop | personne | bloqué | [#62](https://github.com/AresGn/Breathly/issues/62), [#76](https://github.com/AresGn/Breathly/issues/76), [#86](https://github.com/AresGn/Breathly/issues/86) |
@@ -163,9 +148,9 @@ Instantané du 2026-10-18, généré par `make backlog` (`tools/backlog.py`). **
 |---|---|---|---|---|
 | [#102](https://github.com/AresGn/Breathly/issues/102) Définir « processus inconnu », « emplacement inhabituel » et « service système » pour la section À examiner | core | @AresGn | libre |  |
 | [#103](https://github.com/AresGn/Breathly/issues/103) Définir « forte charge » et « au repos » pour la chauffe | core | @AresGn | libre |  |
-| [#104](https://github.com/AresGn/Breathly/issues/104) platform : adapter ProcessInspector (processus regroupés par logiciel) | core | personne | bloqué | [#24](https://github.com/AresGn/Breathly/issues/24), [#29](https://github.com/AresGn/Breathly/issues/29), [#30](https://github.com/AresGn/Breathly/issues/30) |
-| [#105](https://github.com/AresGn/Breathly/issues/105) platform : adapter TemperatureReader (« non disponible » quand il le faut) | core | personne | bloqué | [#24](https://github.com/AresGn/Breathly/issues/24), [#29](https://github.com/AresGn/Breathly/issues/29), [#30](https://github.com/AresGn/Breathly/issues/30) |
-| [#106](https://github.com/AresGn/Breathly/issues/106) platform : adapter SystemInspector (mémoire, swap et processeur globaux) | core | personne | bloqué | [#24](https://github.com/AresGn/Breathly/issues/24), [#29](https://github.com/AresGn/Breathly/issues/29), [#30](https://github.com/AresGn/Breathly/issues/30) |
+| [#104](https://github.com/AresGn/Breathly/issues/104) platform : adapter ProcessInspector (processus regroupés par logiciel) | core | personne | bloqué | [#29](https://github.com/AresGn/Breathly/issues/29), [#30](https://github.com/AresGn/Breathly/issues/30) |
+| [#105](https://github.com/AresGn/Breathly/issues/105) platform : adapter TemperatureReader (« non disponible » quand il le faut) | core | personne | bloqué | [#29](https://github.com/AresGn/Breathly/issues/29), [#30](https://github.com/AresGn/Breathly/issues/30) |
+| [#106](https://github.com/AresGn/Breathly/issues/106) platform : adapter SystemInspector (mémoire, swap et processeur globaux) | core | personne | bloqué | [#29](https://github.com/AresGn/Breathly/issues/29), [#30](https://github.com/AresGn/Breathly/issues/30) |
 | [#107](https://github.com/AresGn/Breathly/issues/107) platform : identification de la distribution Linux | core | personne | bloqué | [#30](https://github.com/AresGn/Breathly/issues/30) |
 | [#108](https://github.com/AresGn/Breathly/issues/108) diagnose : constats disque, RAM, swap, CPU et seuils réglables | core | personne | bloqué | [#30](https://github.com/AresGn/Breathly/issues/30) |
 | [#109](https://github.com/AresGn/Breathly/issues/109) diagnose : top 10 des logiciels par RAM et par CPU | core | personne | bloqué | [#30](https://github.com/AresGn/Breathly/issues/30) |

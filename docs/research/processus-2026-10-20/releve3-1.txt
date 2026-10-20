@@ -1,0 +1,8 @@
+processus par catégorie: {'illisible': 39, 'noyau (PF_KTHREAD)': 137}
+logiciels regroupés: 73
+plus gros logiciel, % de la RAM totale : RSS additionnée 55.2 | PSS additionnée 36.3
+logiciels dont la PSS est lisible pour chaque processus: 73
+gourmands (RSS >= 10 % ou CPU >= 25 % d'un cœur): 3 | dont inconnus: 0
+gourmands (PSS >= 10 % ou CPU >= 25 % d'un cœur): 3 | dont inconnus: 0
+logiciels inconnus: 3 | à emplacement inhabituel: 0
+À EXAMINER (inconnu et gourmand, ou inhabituel), RSS: 0 | PSS: 0

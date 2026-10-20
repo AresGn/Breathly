@@ -1,0 +1,7 @@
+Essai jetable (ticket #102, 2026-10-20), dans un dossier temporaire de session, jamais sur un exécutable du système.
+Commandes : copie de /bin/sleep en <dossier>/outil ; lancement de <dossier>/outil 30 ;
+copie de /bin/sleep en <dossier>/outil.new ; mv <dossier>/outil.new <dossier>/outil ; readlink /proc/<pid>/exe.
+
+avant le remplacement : <dossier>/outil
+après le remplacement : <dossier>/outil (deleted)
+chemin d'origine      : présent (le nouveau fichier)

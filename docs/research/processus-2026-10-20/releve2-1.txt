@@ -1,0 +1,10 @@
+exécutables distincts (logiciels regroupés par exécutable): 70
+processus par (protégé en écriture, connu du gestionnaire de paquets):
+   illisible 38
+   ('modifiable', 'hors paquet') 4
+   ('modifiable', 'paquet') 1
+   ('protege', 'paquet') 128
+processus dont l'exécutable est sous le dossier personnel: {'dossier non caché': 1, 'autre cache/config caché': 3}
+par logiciel: RAM Mo p50/p90/max [12, 145, 8139]  CPU% cœur p50/p90/max [0.0, 0.4, 34.2]
+  logiciels RAM > 250 Mo: 5 |  logiciels RAM > 500 Mo: 3 |  logiciels RAM > 1000 Mo: 2 |  logiciels RAM > 2000 Mo: 2 |
+  logiciels CPU > 5% d'un coeur: 3 |  logiciels CPU > 10% d'un coeur: 2 |  logiciels CPU > 25% d'un coeur: 1 |  logiciels CPU > 50% d'un coeur: 0 |
