@@ -1,0 +1,17 @@
+coeurs 8 RAM_totale_Mo 15808 duree_s 5.0
+processus 311 noyau 140
+par compte: moi 135 root 27 autres 9
+par type de cgroup: {'autre': 1, 'service': 34, 'session': 136}
+par emplacement de l'exécutable: {'illisible': 38, '/usr': 94, '/opt': 35, '/home': 4}
+emplacement x compte (hors /usr):
+   ('/home', 'moi') 4
+   ('/opt', 'moi') 35
+   ('illisible', 'autre') 9
+   ('illisible', 'moi') 2
+   ('illisible', 'root') 27
+RAM Mo par processus  p50/p90/p99/max: [22, 260, 711, 770]
+CPU %% d'un cœur       p50/p90/p99/max: [0.0, 0.6, 8.0, 9.9]
+  CPU > 1% d'un coeur: 11 |  CPU > 2% d'un coeur: 10 |  CPU > 5% d'un coeur: 2 |  CPU > 10% d'un coeur: 0 |  CPU > 25% d'un coeur: 0 |  CPU > 50% d'un coeur: 0 |  CPU > 80% d'un coeur: 0 |
+  RAM > 100 Mo: 46 |  RAM > 250 Mo: 18 |  RAM > 500 Mo: 4 |  RAM > 1000 Mo: 0 |  RAM > 2000 Mo: 0 |
+part de la RAM totale par processus > 5%: 0  > 10%: 0
+hors /usr, /snap, /opt (candidats 'inhabituel'): 42
