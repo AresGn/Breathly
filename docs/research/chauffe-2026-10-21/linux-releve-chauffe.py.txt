@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+# Relevé jetable (ticket #103) : température du processeur, charge globale et charge moyenne sur 1 min,
+# en trois phases : usage courant (30 s), charge forte synthétique sur tous les fils (60 s), refroidissement (120 s).
+# Mesure aussi le temps de processeur d'un parcours de /proc semblable à celui du diagnostic.
+# N'affiche que des températures, des pourcentages et des durées : aucun nom de processus.
+import os, time, glob, multiprocessing, resource
+
+def read(p):
+    try:
+        with open(p) as f: return f.read()
+    except OSError: return None
+
+def pkg_temp():
+    for h in glob.glob("/sys/class/hwmon/hwmon*"):
+        if read(f"{h}/name") and read(f"{h}/name").strip() in ("coretemp", "k10temp"):
+            for lab in sorted(glob.glob(f"{h}/temp*_label")):
+                if read(lab).strip() in ("Package id 0", "Tctl", "Tdie"):
+                    return int(read(lab.replace("_label", "_input"))) / 1000
+    return None
+
+def cpu_ticks():
+    f = [int(x) for x in read("/proc/stat").splitlines()[0].split()[1:]]
+    idle = f[3] + f[4]
+    return sum(f[:8]), idle
+
+def burn(stop):
+    while time.time() < stop: pass
+
+def sample(phase, seconds, rows):
+    t0 = time.time(); prev = cpu_ticks()
+    for _ in range(seconds):
+        time.sleep(1)
+        cur = cpu_ticks(); tot = cur[0] - prev[0]; idle = cur[1] - prev[1]; prev = cur
+        rows.append((phase, round(time.time() - t0), 100 * (tot - idle) / tot if tot else 0.0,
+                     float(read("/proc/loadavg").split()[0]), pkg_temp()))
+
+def scan_cost():
+    r0 = resource.getrusage(resource.RUSAGE_SELF); w0 = time.time(); n = 0
+    for d in os.listdir("/proc"):
+        if not d.isdigit(): continue
+        read(f"/proc/{d}/stat"); read(f"/proc/{d}/smaps_rollup"); read(f"/proc/{d}/cgroup"); n += 1
+        try: os.readlink(f"/proc/{d}/exe")
+        except OSError: pass
+    r1 = resource.getrusage(resource.RUSAGE_SELF)
+    return n, (r1.ru_utime + r1.ru_stime) - (r0.ru_utime + r0.ru_stime), time.time() - w0
+
+ncpu = os.cpu_count()
+n, cpu_s, wall_s = scan_cost()
+print(f"fils logiques {ncpu} ; parcours de /proc ({n} processus, stat + smaps_rollup + cgroup + exe) : "
+      f"{cpu_s:.2f} s de processeur en {wall_s:.2f} s, soit {100*cpu_s/ncpu/5:.1f} % de la capacité totale sur 5 s")
+rows = []
+sample("usage courant", 30, rows)
+stop = time.time() + 60
+procs = [multiprocessing.Process(target=burn, args=(stop,)) for _ in range(ncpu)]
+for p in procs: p.start()
+sample("charge forte", 60, rows)
+for p in procs: p.join()
+sample("refroidissement", 120, rows)
+
+print("phase | s | charge 5 s (% de la capacité totale) | charge moyenne 1 min / fils | température (°C)")
+for i in range(4, len(rows), 5):
+    w = rows[i-4:i+1]
+    if len({r[0] for r in w}) > 1: continue
+    print(f"{w[-1][0]} | {w[-1][1]} | {sum(r[2] for r in w)/5:.0f} | {w[-1][3]/ncpu:.2f} | {w[-1][4]}")
+for ph in ("usage courant", "charge forte", "refroidissement"):
+    t = [r[4] for r in rows if r[0] == ph and r[4] is not None]; u = [r[2] for r in rows if r[0] == ph]
+    print(f"{ph} : température min/max {min(t)}/{max(t)} ; charge 1 s min/moyenne/max {min(u):.0f}/{sum(u)/len(u):.0f}/{max(u):.0f}")
