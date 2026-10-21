@@ -159,6 +159,10 @@ dependencies = [
 [[package]]
 name = "breathly-diagnose"
 version = "0.0.0"
+dependencies = [
+ "breathly-platform",
+ "thiserror 2.0.21",
+]
 
 [[package]]
 name = "breathly-disk"
