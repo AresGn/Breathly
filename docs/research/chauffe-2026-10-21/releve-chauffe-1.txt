@@ -1,0 +1,47 @@
+fils logiques 8 ; parcours de /proc (372 processus, stat + smaps_rollup + cgroup + exe) : 0.45 s de processeur en 0.46 s, soit 1.1 % de la capacité totale sur 5 s
+phase | s | charge 5 s (% de la capacité totale) | charge moyenne 1 min / fils | température (°C)
+usage courant | 5 | 22 | 0.53 | 65.0
+usage courant | 10 | 14 | 0.48 | 55.0
+usage courant | 15 | 27 | 0.45 | 56.0
+usage courant | 20 | 22 | 0.42 | 55.0
+usage courant | 25 | 41 | 0.41 | 61.0
+usage courant | 30 | 31 | 0.38 | 56.0
+charge forte | 5 | 100 | 0.51 | 66.0
+charge forte | 10 | 100 | 0.59 | 67.0
+charge forte | 15 | 100 | 0.65 | 69.0
+charge forte | 20 | 100 | 0.68 | 70.0
+charge forte | 25 | 100 | 0.71 | 72.0
+charge forte | 30 | 100 | 0.79 | 72.0
+charge forte | 35 | 100 | 0.81 | 72.0
+charge forte | 40 | 100 | 0.84 | 72.0
+charge forte | 45 | 100 | 0.85 | 73.0
+charge forte | 50 | 100 | 0.92 | 74.0
+charge forte | 55 | 100 | 0.92 | 74.0
+charge forte | 60 | 98 | 0.93 | 75.0
+refroidissement | 5 | 17 | 0.85 | 61.0
+refroidissement | 10 | 31 | 0.80 | 66.0
+refroidissement | 15 | 43 | 0.77 | 60.0
+refroidissement | 20 | 23 | 0.82 | 58.0
+refroidissement | 25 | 18 | 0.77 | 58.0
+refroidissement | 30 | 15 | 0.73 | 56.0
+refroidissement | 35 | 7 | 0.69 | 55.0
+refroidissement | 40 | 9 | 0.63 | 55.0
+refroidissement | 45 | 8 | 0.58 | 54.0
+refroidissement | 50 | 8 | 0.53 | 62.0
+refroidissement | 55 | 6 | 0.49 | 52.0
+refroidissement | 60 | 6 | 0.45 | 52.0
+refroidissement | 65 | 7 | 0.42 | 52.0
+refroidissement | 70 | 8 | 0.39 | 51.0
+refroidissement | 75 | 9 | 0.36 | 53.0
+refroidissement | 80 | 13 | 0.35 | 52.0
+refroidissement | 85 | 11 | 0.32 | 56.0
+refroidissement | 90 | 14 | 0.34 | 50.0
+refroidissement | 95 | 8 | 0.32 | 50.0
+refroidissement | 100 | 9 | 0.29 | 50.0
+refroidissement | 105 | 9 | 0.27 | 49.0
+refroidissement | 110 | 8 | 0.25 | 49.0
+refroidissement | 115 | 11 | 0.23 | 50.0
+refroidissement | 120 | 9 | 0.21 | 51.0
+usage courant : température min/max 54.0/70.0 ; charge 1 s min/moyenne/max 10/26/52
+charge forte : température min/max 61.0/75.0 ; charge 1 s min/moyenne/max 92/100/100
+refroidissement : température min/max 49.0/67.0 ; charge 1 s min/moyenne/max 5/13/71
