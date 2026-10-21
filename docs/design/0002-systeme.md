@@ -20,7 +20,7 @@ Ce document décide *où vit chaque règle* et *par où on l'appelle*. Il ne dé
 
 | Module | Crate | Possède | Fonctions publiques principales | Version |
 |---|---|---|---|---|
-| `platform` | `breathly-platform` | mesures système, chemins standard, corbeille, traits par OS | `ProcessInspector`, `DiskInspector`, `TemperatureReader`, `TrashProvider`, `Clock` ; V0.2 `WindowInspector` ; V0.4 `StartupManager` | V0.1 |
+| `platform` | `breathly-platform` | mesures système, chemins standard, corbeille, traits par OS | `ProcessInspector`, `DiskInspector`, `TemperatureReader`, `SystemInspector`, `TrashProvider`, `Clock` ; V0.2 `WindowInspector` ; V0.4 `StartupManager` | V0.1 |
 | `rules` | `breathly-rules` | règles de nettoyage et de réglage (TOML intégrées), validation | `load_cleanup_rules()`, `load_tuning_rules()` | V0.1 |
 | `diagnose` | `breathly-diagnose` | constats typés : disque, RAM, swap, CPU, chauffe, gros consommateurs, processus à examiner | `run_diagnostic(task)` | V0.1 |
 | `disk-scan` | `breathly-disk` | analyse du disque, classement par niveau de risque, gros fichiers, dossiers de projet | `analyse_disk(task)` | V0.1 |
@@ -74,10 +74,11 @@ Décision du 2026-10-18 : diagnostic, analyse et nettoyage s'exécutent **dans l
 | `ProcessInspector` | processus, RAM, CPU, chemin de l'exécutable, regroupement par logiciel | liste fixe |
 | `DiskInspector` | volumes, espace libre et total | valeurs fixes |
 | `TemperatureReader` | température du processeur, « non disponible » sinon | absente ou valeur |
+| `SystemInspector` | mémoire totale et disponible, swap et ses périphériques (zram), temps cumulés du processeur (décision du 2026-10-18, ticket #30 ; ADR 0022) | valeurs fixes, suite de relevés du processeur |
 | `TrashProvider` | envoyer, lister, restaurer, purger (crate `trash`, ADR 0005) | corbeille en mémoire |
 | `Clock` | l'heure, pour la rotation à 12 mois et les relevés | heure fixe |
 
-**Les tests ne touchent jamais à la vraie corbeille ni au vrai dossier personnel** (PRD §14) : ils travaillent dans un dossier temporaire avec le faux `TrashProvider`. Aucun `cfg(target_os)` hors de ce crate.
+Les traits sont synchrones (ADR 0013). Les faux sont dans le module `fake` de `breathly-platform`, compilé avec la fonctionnalité `fake`, que les autres crates activent en dépendance de développement seulement. **Les tests ne touchent jamais à la vraie corbeille ni au vrai dossier personnel** (PRD §14) : ils travaillent dans un dossier temporaire avec le faux `TrashProvider`. Aucun `cfg(target_os)` hors de ce crate.
 
 ## 6. Contrat entre l'interface Svelte et le cœur
 

@@ -8,6 +8,17 @@ license.workspace = true
 repository.workspace = true
 publish.workspace = true
 
+[features]
+# Faux des ports, en mémoire, pour les tests des autres crates (dépendance de développement seulement).
+fake = []
+
+[dependencies]
+thiserror = "2.0.21"
+
+[[test]]
+name = "fakes"
+required-features = ["fake"]
+
 # Table propre (et non `workspace = true`) : seul ce crate a le droit à `unsafe`, avec un `#[allow]` justifié par bloc.
 # Copie de celle du workspace, hors unsafe_code (tools/check-rust.py).
 [lints.rust]
