@@ -42,7 +42,7 @@ Breathly agit sur les fichiers de personnes non techniques : une violation est u
 
 ## Ports à implémenter (adapters remplaçables)
 
-Seules les dépendances à l'OS et à l'horloge passent par un trait avec un adapter remplaçable (et un faux pour les tests) : `Clock`, `TrashProvider`, `ProcessInspector`, `DiskInspector`, `StartupManager`. Les tests ne touchent jamais au vrai disque de l'utilisateur : ils travaillent dans un dossier temporaire.
+Seules les dépendances à l'OS et à l'horloge passent par un trait avec un adapter remplaçable (et un faux pour les tests, fonctionnalité `fake` de `breathly-platform`) : `Clock`, `TrashProvider`, `ProcessInspector`, `DiskInspector`, `TemperatureReader`, `SystemInspector` ; V0.4 `StartupManager`. Les tests ne touchent jamais au vrai disque de l'utilisateur : ils travaillent dans un dossier temporaire.
 
 ## Base de données
 
