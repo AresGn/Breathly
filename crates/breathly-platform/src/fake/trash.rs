@@ -1,6 +1,6 @@
 //! Corbeille en mémoire : un faux système de fichiers (chemins et tailles) et une corbeille, sans aucun accès disque.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::sync::{Mutex, PoisonError};
 use std::time::SystemTime;
@@ -53,6 +53,17 @@ fn check_all_trashed(state: &State, items: &[TrashItemId]) -> Result<(), Platfor
     }
 }
 
+/// Premier élément dont l'emplacement d'origine est occupé, par un fichier présent ou par un élément restauré
+/// avant lui dans le même appel.
+fn find_collision<'a>(state: &State, items: &'a [TrashItemId]) -> Option<&'a TrashItemId> {
+    let mut seen_ids = BTreeSet::new();
+    let mut claimed = BTreeSet::new();
+    items.iter().filter(|id| seen_ids.insert(*id)).find(|id| {
+        let path = &state.trashed[*id].original_path;
+        state.files.contains_key(path) || !claimed.insert(path)
+    })
+}
+
 impl TrashProvider for MemoryTrash {
     fn send(&self, path: &Path) -> Result<TrashItemId, PlatformError> {
         let mut state = self.state();
@@ -79,10 +90,7 @@ impl TrashProvider for MemoryTrash {
     fn restore(&self, items: &[TrashItemId]) -> Result<(), PlatformError> {
         let mut state = self.state();
         check_all_trashed(&state, items)?;
-        if let Some(occupied) = items
-            .iter()
-            .find(|id| state.files.contains_key(&state.trashed[*id].original_path))
-        {
+        if let Some(occupied) = find_collision(&state, items) {
             return Err(PlatformError::RestoreCollision {
                 item: occupied.clone(),
             });
@@ -159,6 +167,30 @@ mod tests {
         );
         assert_eq!(trash.list().unwrap().len(), 2);
         assert!(!trash.has_file(Path::new(PHOTO)));
+    }
+
+    #[test]
+    fn restoring_two_items_with_the_same_origin_restores_nothing() {
+        let trash = MemoryTrash::new();
+        trash.add_file(REPORT, ByteSize::from_bytes(10));
+        let first = trash.send(Path::new(REPORT)).unwrap();
+        trash.add_file(REPORT, ByteSize::from_bytes(11));
+        let second = trash.send(Path::new(REPORT)).unwrap();
+        let both = [first, second.clone()];
+        assert_eq!(
+            trash.restore(&both),
+            Err(PlatformError::RestoreCollision { item: second })
+        );
+        assert_eq!(trash.list().unwrap().len(), 2);
+        assert!(!trash.has_file(Path::new(REPORT)));
+    }
+
+    #[test]
+    fn restoring_the_same_item_twice_in_one_call_is_not_a_collision() {
+        let trash = trash_with_two_files();
+        let report = trash.send(Path::new(REPORT)).unwrap();
+        trash.restore(&[report.clone(), report]).unwrap();
+        assert!(trash.has_file(Path::new(REPORT)));
     }
 
     #[test]

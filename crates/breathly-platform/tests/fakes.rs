@@ -3,13 +3,16 @@
 use std::error::Error;
 use std::num::NonZeroU16;
 use std::path::{Path, PathBuf};
-use std::time::Duration;
+use std::time::{Duration, SystemTime};
 
-use breathly_platform::fake::{FakeDisks, FakeProcesses, FakeSystem, MemoryTrash, SystemFacts};
+use breathly_platform::fake::{
+    FakeDisks, FakeProcesses, FakeSystem, FakeTemperature, FixedClock, MemoryTrash, SystemFacts,
+};
 use breathly_platform::{
-    ByteSize, CpuTimes, DiskInspector, Executable, ExecutableOrigin, InvalidValue, MemoryStatus,
-    MemoryUsage, Packaging, ProcessId, ProcessInspector, ProcessName, ProcessRole, ProcessSnapshot,
-    SwapDevice, SwapKind, SwapStatus, SystemInspector, TrashProvider, Volume, VolumeRole,
+    ByteSize, Celsius, Clock, CpuTimes, DiskInspector, Executable, ExecutableOrigin, InvalidValue,
+    MemoryStatus, MemoryUsage, Packaging, ProcessId, ProcessInspector, ProcessName, ProcessRole,
+    ProcessSnapshot, SwapDevice, SwapKind, SwapStatus, SystemInspector, TemperatureReader,
+    TemperatureReading, TrashProvider, Volume, VolumeRole, VolumeSpace,
 };
 
 type TestResult = Result<(), Box<dyn Error>>;
@@ -83,8 +86,8 @@ fn the_fake_system_reports_memory_zram_and_successive_cpu_times() -> TestResult 
 
 #[test]
 fn the_fake_disks_and_trash_work_behind_their_traits() -> TestResult {
-    let space = (gib(1), ByteSize::from_bytes(1));
-    let root = Volume::new(PathBuf::from("/"), VolumeRole::System, space)?;
+    let space = VolumeSpace::new(gib(1), ByteSize::from_bytes(1))?;
+    let root = Volume::new(PathBuf::from("/"), VolumeRole::System, space);
     let disks: Box<dyn DiskInspector> = Box::new(FakeDisks::new(Ok(vec![root])));
     assert_eq!(disks.volumes()?[0].role(), VolumeRole::System);
 
@@ -93,5 +96,22 @@ fn the_fake_disks_and_trash_work_behind_their_traits() -> TestResult {
     let trash: &dyn TrashProvider = &memory_trash;
     let id = trash.send(Path::new("/fake/quarantaine/a"))?;
     assert_eq!(trash.list()?[0].id, id);
+    Ok(())
+}
+
+#[test]
+fn the_fake_temperature_and_clock_work_behind_their_traits() -> TestResult {
+    let hot = TemperatureReading::Available(Celsius::try_from(85.0)?);
+    let reader: Box<dyn TemperatureReader> = Box::new(FakeTemperature::readings(
+        TemperatureReading::Unavailable,
+        [hot],
+    ));
+    assert_eq!(reader.cpu_temperature(), TemperatureReading::Unavailable);
+    assert_eq!(reader.cpu_temperature(), hot);
+
+    let fixed = FixedClock::new(SystemTime::UNIX_EPOCH);
+    let clock: &dyn Clock = &fixed;
+    fixed.advance(Duration::from_secs(1));
+    assert_eq!(clock.now(), SystemTime::UNIX_EPOCH + Duration::from_secs(1));
     Ok(())
 }

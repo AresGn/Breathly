@@ -17,7 +17,7 @@ mod units;
 pub mod fake;
 
 pub use clock::Clock;
-pub use disk::{DiskInspector, Volume, VolumeRole};
+pub use disk::{DiskInspector, Volume, VolumeRole, VolumeSpace};
 pub use error::{Measure, PlatformError};
 pub use process::{
     Executable, ExecutableOrigin, MemoryUsage, Packaging, ProcessInspector, ProcessRole,

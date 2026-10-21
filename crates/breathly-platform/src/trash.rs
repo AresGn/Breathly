@@ -7,8 +7,16 @@ use crate::error::PlatformError;
 use crate::units::ByteSize;
 
 /// Identifiant opaque d'un élément de la corbeille (sous Linux, le chemin de son fichier `.trashinfo`, ADR 0005).
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+///
+/// Son `Debug` masque la valeur : un identifiant peut être un chemin et ne doit pas finir dans un journal (SEC9).
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct TrashItemId(String);
+
+impl std::fmt::Debug for TrashItemId {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str("TrashItemId(..)")
+    }
+}
 
 impl TrashItemId {
     #[must_use]
@@ -22,7 +30,7 @@ impl TrashItemId {
     }
 }
 
-/// Élément présent dans la corbeille, mis par Breathly ou non.
+/// Élément présent dans la corbeille, mis par Breathly ou non. Contient un chemin : jamais journalisé (SEC9).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TrashItem {
     pub id: TrashItemId,
@@ -59,4 +67,18 @@ pub trait TrashProvider: Send + Sync {
     /// # Errors
     /// `TrashItemNotFound` (rien n'est détruit) ou `TrashUnavailable`.
     fn purge(&self, items: &[TrashItemId]) -> Result<(), PlatformError>;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_debug_of_an_identifier_never_shows_its_value() {
+        let id =
+            TrashItemId::new("/home/ana/.local/share/Trash/info/rapport.odt.trashinfo".to_owned());
+        let error = PlatformError::RestoreCollision { item: id };
+        assert!(!format!("{error:?}").contains("rapport"));
+        assert!(!error.to_string().contains("rapport"));
+    }
 }

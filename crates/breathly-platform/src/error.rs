@@ -1,6 +1,7 @@
 //! Erreurs de `breathly-platform` : un code stable et une clé de traduction par variante (CODING.md §5).
 //!
-//! Aucune variante ne porte de chemin : une erreur peut finir dans un journal (SEC9).
+//! Une erreur peut finir dans un journal (SEC9) : aucune variante ne porte de chemin en clair, et l'identifiant
+//! d'un élément de la corbeille (`TrashItemId`, parfois un chemin) est masqué par son `Debug` et absent du message.
 
 use thiserror::Error;
 
