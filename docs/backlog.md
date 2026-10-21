@@ -1,6 +1,6 @@
 # Backlog de Breathly : vue globale des tickets
 
-Instantané du 2026-10-19, généré par `make backlog` (`tools/backlog.py`). **GitHub reste la source de vérité** : en cas de doute, ouvrir le ticket. Règles de travail : [`CONTRIBUTING.md`](../CONTRIBUTING.md) §2 ; gabarit et étiquettes : [`docs/agents/issue-tracker.md`](agents/issue-tracker.md).
+Instantané du 2026-10-21, généré par `make backlog` (`tools/backlog.py`). **GitHub reste la source de vérité** : en cas de doute, ouvrir le ticket. Règles de travail : [`CONTRIBUTING.md`](../CONTRIBUTING.md) §2 ; gabarit et étiquettes : [`docs/agents/issue-tracker.md`](agents/issue-tracker.md).
 
 **Lire ce fichier** : un ticket est **libre** quand tous ses bloqueurs sont fermés. Prendre d'abord les tickets libres de la milestone la plus basse. `ready-for-human` = décision ou travail humain (ADR, valeurs du client) ; `en-attente-decision` = bloqué par une décision non prise.
 
@@ -11,7 +11,7 @@ Instantané du 2026-10-19, généré par `make backlog` (`tools/backlog.py`). **
 | M0 · Socle | 19 | 7 | 12 | 5 |
 | M1 · Disque | 19 | 0 | 19 | 2 |
 | M2 · Nettoyage sûr | 31 | 0 | 31 | 2 |
-| M3 · Diagnostic | 19 | 2 | 17 | 0 |
+| M3 · Diagnostic | 18 | 1 | 17 | 1 |
 | M4 · Livraison | 15 | 2 | 13 | 0 |
 
 ## À faire en premier (tickets libres)
@@ -20,7 +20,6 @@ Instantané du 2026-10-19, généré par `make backlog` (`tools/backlog.py`). **
 
 | Ticket | App | Milestone | Étiquettes utiles |
 |---|---|---|---|
-| [#102](https://github.com/AresGn/Breathly/issues/102) Définir « processus inconnu », « emplacement inhabituel » et « service système » pour la section À examiner | core | M3 · Diagnostic | ready-for-human |
 | [#103](https://github.com/AresGn/Breathly/issues/103) Définir « forte charge » et « au repos » pour la chauffe | core | M3 · Diagnostic | ready-for-human |
 
 ### personne
@@ -41,7 +40,6 @@ Instantané du 2026-10-19, généré par `make backlog` (`tools/backlog.py`). **
 
 | Ticket | Assigné | Débloque |
 |---|---|---|
-| [#102](https://github.com/AresGn/Breathly/issues/102) Définir « processus inconnu », « emplacement inhabituel » et « service système » pour la section À examiner | @AresGn | 1 ticket(s) #111 |
 | [#103](https://github.com/AresGn/Breathly/issues/103) Définir « forte charge » et « au repos » pour la chauffe | @AresGn | 2 ticket(s) #110, #135 |
 | [#131](https://github.com/AresGn/Breathly/issues/131) Mesurer la fenêtre et les installeurs sous Linux et sous Windows | @AresGn | 0 ticket(s)  |
 | [#132](https://github.com/AresGn/Breathly/issues/132) Validation sous Linux : retrouver au moins 80 % des 30 Go libérés à la main | @AresGn | 0 ticket(s)  |
@@ -146,7 +144,7 @@ Instantané du 2026-10-19, généré par `make backlog` (`tools/backlog.py`). **
 
 | Ticket | App | Assigné | État | Bloqué par (ouverts) |
 |---|---|---|---|---|
-| [#102](https://github.com/AresGn/Breathly/issues/102) Définir « processus inconnu », « emplacement inhabituel » et « service système » pour la section À examiner | core | @AresGn | libre |  |
+| [#102](https://github.com/AresGn/Breathly/issues/102) Définir « processus inconnu », « emplacement inhabituel » et « service système » pour la section À examiner | core | @AresGn | fermé |  |
 | [#103](https://github.com/AresGn/Breathly/issues/103) Définir « forte charge » et « au repos » pour la chauffe | core | @AresGn | libre |  |
 | [#104](https://github.com/AresGn/Breathly/issues/104) platform : adapter ProcessInspector (processus regroupés par logiciel) | core | personne | bloqué | [#29](https://github.com/AresGn/Breathly/issues/29), [#30](https://github.com/AresGn/Breathly/issues/30) |
 | [#105](https://github.com/AresGn/Breathly/issues/105) platform : adapter TemperatureReader (« non disponible » quand il le faut) | core | personne | bloqué | [#29](https://github.com/AresGn/Breathly/issues/29), [#30](https://github.com/AresGn/Breathly/issues/30) |
@@ -155,7 +153,7 @@ Instantané du 2026-10-19, généré par `make backlog` (`tools/backlog.py`). **
 | [#108](https://github.com/AresGn/Breathly/issues/108) diagnose : constats disque, RAM, swap, CPU et seuils réglables | core | personne | bloqué | [#30](https://github.com/AresGn/Breathly/issues/30) |
 | [#109](https://github.com/AresGn/Breathly/issues/109) diagnose : top 10 des logiciels par RAM et par CPU | core | personne | bloqué | [#30](https://github.com/AresGn/Breathly/issues/30) |
 | [#110](https://github.com/AresGn/Breathly/issues/110) diagnose : chauffe par paliers | core | personne | bloqué | [#103](https://github.com/AresGn/Breathly/issues/103), [#109](https://github.com/AresGn/Breathly/issues/109) |
-| [#111](https://github.com/AresGn/Breathly/issues/111) diagnose : processus et services système à examiner | core | personne | bloqué | [#30](https://github.com/AresGn/Breathly/issues/30), [#102](https://github.com/AresGn/Breathly/issues/102) |
+| [#111](https://github.com/AresGn/Breathly/issues/111) diagnose : processus et services système à examiner | core | personne | bloqué | [#30](https://github.com/AresGn/Breathly/issues/30) |
 | [#112](https://github.com/AresGn/Breathly/issues/112) diagnose : recommandation de swap compressé (zram) avec la commande exacte | core | personne | bloqué | [#107](https://github.com/AresGn/Breathly/issues/107), [#108](https://github.com/AresGn/Breathly/issues/108) |
 | [#113](https://github.com/AresGn/Breathly/issues/113) Contrat des commandes de diagnostic : start_diagnostic et get_recommendations | desktop | personne | bloqué | [#34](https://github.com/AresGn/Breathly/issues/34), [#35](https://github.com/AresGn/Breathly/issues/35), [#36](https://github.com/AresGn/Breathly/issues/36), [#61](https://github.com/AresGn/Breathly/issues/61) |
 | [#114](https://github.com/AresGn/Breathly/issues/114) Implémenter start_diagnostic | desktop | personne | bloqué | [#50](https://github.com/AresGn/Breathly/issues/50), [#104](https://github.com/AresGn/Breathly/issues/104), [#105](https://github.com/AresGn/Breathly/issues/105), [#106](https://github.com/AresGn/Breathly/issues/106), [#108](https://github.com/AresGn/Breathly/issues/108), [#109](https://github.com/AresGn/Breathly/issues/109), [#110](https://github.com/AresGn/Breathly/issues/110), [#111](https://github.com/AresGn/Breathly/issues/111), [#113](https://github.com/AresGn/Breathly/issues/113) |
