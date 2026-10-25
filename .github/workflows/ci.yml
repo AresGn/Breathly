@@ -109,6 +109,27 @@ jobs:
       - name: Audit des dépendances
         run: bash tools/stack.sh audit "${{ matrix.path }}"
 
+  # Workspace Rust sous Windows (PRD §13) : sans lui, le code propre à Windows de breathly-platform ne serait jamais
+  # compilé ni testé. Même version de Rust que le job `app` (rust-toolchain.toml, ADR 0011). Non vérifié sur un
+  # exécuteur hébergé : le premier passage de la CI hébergée confirmera la durée et le build de Tauri/WebView2.
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: rustup toolchain install --profile minimal -c clippy,rustfmt
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: cargo-tools
+        with:
+          path: ~/.cargo/bin/cargo-deny.exe
+          key: cargo-tools-deny-0.20.2-${{ runner.os }}
+      - if: steps.cargo-tools.outputs.cache-hit != 'true'
+        run: cargo install cargo-deny --version 0.20.2 --locked
+      - run: cargo fetch --locked
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+      - run: cargo deny --locked check bans sources
+      - run: cargo test --workspace --all-features --locked
+
   # Contrôles propres au projet (base de données avec service, contrat d'API…) : ajouter des jobs ici
   # et les lister dans `needs` de la porte. Exemple de service PostgreSQL : voir playbooks/ci-services.md du kit.
 
@@ -117,7 +138,7 @@ jobs:
   # un job en échec ou annulé fait échouer la porte.
   gate:
     if: always()
-    needs: [detect, secrets, docs, app]
+    needs: [detect, secrets, docs, app, windows]
     runs-on: ubuntu-latest
     steps:
       - name: Tous les contrôles sont verts
