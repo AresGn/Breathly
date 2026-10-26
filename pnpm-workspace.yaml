@@ -9,6 +9,6 @@ minimumReleaseAge: 10080
 # comme bloqué ET dont on a vérifié l'utilité.
 onlyBuiltDependencies: []
 # Avis GHSA-xjj6-f33q-929c (undici >=8.0.0 <8.12.2, déni de service), tiré par jsdom. À retirer quand jsdom exige
-# lui-même une version corrigée.
+# lui-même undici ^8.12.2 ou plus (il demande ^8.12.1 aujourd'hui) ; la montée de jsdom est suivie par la PR #157.
 overrides:
-  undici: ">=8.12.2"
+  undici: "^8.12.2"
