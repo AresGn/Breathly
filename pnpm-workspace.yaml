@@ -8,3 +8,7 @@ minimumReleaseAge: 10080
 # Seuls ces paquets peuvent exécuter un script d'installation. Ajouter seulement ce que `pnpm install` signale
 # comme bloqué ET dont on a vérifié l'utilité.
 onlyBuiltDependencies: []
+# Avis GHSA-xjj6-f33q-929c (undici >=8.0.0 <8.12.2, déni de service), tiré par jsdom. À retirer quand jsdom exige
+# lui-même une version corrigée.
+overrides:
+  undici: ">=8.12.2"
