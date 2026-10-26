@@ -19,7 +19,7 @@
 		"@sveltejs/vite-plugin-svelte": "^7.2.0",
 		"@testing-library/jest-dom": "^7.0.0",
 		"@testing-library/svelte": "^5.2.0",
-		"@types/node": "^24",
+		"@types/node": "^26",
 		"eslint": "^10.13.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.19.0",
