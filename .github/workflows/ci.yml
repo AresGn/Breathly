@@ -110,8 +110,8 @@ jobs:
         run: bash tools/stack.sh audit "${{ matrix.path }}"
 
   # Workspace Rust sous Windows (PRD §13) : sans lui, le code propre à Windows de breathly-platform ne serait jamais
-  # compilé ni testé. Même version de Rust que le job `app` (rust-toolchain.toml, ADR 0011). Non vérifié sur un
-  # exécuteur hébergé : le premier passage de la CI hébergée confirmera la durée et le build de Tauri/WebView2.
+  # compilé ni testé. Même version de Rust que le job `app` (rust-toolchain.toml, ADR 0011). Constaté sur un
+  # exécuteur hébergé (2026-10-26) : le build de Tauri/WebView2 passe ; durée du job 8 min 23 s, installation de cargo-deny comprise.
   windows:
     runs-on: windows-latest
     steps:
