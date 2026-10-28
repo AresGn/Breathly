@@ -1,11 +1,12 @@
 <script lang="ts">
 	import '#lib/styles/breathly.css';
 	import { startThemeSync } from '#lib/theme/theme.svelte.js';
-	import { onMount, type Snippet } from 'svelte';
+	import { onDestroy, type Snippet } from 'svelte';
 
 	let { children }: { children: Snippet } = $props();
 
-	onMount(startThemeSync);
+	// Appliqué dès l'initialisation, avant le premier affichage, pour éviter un flash de thème clair.
+	onDestroy(startThemeSync());
 </script>
 
 {@render children()}

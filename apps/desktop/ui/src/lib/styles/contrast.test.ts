@@ -30,7 +30,10 @@ const TEXT_PAIRS: readonly Pair[] = [
 	['color-success-fg', 'color-success-bg'],
 	['color-warn-fg', 'color-warn-bg'],
 	['color-alert-fg', 'color-alert-bg'],
-	['on-danger', 'danger-solid']
+	['on-danger', 'danger-solid'],
+	['text', 'color-alert-bg'],
+	['text', 'color-warn-bg'],
+	['text', 'accent-soft']
 ];
 
 // Composants graphiques : bordures de champ, focus, icônes d'accent (WCAG 1.4.11).
@@ -41,7 +44,15 @@ const GRAPHIC_PAIRS: readonly Pair[] = [
 	['focus', 'surface'],
 	['accent', 'bg'],
 	['accent', 'surface'],
-	['danger-solid', 'surface']
+	['danger-solid', 'surface'],
+	['accent', 'accent-soft'],
+	// Pistes des jauges (.meter, .stackbar) : remplissage sur surface-2
+	['accent', 'surface-2'],
+	['color-warn-fg', 'surface-2'],
+	['color-alert-fg', 'surface-2'],
+	['risk-safe-fg', 'surface-2'],
+	['risk-verify-fg', 'surface-2'],
+	['risk-personal-fg', 'surface-2']
 ];
 
 const css = readFileSync(join(import.meta.dirname, 'breathly.css'), 'utf8');
@@ -55,7 +66,7 @@ function themeTokens(theme: string): Map<string, string> {
 
 function channel(hex: string, offset: number): number {
 	const value = parseInt(hex.slice(offset, offset + 2), 16) / 255;
-	return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+	return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
 }
 
 function luminance(hex: string): number {
@@ -63,7 +74,7 @@ function luminance(hex: string): number {
 	return 0.2126 * channel(color, 0) + 0.7152 * channel(color, 2) + 0.0722 * channel(color, 4);
 }
 
-export function contrast(first: string, second: string): number {
+function contrast(first: string, second: string): number {
 	const [light, dark] = [luminance(first), luminance(second)].sort((a, b) => b - a);
 	return ((light ?? 0) + 0.05) / ((dark ?? 0) + 0.05);
 }
