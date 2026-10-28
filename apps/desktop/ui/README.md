@@ -26,6 +26,10 @@ Les textes sont dans `locales/fr.json` et `locales/en.json` (racine du dépôt) 
 
 Langue au démarrage : première entrée de `navigator.languages` prise en charge, sinon l'anglais. Ce que WebView2 (Windows) et WebKitGTK (Linux) exposent dans `navigator.languages` est **non vérifié** : à contrôler sur les machines de validation.
 
+## Thèmes
+
+Trois choix : `light`, `dark`, `system` (`src/lib/theme/`). `system` suit l'OS quand il change (`prefers-color-scheme`) ; le thème appliqué est l'attribut `data-theme` de `<html>`, lu par `breathly.css`. `startThemeSync()` est lancé par la mise en page ; `setThemePreference()` change le choix. Le choix n'est pas encore conservé à la réouverture ni proposé à l'écran : le sélecteur et les réglages arrivent avec le ticket #47. `contrast.test.ts` calcule le contraste des paires de jetons des deux thèmes (4,5:1 pour le texte, 3:1 pour les composants graphiques). La mise en page coupe animations et transitions sous `prefers-reduced-motion`.
+
 ## Notes
 
 - Les imports internes passent par l'alias de sous-chemin `#lib/…` (SvelteKit 3), déclaré dans `package.json` : écrire `#lib/brand.js` pour `src/lib/brand.ts`.
