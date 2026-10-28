@@ -32,7 +32,7 @@ TypeScript strict **[machine]** (`svelte-check`) ; `any` interdit (`@typescript-
 
 ## 5. Textes
 
-Aucune chaîne affichée n'est écrite dans un composant : tout passe par une **clé typée** du chargeur (`t('home.analyze')`). Nombres, pluriels et unités par `Intl` (Go/Mo en français, GB/MB en anglais). Un test vérifie que chaque clé existe en FR et en EN et qu'aucune clé n'est orpheline (US-002.3) **[machine]** (`src/lib/i18n/cles.test.ts`). Une chaîne en dur dans un composant n'est pas détectée par la machine : **[relecture]**. Vocabulaire du `GLOSSARY.md` : « logiciel », jamais « application ».
+Aucune chaîne affichée n'est écrite dans un composant : tout passe par une **clé typée** du chargeur (`t('home.analyze')`). Nombres, pluriels et unités par `Intl` (Go/Mo en français, GB/MB en anglais). Un test vérifie que chaque clé existe en FR et en EN et qu'aucune clé n'est orpheline (US-002.3) **[machine]** (`src/lib/i18n/keys.test.ts`). Une chaîne en dur dans un composant n'est pas détectée par la machine : **[relecture]**. Vocabulaire du `GLOSSARY.md` : « logiciel », jamais « application ».
 
 ## 6. Styles et thèmes
 

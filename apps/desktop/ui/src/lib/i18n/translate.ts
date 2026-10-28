@@ -15,10 +15,14 @@ function pickForm(message: Message, values: Values, locale: Locale): string {
 	return message[typeof count === 'number' ? selectPlural(count, locale) : 'other'];
 }
 
-export function translate(locale: Locale, key: MessageKey, values: Values = {}): string {
-	const template = pickForm(CATALOGS[locale][key], values, locale);
+export function renderMessage(message: Message, locale: Locale, values: Values = {}): string {
+	const template = pickForm(message, values, locale);
 	return template.replace(/\{(\w+)\}/g, (placeholder, name: string) => {
 		const value = values[name];
 		return value === undefined ? placeholder : renderValue(name, value, locale);
 	});
+}
+
+export function translate(locale: Locale, key: MessageKey, values?: Values): string {
+	return renderMessage(CATALOGS[locale][key], locale, values);
 }

@@ -1,8 +1,3 @@
 {
-	"home.analyze": "Analyze",
-	"home.filesFound": {
-		"one": "{count} file found",
-		"other": "{count} files found"
-	},
-	"home.spaceFreed": "{size} freed"
+	"app.tagline": "Let your PC breathe."
 }

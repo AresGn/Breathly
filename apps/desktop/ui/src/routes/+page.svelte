@@ -1,15 +1,18 @@
 <script lang="ts">
 	import { APP_NAME } from '#lib/brand.js';
+	import { t } from '#lib/i18n/i18n.svelte.js';
 </script>
 
 <main>
 	<h1>{APP_NAME}</h1>
+	<p>{t('app.tagline')}</p>
 </main>
 
 <style>
 	main {
 		display: grid;
-		place-items: center;
+		place-content: center;
+		justify-items: center;
 		min-height: 100vh;
 	}
 

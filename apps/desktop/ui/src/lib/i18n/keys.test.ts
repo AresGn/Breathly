@@ -13,6 +13,8 @@ function sourceFiles(dir: string): string[] {
 	});
 }
 
+// Reconnaît seulement `'clé'` entre apostrophes : une clé construite (`risk.${level}`) sera
+// signalée orpheline à tort, ce qui est le cas sûr ; écrire la clé en entier.
 function isReferenced(key: string, sources: readonly string[]): boolean {
 	return sources.some((source) => source.includes(`'${key}'`));
 }
@@ -30,9 +32,9 @@ describe('clés de traduction (US-002.3)', () => {
 		}
 	});
 
-	it('aucune clé n’est orpheline : chacune est utilisée dans src/', () => {
+	it('aucune clé n’est orpheline : chacune est utilisée hors des tests', () => {
 		const sources = sourceFiles(SRC)
-			.filter((path) => !path.endsWith('cles.test.ts'))
+			.filter((path) => !path.endsWith('.test.ts'))
 			.map((path) => readFileSync(path, 'utf8'));
 		const orphans = Object.keys(CATALOGS.fr).filter((key) => !isReferenced(key, sources));
 		expect(orphans).toEqual([]);

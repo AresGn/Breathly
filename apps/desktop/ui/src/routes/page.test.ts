@@ -7,4 +7,9 @@ describe('coquille de l’interface', () => {
 		render(Page);
 		expect(screen.getByRole('heading', { level: 1, name: 'Breathly' })).toBeInTheDocument();
 	});
+
+	it('affiche la phrase d’accroche traduite', () => {
+		render(Page);
+		expect(screen.getByText(/PC/)).toBeInTheDocument();
+	});
 });

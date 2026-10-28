@@ -22,7 +22,7 @@ Une coquille : une page qui affiche le nom du produit avec les jetons de design 
 
 ## Textes
 
-Les textes sont dans `locales/fr.json` et `locales/en.json` (racine du dépôt) : un objet plat `"clé": "texte"`, ou `{ "one": …, "other": … }` pour un pluriel (paramètre `count`). `{size}` reçoit un nombre d'octets écrit par `Intl` (Go et Mo en français, GB et MB en anglais). `src/lib/i18n/` expose `t('clé', { … })` : la clé est typée d'après `fr.json`, et `en.json` doit avoir les mêmes clés (typage et `cles.test.ts`). `setLocale()` change la langue sans redémarrer.
+Les textes sont dans `locales/fr.json` et `locales/en.json` (racine du dépôt) : un objet plat `"clé": "texte"`, ou `{ "one": …, "other": … }` pour un pluriel (paramètre `count`). `{size}` reçoit un nombre d'octets écrit par `Intl` (Go et Mo en français, GB et MB en anglais). `src/lib/i18n/` expose `t('clé', { … })` : la clé est typée d'après `fr.json`, et `en.json` doit avoir les mêmes clés (typage et `keys.test.ts`). `setLocale()` change la langue sans redémarrer.
 
 Langue au démarrage : première entrée de `navigator.languages` prise en charge, sinon l'anglais. Ce que WebView2 (Windows) et WebKitGTK (Linux) exposent dans `navigator.languages` est **non vérifié** : à contrôler sur les machines de validation.
 
