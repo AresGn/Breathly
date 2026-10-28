@@ -20,6 +20,12 @@ make check                            # contrôles avant PR (lint, typage, tests
 
 Une coquille : une page qui affiche le nom du produit avec les jetons de design (`src/lib/styles/breathly.css`, issu des maquettes). Les écrans arrivent avec les tickets de la V0.1. Les polices des maquettes (Bricolage Grotesque, Hanken Grotesk, DM Mono) ne sont **pas encore embarquées** : le texte utilise les polices de repli du système jusqu'à ce que les fichiers WOFF2 et leur licence soient ajoutés.
 
+## Textes
+
+Les textes sont dans `locales/fr.json` et `locales/en.json` (racine du dépôt) : un objet plat `"clé": "texte"`, ou `{ "one": …, "other": … }` pour un pluriel (paramètre `count`). `{size}` reçoit un nombre d'octets écrit par `Intl` (Go et Mo en français, GB et MB en anglais). `src/lib/i18n/` expose `t('clé', { … })` : la clé est typée d'après `fr.json`, et `en.json` doit avoir les mêmes clés (typage et `cles.test.ts`). `setLocale()` change la langue sans redémarrer.
+
+Langue au démarrage : première entrée de `navigator.languages` prise en charge, sinon l'anglais. Ce que WebView2 (Windows) et WebKitGTK (Linux) exposent dans `navigator.languages` est **non vérifié** : à contrôler sur les machines de validation.
+
 ## Notes
 
 - Les imports internes passent par l'alias de sous-chemin `#lib/…` (SvelteKit 3), déclaré dans `package.json` : écrire `#lib/brand.js` pour `src/lib/brand.ts`.

@@ -1,0 +1,8 @@
+{
+	"home.analyze": "Analyser",
+	"home.filesFound": {
+		"one": "{count} fichier trouvé",
+		"other": "{count} fichiers trouvés"
+	},
+	"home.spaceFreed": "{size} libérés"
+}
