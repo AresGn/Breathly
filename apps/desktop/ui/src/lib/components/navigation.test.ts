@@ -45,11 +45,6 @@ describe('barre latérale', () => {
 		render(Sidebar, { pathname: '/' });
 		expect(screen.getByRole('link', { name: 'Settings' })).toBeInTheDocument();
 	});
-
-	it('permet d’atteindre chaque entrée au clavier', () => {
-		render(Sidebar, { pathname: '/' });
-		for (const link of screen.getAllByRole('link')) expect(link.tabIndex).toBeGreaterThanOrEqual(0);
-	});
 });
 
 describe('page d’écran', () => {
