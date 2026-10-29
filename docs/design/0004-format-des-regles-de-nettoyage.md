@@ -29,7 +29,7 @@ command     = "npm cache clean --force"                # facultatif, affiché en
 
 | Champ | Obligatoire | Contenu |
 |---|---|---|
-| `id` | oui | minuscules ASCII, chiffres, tirets isolés ; 64 caractères au plus ; unique dans l'ensemble des règles |
+| `id` | oui | minuscules ASCII, chiffres, tirets isolés ; 64 caractères au plus ; unique dans l'ensemble des règles (vérifié dans un fichier par `parse_cleanup_rules` ; entre fichiers, au chargement intégré au binaire, ticket #32) |
 | `name.fr`, `name.en` | oui | nom court, non vide |
 | `explain.fr`, `explain.en` | oui | explication en langage simple, non vide (US-024.2) |
 | `risk` | oui | `safe` 🟢, `review` 🟡, `personal` 🔴 (jamais sélectionnable) ; `safe` est réservé à la forme `folder` (§2) |
