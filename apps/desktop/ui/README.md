@@ -18,7 +18,11 @@ make check                            # contrôles avant PR (lint, typage, tests
 
 ## Contenu actuel
 
-Une coquille : une page qui affiche le nom du produit avec les jetons de design (`src/lib/styles/breathly.css`, issu des maquettes). Les écrans arrivent avec les tickets de la V0.1. Les polices des maquettes (Bricolage Grotesque, Hanken Grotesk, DM Mono) ne sont **pas encore embarquées** : le texte utilise les polices de repli du système jusqu'à ce que les fichiers WOFF2 et leur licence soient ajoutés.
+Une coquille de navigation : une route par écran de l'inventaire V0.1 (design 0003 §5, hors T1), une barre latérale et un titre par écran ; les contenus arrivent avec les tickets suivants. Les jetons de design sont dans `src/lib/styles/breathly.css` (issus des maquettes). Les polices des maquettes (Bricolage Grotesque, Hanken Grotesk, DM Mono) ne sont **pas encore embarquées** : le texte utilise les polices de repli du système jusqu'à ce que les fichiers WOFF2 et leur licence soient ajoutés.
+
+## Écrans et navigation
+
+`src/lib/navigation/screens.ts` est l'inventaire : identifiant (H1, D1…), chemin, entrée de barre latérale et clé du titre. Chaque écran a un `src/routes/…/+page.svelte` qui n'affiche que `<ScreenPage id="…" />` ; pour ajouter un écran, l'ajouter à `SCREENS`, créer sa route et ses deux titres dans `locales/`. `screens.test.ts` échoue si l'inventaire, les routes et le design 0003 §5 divergent. La barre latérale (`Sidebar.svelte`) liste Accueil, Diagnostic, Espace disque, Historique, Réglages, dans cet ordre ; les écrans de nettoyage (N1 à N5) restent sous « Espace disque ». Au changement d'écran, `ScreenPage` place le focus sur le titre `h1`. Le focus visible et l'activation au clavier de la barre latérale sont à contrôler à la main sur les machines de validation.
 
 ## Textes
 
