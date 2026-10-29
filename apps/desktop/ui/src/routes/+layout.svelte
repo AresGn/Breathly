@@ -1,5 +1,7 @@
 <script lang="ts">
 	import '#lib/styles/breathly.css';
+	import { page } from '$app/state';
+	import Sidebar from '#lib/components/Sidebar.svelte';
 	import { startThemeSync } from '#lib/theme/theme.svelte.js';
 	import { onDestroy, type Snippet } from 'svelte';
 
@@ -9,9 +11,17 @@
 	onDestroy(startThemeSync());
 </script>
 
-{@render children()}
+<div class="app">
+	<Sidebar pathname={page.url.pathname} />
+	{@render children()}
+</div>
 
 <style>
+	.app {
+		display: flex;
+		min-height: 100vh;
+	}
+
 	:global(body) {
 		margin: 0;
 		background: var(--color-bg);
