@@ -32,7 +32,7 @@ command     = "npm cache clean --force"                # facultatif, affiché en
 | `id` | oui | minuscules ASCII, chiffres, tirets isolés ; 64 caractères au plus ; unique dans l'ensemble des règles |
 | `name.fr`, `name.en` | oui | nom court, non vide |
 | `explain.fr`, `explain.en` | oui | explication en langage simple, non vide (US-024.2) |
-| `risk` | oui | `safe` 🟢, `review` 🟡, `personal` 🔴 (jamais sélectionnable) |
+| `risk` | oui | `safe` 🟢, `review` 🟡, `personal` 🔴 (jamais sélectionnable) ; `safe` est réservé à la forme `folder` (§2) |
 | `os` | oui | `linux`, `windows` ; au moins un, sans doublon (macOS : après la V1.0, PRD §0) |
 | `kind` | oui | une des quatre formes du §2 ; jamais déduite |
 | `paths.linux`, `paths.windows` | selon la forme | une liste non vide **par système de `os`**, et aucune pour un système absent de `os` |
@@ -52,7 +52,8 @@ Rien n'est corrigé en silence (SEC5) : un champ inconnu, un champ d'une autre f
 | `system-trash` | le contenu de la corbeille du système (vidage confirmé, ADR 0005) | **aucun** : un chemin, même vide, refuse la règle | corbeille (🟡) |
 
 - `folder` et `marker` sont un seul nom : pas de `/`, pas de `.` ni `..`, pas de `.git`, pas d'un dossier protégé.
-- `extensions` : minuscules ASCII et chiffres, sans le point, 16 caractères au plus. La comparaison avec les fichiers du disque se fera sans tenir compte de la casse (`.AppImage`). Les extensions de conteneurs chiffrés (`hc`, `vc`, `kdbx`) sont refusées (S5).
+- `extensions` : minuscules ASCII et chiffres, sans le point, 16 caractères au plus. La comparaison avec les fichiers du disque se fera sans tenir compte de la casse (`.AppImage`). Les extensions de conteneurs chiffrés, de coffres et de clés sont refusées (S5, dont la liste se termine par « … ») : `hc`, `vc`, `tc`, `kdbx`, `kdb`, `luks`, `gpg`, `pgp`, `age`, `key`.
+- **Niveau de risque selon la forme.** `safe` 🟢 n'est accepté que pour `folder` : un dossier de projet, un installeur et le contenu de la corbeille sont 🟡 au moins (GLOSSARY, PRD §8), et seuls les caches 🟢 se suppriment définitivement (S3). Le code de suppression peut donc se fier au niveau de risque d'une règle validée.
 
 ## 3. Chemins autorisés
 
@@ -70,15 +71,16 @@ Sont refusés (`PathRefusal`) :
 
 - tout autre début : chemin absolu, racine du disque (`/`, `C:/`), variable non listée (`$HOME`, `%PROGRAMDATA%`), chemin relatif ;
 - une racine de l'autre système (`%TEMP%` dans `paths.linux`) ;
-- **la racine seule** (`~`, `%USERPROFILE%`) pour une cible nettoyée ; elle n'est permise que comme dossier de recherche d'une règle `marked-folder`, où seul le dossier nommé, reconnu par son fichier marqueur, est proposé ;
+- **la racine seule** (`~`, `%USERPROFILE%`, `%LOCALAPPDATA%`, `%APPDATA%`) pour une cible nettoyée ; elle n'est permise que comme dossier de recherche d'une règle `marked-folder`, où seul le dossier nommé, reconnu par son fichier marqueur, est proposé. **Exception : `%TEMP%` seul** est une cible permise (fichiers temporaires, PRD §8) ;
 - un nom vide, `.` ou `..` (pas de remontée, pas de `//`, pas de `/` final) ;
 - `\`, `:`, `*`, `?`, `<`, `>`, `"`, `|` et les caractères de contrôle : pas de motif, pas de lecteur, pas de flux NTFS ;
+- un nom qui finit par un point ou une espace : Windows les retire, `Documents.` ou `.git ` désigneraient le dossier protégé ;
 - un premier dossier protégé sous `~` ou `%USERPROFILE%` : `Documents`, `Images`, `Pictures`, `Vidéos`, `Videos`, `Musique`, `Music`, `Bureau`, `Desktop`, sans tenir compte de la casse (S5) ;
 - un dossier `.git` à n'importe quel niveau (S5).
 
 `Windows.old` (V0.4, droits administrateur) n'a pas de racine autorisée en V0.1 : il en faudra une, avec l'ADR 0006.
 
-**Ce que la validation statique ne garantit pas**, et qui reste aux garde-fous de `breathly-disk`, revérifiés pour chaque élément au moment d'agir (S5, SEC2) : les profils de navigateur (sous Windows, le cache de Chromium est **dans** le dossier du profil, `User Data/Default/Cache` : un refus par préfixe bloquerait des règles légitimes), les conteneurs chiffrés trouvés dans un dossier, les fichiers ouverts, les liens symboliques et les jonctions (ADR 0019), les dossiers de l'utilisateur déplacés ou renommés par la langue du système.
+**Ce que la validation statique ne garantit pas**, et qui reste aux garde-fous de `breathly-disk`, revérifiés pour chaque élément au moment d'agir (S5, SEC2) : les profils de navigateur (sous Windows, le cache de Chromium est **dans** le dossier du profil, `User Data/Default/Cache` : un refus par préfixe bloquerait des règles légitimes), les conteneurs chiffrés trouvés dans un dossier, les fichiers ouverts, les liens symboliques et les jonctions (ADR 0019), les noms courts 8.3 de Windows (`DOCUME~1`), les dossiers de l'utilisateur déplacés ou renommés par la langue du système.
 
 ## 4. Erreurs
 
@@ -87,17 +89,18 @@ Sont refusés (`PathRefusal`) :
 | Code | Cas |
 |---|---|
 | `rules.unreadable` | le fichier n'est pas du TOML |
-| `rules.unknown_top_level_key`, `rules.no_rule` | clé hors d'une règle, aucune règle |
+| `rules.unknown_top_level_key`, `rules.no_rule`, `rules.rule_not_a_list` | clé hors d'une règle, aucune règle, `rule` qui n'est pas une liste de tables `[[rule]]` |
 | `rules.duplicate_id` | deux règles avec le même `id` |
 | `rules.unknown_field` | champ inconnu, y compris dans `name`, `explain`, `paths` |
 | `rules.missing_field`, `rules.missing_text` | champ obligatoire absent ; texte FR ou EN absent ou vide |
 | `rules.wrong_type`, `rules.invalid_id`, `rules.empty_value`, `rules.duplicate_value` | valeur mal formée |
 | `rules.unknown_risk_level`, `rules.unknown_os`, `rules.unknown_kind` | valeur hors de la liste |
 | `rules.field_not_allowed_for_kind`, `rules.paths_for_system_trash` | champ d'une autre forme |
+| `rules.risk_not_allowed_for_kind` | `safe` sur une autre forme que `folder` |
 | `rules.missing_paths_for_os`, `rules.paths_for_unlisted_os`, `rules.invalid_path` | chemins |
 | `rules.invalid_name`, `rules.invalid_extension` | `folder`, `marker`, `extensions` |
 
-Ces messages s'adressent aux contributeurs (validation en CI, ADR 0004) ; l'utilisateur ne voit jamais une règle invalide, puisqu'elle n'entre pas dans le binaire.
+Les messages citent les champs et les systèmes par leur nom TOML (`explain.en`, `paths.windows`). Ces messages s'adressent aux contributeurs (validation en CI, ADR 0004) ; l'utilisateur ne voit jamais une règle invalide, puisqu'elle n'entre pas dans le binaire.
 
 ## 5. Questions ouvertes
 

@@ -35,7 +35,8 @@ pub fn parse_cleanup_rules(source: &str) -> Result<Vec<Rule>, RulesError> {
     }
     let entries = match document.remove("rule") {
         Some(toml::Value::Array(entries)) if !entries.is_empty() => entries,
-        Some(_) | None => return Err(RulesError::NoRule),
+        Some(toml::Value::Array(_)) | None => return Err(RulesError::NoRule),
+        Some(_) => return Err(RulesError::RuleNotAList),
     };
     let rules = entries
         .into_iter()

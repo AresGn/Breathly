@@ -4,6 +4,8 @@
 //! navigateur, conteneur chiffré, fichier ouvert, lien symbolique) sont revérifiés pour chaque élément au moment
 //! d'agir, dans `breathly-disk`.
 
+use std::fmt;
+
 use crate::rule::Os;
 
 /// Dossiers de l'utilisateur protégés (S5), en minuscules, en français et en anglais.
@@ -64,6 +66,14 @@ impl PathRoot {
         }
     }
 
+    /// Racine dont le contenu entier peut être une cible : seulement les fichiers temporaires (PRD §8).
+    const fn may_be_cleaned_whole(self) -> bool {
+        match self {
+            Self::Temp => true,
+            Self::Home | Self::LocalAppData | Self::AppData | Self::UserProfile => false,
+        }
+    }
+
     /// Racine qui contient `Documents`, `Images`, etc. directement.
     const fn holds_user_folders(self) -> bool {
         match self {
@@ -99,16 +109,33 @@ pub enum PathRefusal {
     OutsideAllowedRoots,
     /// Racine d'un autre système que celui de la liste (`%TEMP%` dans `paths.linux`).
     RootOfOtherOs,
-    /// La racine seule : un dossier personnel entier n'est jamais une cible.
+    /// La racine seule, hors `%TEMP%` : un dossier personnel ou de données entier n'est jamais une cible.
     RootItself,
     /// Nom vide, `.` ou `..` : le chemin doit être écrit sous sa forme simple.
     NotNormalized,
-    /// Séparateur (`\` partout, `/` dans un nom seul), motif (`*`, `?`) ou caractère interdit par Windows.
+    /// Séparateur (`\` partout, `/` dans un nom seul), motif (`*`, `?`), caractère interdit par Windows, ou point
+    /// ou espace final (que Windows retire : `Documents.` désigne `Documents`).
     ForbiddenCharacter,
     /// Dossier protégé de l'utilisateur (S5).
     ProtectedFolder,
     /// Dossier `.git` (S5).
     GitFolder,
+}
+
+impl fmt::Display for PathRefusal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::OutsideAllowedRoots => {
+                "doit commencer par ~ (Linux) ou %LOCALAPPDATA%, %APPDATA%, %TEMP%, %USERPROFILE% (Windows)"
+            }
+            Self::RootOfOtherOs => "racine d'un autre système",
+            Self::RootItself => "la racine seule n'est pas une cible (sauf %TEMP%)",
+            Self::NotNormalized => "nom vide, « . » ou « .. »",
+            Self::ForbiddenCharacter => "caractère interdit, motif, ou point ou espace final",
+            Self::ProtectedFolder => "dossier protégé de l'utilisateur (S5)",
+            Self::GitFolder => "dossier .git (S5)",
+        })
+    }
 }
 
 /// Place d'un chemin dans la règle : cible nettoyée, ou dossier où l'on cherche des dossiers de projet.
@@ -136,7 +163,7 @@ pub(crate) fn parse_rule_path(
     components
         .iter()
         .try_for_each(|name| check_component(name))?;
-    if components.is_empty() && placement == Placement::Cleaned {
+    if components.is_empty() && placement == Placement::Cleaned && !root.may_be_cleaned_whole() {
         return Err(PathRefusal::RootItself);
     }
     let is_user_folder = components
@@ -161,10 +188,10 @@ fn check_component(name: &str) -> Result<(), PathRefusal> {
     if name.is_empty() || name == "." || name == ".." {
         return Err(PathRefusal::NotNormalized);
     }
-    if name
+    let has_forbidden = name
         .chars()
-        .any(|c| c.is_control() || FORBIDDEN_CHARACTERS.contains(&c))
-    {
+        .any(|c| c.is_control() || FORBIDDEN_CHARACTERS.contains(&c));
+    if has_forbidden || name.ends_with(['.', ' ']) {
         return Err(PathRefusal::ForbiddenCharacter);
     }
     if name.eq_ignore_ascii_case(".git") {

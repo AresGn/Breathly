@@ -10,8 +10,10 @@ use crate::rule::{
     InformativeCommand, LocalizedText, Os, PathsByOs, RiskLevel, Rule, RuleId, Target,
 };
 
-/// Extensions de conteneurs chiffrés, jamais nettoyables (S5).
-const ENCRYPTED_CONTAINER_EXTENSIONS: [&str; 3] = ["hc", "vc", "kdbx"];
+/// Extensions de conteneurs chiffrés, de coffres et de clés, jamais nettoyables (S5, liste « … » élargie).
+const ENCRYPTED_CONTAINER_EXTENSIONS: [&str; 10] = [
+    "hc", "vc", "tc", "kdbx", "kdb", "luks", "gpg", "pgp", "age", "key",
+];
 const EXTENSION_MAX_LEN: usize = 16;
 
 /// Forme d'une règle, telle qu'écrite dans `kind`.
@@ -64,6 +66,7 @@ pub(crate) fn validate(raw: RawRule) -> Result<Rule, RuleDefect> {
     let systems = systems(required(raw.os, Field::Os)?)?;
     let kind = required(raw.kind, Field::Kind)?;
     let kind = Kind::parse(&kind).ok_or(RuleDefect::UnknownKind { value: kind })?;
+    check_risk_for_kind(risk, kind)?;
     let fields = TargetFields {
         paths: raw.paths,
         folder: raw.folder,
@@ -98,6 +101,20 @@ fn localized(raw: Option<RawText>, field: Field) -> Result<LocalizedText, RuleDe
         text(raw.fr, Language::Fr)?,
         text(raw.en, Language::En)?,
     ))
+}
+
+/// 🟢 seulement pour un dossier entier (un cache) : le reste est 🟡 au moins (GLOSSARY, PRD §8), et seuls les
+/// caches 🟢 se suppriment définitivement (S3).
+fn check_risk_for_kind(risk: RiskLevel, kind: Kind) -> Result<(), RuleDefect> {
+    let is_allowed = match risk {
+        RiskLevel::Safe => matches!(kind, Kind::Folder),
+        RiskLevel::Review | RiskLevel::Personal => true,
+    };
+    if is_allowed {
+        Ok(())
+    } else {
+        Err(RuleDefect::RiskNotAllowedForKind { risk })
+    }
 }
 
 fn systems(raw: Vec<String>) -> Result<Vec<Os>, RuleDefect> {

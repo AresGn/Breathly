@@ -1,6 +1,7 @@
 //! Règle de nettoyage validée : le type ne peut représenter qu'une règle complète et cohérente.
 
 use std::collections::BTreeMap;
+use std::fmt;
 
 use crate::error::RuleDefect;
 use crate::path::RulePath;
@@ -70,6 +71,12 @@ impl RiskLevel {
     }
 }
 
+impl fmt::Display for RiskLevel {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.key())
+    }
+}
+
 /// Système d'exploitation visé par une règle (PRD §0 point 1 : Windows et Linux).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Os {
@@ -90,6 +97,12 @@ impl Os {
             Self::Linux => "linux",
             Self::Windows => "windows",
         }
+    }
+}
+
+impl fmt::Display for Os {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.key())
     }
 }
 

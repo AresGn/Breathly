@@ -8,7 +8,7 @@ use std::fmt;
 use thiserror::Error;
 
 use crate::path::PathRefusal;
-use crate::rule::{Os, RuleId};
+use crate::rule::{Os, RiskLevel, RuleId};
 
 /// Code stable et clé de traduction qui s'en déduit (`errors.<code>`).
 macro_rules! names {
@@ -49,10 +49,37 @@ pub enum Field {
     Command,
 }
 
+impl fmt::Display for Field {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::Id => "id",
+            Self::Name => "name",
+            Self::Explain => "explain",
+            Self::Risk => "risk",
+            Self::Os => "os",
+            Self::Kind => "kind",
+            Self::Paths => "paths",
+            Self::Folder => "folder",
+            Self::Marker => "marker",
+            Self::Extensions => "extensions",
+            Self::Command => "command",
+        })
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Language {
     Fr,
     En,
+}
+
+impl fmt::Display for Language {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::Fr => "fr",
+            Self::En => "en",
+        })
+    }
 }
 
 /// Ce qui rend une règle invalide.
@@ -60,9 +87,9 @@ pub enum Language {
 pub enum RuleDefect {
     #[error("champ inconnu « {field} »")]
     UnknownField { field: String },
-    #[error("champ obligatoire absent : {field:?}")]
+    #[error("champ obligatoire absent : « {field} »")]
     MissingField { field: Field },
-    #[error("texte {language:?} absent ou vide dans {field:?}")]
+    #[error("texte « {field}.{language} » absent ou vide")]
     MissingText { field: Field, language: Language },
     #[error("valeur de mauvais type : {detail}")]
     WrongType { detail: String },
@@ -78,23 +105,23 @@ pub enum RuleDefect {
         "forme inconnue « {value} » (folder, marked-folder, files-by-extension ou system-trash)"
     )]
     UnknownKind { value: String },
-    #[error("valeur en double dans {field:?}")]
+    #[error("valeur en double dans « {field} »")]
     DuplicateValue { field: Field },
-    #[error("champ {field:?} sans objet pour cette forme de règle")]
+    #[error("champ « {field} » sans objet pour cette forme de règle")]
     FieldNotAllowedForKind { field: Field },
-    #[error("aucun chemin pour le système {os:?}")]
+    #[error("aucun chemin pour le système « {os} » (paths.{os})")]
     MissingPathsForOs { os: Os },
-    #[error("chemins pour {os:?}, absent de la liste `os`")]
+    #[error("chemins pour « {os} », absent de la liste os")]
     PathsForUnlistedOs { os: Os },
     #[error("la corbeille du système n'accepte aucun chemin")]
     PathsForSystemTrash,
-    #[error("chemin refusé « {path} » ({os:?}) : {refusal:?}")]
+    #[error("chemin refusé « {path} » (paths.{os}) : {refusal}")]
     InvalidPath {
         os: Os,
         path: String,
         refusal: PathRefusal,
     },
-    #[error("nom refusé « {value} » dans {field:?} : {refusal:?}")]
+    #[error("nom refusé « {value} » dans « {field} » : {refusal}")]
     InvalidName {
         field: Field,
         value: String,
@@ -104,7 +131,11 @@ pub enum RuleDefect {
         "extension refusée « {value} » (lettres et chiffres, sans point ; jamais un conteneur chiffré)"
     )]
     InvalidExtension { value: String },
-    #[error("champ {field:?} vide")]
+    #[error(
+        "niveau « {risk} » interdit pour cette forme : safe est réservé à la forme folder (S3)"
+    )]
+    RiskNotAllowedForKind { risk: RiskLevel },
+    #[error("champ « {field} » vide")]
     EmptyValue { field: Field },
 }
 
@@ -127,6 +158,7 @@ impl RuleDefect {
             Self::InvalidPath { .. } => names!("rules.invalid_path"),
             Self::InvalidName { .. } => names!("rules.invalid_name"),
             Self::InvalidExtension { .. } => names!("rules.invalid_extension"),
+            Self::RiskNotAllowedForKind { .. } => names!("rules.risk_not_allowed_for_kind"),
             Self::EmptyValue { .. } => names!("rules.empty_value"),
         }
     }
@@ -141,6 +173,8 @@ pub enum RulesError {
     UnknownTopLevelKey { key: String },
     #[error("aucune règle `[[rule]]` dans le fichier")]
     NoRule,
+    #[error("« rule » doit être une liste de tables `[[rule]]`")]
+    RuleNotAList,
     #[error("identifiant en double : « {} »", id.as_str())]
     DuplicateId { id: RuleId },
     #[error("règle {rule} : {defect}")]
@@ -165,6 +199,7 @@ impl RulesError {
             Self::Unreadable { .. } => names!("rules.unreadable"),
             Self::UnknownTopLevelKey { .. } => names!("rules.unknown_top_level_key"),
             Self::NoRule => names!("rules.no_rule"),
+            Self::RuleNotAList => names!("rules.rule_not_a_list"),
             Self::DuplicateId { .. } => names!("rules.duplicate_id"),
             Self::InvalidRule { defect, .. } => defect.names(),
         }

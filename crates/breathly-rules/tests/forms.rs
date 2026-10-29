@@ -172,6 +172,7 @@ fn a_marked_folder_rule_may_search_the_whole_home_folder() {
 fn a_marked_folder_rule_needs_a_simple_folder_name_and_a_marker() {
     let base = [
         ("kind", Some(r#""marked-folder""#)),
+        ("risk", Some(r#""review""#)),
         ("folder", Some(r#""target""#)),
     ];
     let defect = defect_of(parse_cleanup_rules(&linux_rule(&base)), "npm-cache");
@@ -199,6 +200,7 @@ fn a_marked_folder_rule_needs_a_simple_folder_name_and_a_marker() {
 fn a_files_by_extension_rule_lists_plain_extensions() {
     let installers = [
         ("kind", Some(r#""files-by-extension""#)),
+        ("risk", Some(r#""review""#)),
         ("extensions", Some(r#"["deb", "appimage"]"#)),
         (
             "paths.linux",
@@ -210,7 +212,13 @@ fn a_files_by_extension_rule_lists_plain_extensions() {
         matches!(rules[0].target(), Target::FilesByExtension { extensions, .. } if extensions.len() == 2)
     );
 
-    for refused in [r#"[".deb"]"#, r#"["kdbx"]"#, r#"["DEB"]"#, "[]"] {
+    for refused in [
+        r#"[".deb"]"#,
+        r#"["kdbx"]"#,
+        r#"["gpg"]"#,
+        r#"["DEB"]"#,
+        "[]",
+    ] {
         let file = linux_rule(&[installers.as_slice(), &[("extensions", Some(refused))]].concat());
         let defect = defect_of(parse_cleanup_rules(&file), "npm-cache");
         assert!(
@@ -227,6 +235,7 @@ fn a_files_by_extension_rule_lists_plain_extensions() {
 fn the_system_trash_rule_has_no_path() {
     let trash = [
         ("kind", Some(r#""system-trash""#)),
+        ("risk", Some(r#""review""#)),
         ("paths.linux", None),
         ("paths.windows", None),
     ];
@@ -236,7 +245,11 @@ fn the_system_trash_rule_has_no_path() {
 
 #[test]
 fn a_system_trash_rule_with_a_path_is_refused() {
-    let file = rule_file(&[("kind", Some(r#""system-trash""#)), ("paths.windows", None)]);
+    let file = rule_file(&[
+        ("kind", Some(r#""system-trash""#)),
+        ("risk", Some(r#""review""#)),
+        ("paths.windows", None),
+    ]);
     let defect = defect_of(parse_cleanup_rules(&file), "npm-cache");
     assert_eq!(defect, RuleDefect::PathsForSystemTrash);
 }
