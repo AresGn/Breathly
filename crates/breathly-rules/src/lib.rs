@@ -1,8 +1,10 @@
 //! Module `rules` : format et validation des règles de nettoyage (TOML intégré au binaire, ADR 0004).
 //!
-//! Format : `docs/design/0004-format-des-regles-de-nettoyage.md`. Le champ `command` est lu et conservé pour
-//! l'affichage en mode avancé ; ce crate ne lance jamais de programme (SEC6).
+//! Les fichiers `rules/*.toml` du dépôt sont intégrés à la compilation (`build.rs`) : aucun dossier de règles
+//! n'est lu à l'exécution. Format : `docs/design/0004-format-des-regles-de-nettoyage.md`. Le champ `command`
+//! est lu et conservé pour l'affichage en mode avancé ; ce crate ne lance jamais de programme (SEC6).
 
+mod embedded;
 mod error;
 mod path;
 mod raw;
@@ -11,6 +13,7 @@ mod validate;
 
 use std::collections::BTreeSet;
 
+pub use embedded::{embedded_rule_file_names, load_cleanup_rules};
 pub use error::{Field, Language, RuleDefect, RuleRef, RulesError};
 pub use path::{PathRefusal, PathRoot, RulePath};
 pub use rule::{InformativeCommand, LocalizedText, Os, PathsByOs, RiskLevel, Rule, RuleId, Target};
