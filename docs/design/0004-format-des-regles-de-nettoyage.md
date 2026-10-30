@@ -1,6 +1,6 @@
 # Design 0004 : format des règles de nettoyage
 
-- **Statut** : proposé, à approuver par le propriétaire avant fusion (PRD §14 : « changement du format des règles »)
+- **Statut** : approuvé par le propriétaire (AresGn) le 2026-10-30, sur la PR #166 (PRD §14 : « changement du format des règles »)
 - **Date** : 2026-10-29
 - **Sources** : `docs/PRD.md` §8 et S5, `docs/stories.md` US-060.1, US-060.2, US-060.4, US-024.2, ADR 0004, ADR 0005, `docs/policies/securite.md` SEC5 et SEC6, `docs/policies/modele-de-menaces.md` TS-09, ticket #31
 - **Code** : `crates/breathly-rules` (`parse_cleanup_rules`) ; tests dans `crates/breathly-rules/tests/`
