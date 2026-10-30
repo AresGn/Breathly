@@ -180,6 +180,7 @@ pub enum RulesError {
     #[error("fichier de règles « {file} » : {error}")]
     InvalidFile {
         file: String,
+        #[source]
         error: Box<RulesError>,
     },
     #[error("règle {rule} : {defect}")]

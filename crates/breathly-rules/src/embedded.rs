@@ -8,6 +8,12 @@ use crate::{parse_cleanup_rules, reject_duplicate_ids};
 const EMBEDDED_RULE_FILES: &[(&str, &str)] =
     include!(concat!(env!("OUT_DIR"), "/embedded_rules.rs"));
 
+/// Noms des fichiers de `rules/` intégrés au binaire, triés : permet de vérifier qu'aucun fichier du dossier n'a
+/// été laissé de côté.
+pub fn embedded_rule_file_names() -> impl Iterator<Item = &'static str> {
+    EMBEDDED_RULE_FILES.iter().map(|&(file, _)| file)
+}
+
 /// Règles de nettoyage livrées avec Breathly, validées. Un identifiant ne peut apparaître qu'une fois, tous
 /// fichiers confondus.
 ///
