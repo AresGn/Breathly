@@ -1,0 +1,36 @@
+# Règles propres à Windows. Format : docs/design/0004-format-des-regles-de-nettoyage.md
+#
+# Chemins vérifiés le 2026-10-30 dans la documentation officielle de Microsoft (ticket #54) :
+# - %TEMP% : « GetTempPath2 », https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-gettemppath2a
+#   (page du 2025-03-05) : dossier désigné pour les fichiers temporaires, choisi dans l'ordre TMP, TEMP, USERPROFILE.
+# - %LOCALAPPDATA%\CrashDumps : « Collecting User-Mode Dumps »,
+#   https://learn.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps (page du 2024-07-18) :
+#   valeur par défaut de DumpFolder.
+#
+# Miniatures de l'Explorateur : pas de règle. Aucune page officielle ne documente l'emplacement des fichiers
+# thumbcache_*.db, et le format ne sait pas choisir des fichiers par préfixe (la forme files-by-extension prendrait
+# aussi les iconcache_*.db). Règle à ajouter quand une source officielle existe.
+#
+# Aucun de ces dossiers n'exige les droits administrateur : ils sont dans le profil de l'utilisateur.
+
+[[rule]]
+id            = "windows-temp"
+name.fr       = "Fichiers temporaires de Windows"
+name.en       = "Windows temporary files"
+explain.fr    = "Fichiers que Windows et vos logiciels créent le temps d'une tâche (installation, ouverture d'un document). Ils ne servent plus une fois la tâche finie ; ceux qu'un logiciel utilise encore sont laissés en place."
+explain.en    = "Files that Windows and your apps create for the length of a task (an installation, opening a document). They are no longer needed once the task is done; files an app is still using are left alone."
+risk          = "safe"
+os            = ["windows"]
+kind          = "folder"
+paths.windows = ["%TEMP%"]
+
+[[rule]]
+id            = "windows-crash-dumps"
+name.fr       = "Rapports de plantage des logiciels"
+name.en       = "App crash dumps"
+explain.fr    = "Copies de la mémoire d'un logiciel au moment où il a planté, gardées par Windows pour trouver la cause. Elles peuvent être volumineuses. Gardez-les seulement si vous voulez envoyer un rapport de bogue à l'éditeur du logiciel."
+explain.en    = "Copies of an app's memory taken when it crashed, kept by Windows to find the cause. They can be large. Keep them only if you want to send a bug report to the app's publisher."
+risk          = "review"
+os            = ["windows"]
+kind          = "folder"
+paths.windows = ["%LOCALAPPDATA%/CrashDumps"]
