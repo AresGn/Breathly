@@ -8,5 +8,13 @@ license.workspace = true
 repository.workspace = true
 publish.workspace = true
 
+[dependencies]
+serde = { version = "1.0.229", features = ["derive"] }
+thiserror = "2.0.21"
+toml = { version = "1.1.8", default-features = false, features = ["std", "parse", "serde"] }
+
+[dev-dependencies]
+tempfile = "3.27.0"
+
 [lints]
 workspace = true

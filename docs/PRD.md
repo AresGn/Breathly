@@ -281,7 +281,7 @@ Les cycles de vie de l'analyse, du nettoyage et de l'entrée d'historique (V0.1)
 
 ## 8. Règles de nettoyage de départ (V0.1)
 
-Exemple de règle (format provisoire, défini en détail dans `SPEC-rules.md`) :
+Exemple de règle (format complet, ses quatre formes et les chemins autorisés : [`design/0004-format-des-regles-de-nettoyage.md`](design/0004-format-des-regles-de-nettoyage.md)) :
 
 ```toml
 [[rule]]
@@ -291,10 +291,10 @@ name.en     = "npm cache"
 explain.fr  = "Paquets téléchargés par npm. Ils sont retéléchargés automatiquement si besoin."
 explain.en  = "Packages downloaded by npm. They are re-downloaded automatically when needed."
 risk        = "safe"          # safe | review | personal
-os          = ["linux", "windows", "macos"]
+os          = ["linux", "windows"]
+kind        = "folder"        # folder | marked-folder | files-by-extension | system-trash
 paths.linux   = ["~/.npm/_cacache"]
 paths.windows = ["%LOCALAPPDATA%/npm-cache/_cacache"]
-paths.macos   = ["~/.npm/_cacache"]
 command     = "npm cache clean --force"   # optionnel, informatif en V0.1 : affiché en mode avancé, jamais exécuté (US-060.4)
 ```
 
