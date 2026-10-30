@@ -1,0 +1,14 @@
+# Cache de npm (exemple du PRD §8). Format : docs/design/0004-format-des-regles-de-nettoyage.md
+
+[[rule]]
+id            = "npm-cache"
+name.fr       = "Cache de npm"
+name.en       = "npm cache"
+explain.fr    = "Paquets téléchargés par npm. Ils sont retéléchargés automatiquement si besoin."
+explain.en    = "Packages downloaded by npm. They are re-downloaded automatically when needed."
+risk          = "safe"
+os            = ["linux", "windows"]
+kind          = "folder"
+paths.linux   = ["~/.npm/_cacache"]
+paths.windows = ["%LOCALAPPDATA%/npm-cache/_cacache"]
+command       = "npm cache clean --force"

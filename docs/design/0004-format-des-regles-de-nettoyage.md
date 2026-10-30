@@ -6,7 +6,7 @@
 - **Code** : `crates/breathly-rules` (`parse_cleanup_rules`) ; tests dans `crates/breathly-rules/tests/`
 - **Vocabulaire** : `GLOSSARY.md` fait foi (règle de nettoyage, niveau de risque, fichier marqueur, dossier de projet recréable).
 
-Ce document remplace l'exemple « provisoire » du PRD §8. Il dit ce qu'un fichier `rules/*.toml` peut contenir et ce que la validation refuse. L'intégration des fichiers au binaire est le ticket #32.
+Ce document remplace l'exemple « provisoire » du PRD §8. Il dit ce qu'un fichier `rules/*.toml` peut contenir et ce que la validation refuse. Les fichiers sont intégrés au binaire à la compilation et chargés par `load_cleanup_rules()` (note du 2026-10-30 sur l'ADR 0004) ; guide du contributeur : [`rules/README.md`](../../rules/README.md).
 
 ## 1. Une règle
 
@@ -29,7 +29,7 @@ command     = "npm cache clean --force"                # facultatif, affiché en
 
 | Champ | Obligatoire | Contenu |
 |---|---|---|
-| `id` | oui | minuscules ASCII, chiffres, tirets isolés ; 64 caractères au plus ; unique dans l'ensemble des règles (vérifié dans un fichier par `parse_cleanup_rules` ; entre fichiers, au chargement intégré au binaire, ticket #32) |
+| `id` | oui | minuscules ASCII, chiffres, tirets isolés ; 64 caractères au plus ; unique dans l'ensemble des règles (vérifié dans un fichier par `parse_cleanup_rules`, et entre fichiers par `load_cleanup_rules`) |
 | `name.fr`, `name.en` | oui | nom court, non vide |
 | `explain.fr`, `explain.en` | oui | explication en langage simple, non vide (US-024.2) |
 | `risk` | oui | `safe` 🟢, `review` 🟡, `personal` 🔴 (jamais sélectionnable) ; `safe` est réservé à la forme `folder` (§2) |

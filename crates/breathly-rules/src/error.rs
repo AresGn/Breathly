@@ -177,6 +177,11 @@ pub enum RulesError {
     RuleNotAList,
     #[error("identifiant en double : « {} »", id.as_str())]
     DuplicateId { id: RuleId },
+    #[error("fichier de règles « {file} » : {error}")]
+    InvalidFile {
+        file: String,
+        error: Box<RulesError>,
+    },
     #[error("règle {rule} : {defect}")]
     InvalidRule { rule: RuleRef, defect: RuleDefect },
 }
@@ -201,6 +206,7 @@ impl RulesError {
             Self::NoRule => names!("rules.no_rule"),
             Self::RuleNotAList => names!("rules.rule_not_a_list"),
             Self::DuplicateId { .. } => names!("rules.duplicate_id"),
+            Self::InvalidFile { error, .. } => error.names(),
             Self::InvalidRule { defect, .. } => defect.names(),
         }
     }
