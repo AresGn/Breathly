@@ -1,8 +1,7 @@
-import { cleanup, render, within } from '@testing-library/svelte';
-import { afterEach, describe, expect, it } from 'vitest';
+import { cleanup, fireEvent, render, within } from '@testing-library/svelte';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Locale } from '#lib/i18n/catalog.js';
 import { resetLocale, setLocale } from '#lib/i18n/i18n.svelte.js';
-import type { Theme } from '#lib/theme/theme.js';
 import ByteSize from './ByteSize.svelte';
 import EmptyState from './EmptyState.svelte';
 import ErrorState from './ErrorState.svelte';
@@ -11,13 +10,8 @@ import RiskLevelBadge from './RiskLevelBadge.svelte';
 import UnavailableState from './UnavailableState.svelte';
 import type { RiskLevel } from './risk-level.js';
 
-const LOCALES_AND_THEMES: readonly { locale: Locale; theme: Theme }[] = [
-	{ locale: 'fr', theme: 'light' },
-	{ locale: 'fr', theme: 'dark' },
-	{ locale: 'en', theme: 'light' },
-	{ locale: 'en', theme: 'dark' }
-];
-const RISK_LEVELS: readonly {
+const LOCALES: readonly Locale[] = ['fr', 'en'];
+const EXPECTED_BADGES: readonly {
 	level: RiskLevel;
 	className: string;
 	fr: string;
@@ -39,62 +33,60 @@ afterEach(() => {
 });
 
 describe('badge de niveau de risque', () => {
-	it.each(RISK_LEVELS)(
+	it.each(EXPECTED_BADGES)(
 		'affiche libellé, icône et style pour $level',
 		({ level, className, fr, en }) => {
-			for (const { locale, theme } of LOCALES_AND_THEMES) {
+			for (const locale of LOCALES) {
 				setLocale(locale);
 				const { container } = render(RiskLevelBadge, { props: { level } });
-				container.dataset['theme'] = theme;
 				const badge = within(container)
 					.getByText(locale === 'fr' ? fr : en)
 					.closest('.risk');
 				const icon = badge?.querySelector('svg');
 
-				expect(container).toHaveAttribute('data-theme', theme);
 				expect(badge).toHaveClass('risk', className);
 				expect(icon).toHaveAttribute('aria-hidden', 'true');
-				expect(icon?.querySelector('path, circle')).toBeInTheDocument();
+				expect(icon?.querySelector('path')).toBeInTheDocument();
 			}
 		}
 	);
+
+	it('distingue chaque niveau par une icône différente, jamais par la couleur seule', () => {
+		const icons = EXPECTED_BADGES.map(({ level }) => {
+			const { container } = render(RiskLevelBadge, { props: { level } });
+			return container.querySelector('svg')?.innerHTML;
+		});
+
+		expect(new Set(icons).size).toBe(EXPECTED_BADGES.length);
+	});
 });
 
 describe('affichage des tailles', () => {
-	it.each(LOCALES_AND_THEMES)(
-		'formate selon Intl en $locale / thème $theme',
-		({ locale, theme }) => {
-			setLocale(locale);
-			const { container } = render(ByteSize, { props: { bytes: 2_500_000_000 } });
-			container.dataset['theme'] = theme;
-			const output = within(container).getByText(locale === 'fr' ? '2,5 Go' : '2.5 GB');
+	it.each(LOCALES)('formate selon Intl en %s', (locale) => {
+		setLocale(locale);
+		const { container } = render(ByteSize, { props: { bytes: 2_500_000_000 } });
 
-			expect(container).toHaveAttribute('data-theme', theme);
-			expect(output).toBeInTheDocument();
-		}
-	);
+		expect(within(container).getByText(locale === 'fr' ? '2,5 Go' : '2.5 GB')).toBeInTheDocument();
+	});
 });
 
 describe('états communs', () => {
-	it.each(LOCALES_AND_THEMES)(
-		'chargement accessible en $locale / thème $theme',
-		({ locale, theme }) => {
-			setLocale(locale);
-			const { container } = render(LoadingState);
-			container.dataset['theme'] = theme;
-			const status = within(container).getByRole('status', { busy: true });
+	it.each(LOCALES)('chargement accessible en %s, avec squelettes', (locale) => {
+		setLocale(locale);
+		const { container } = render(LoadingState);
+		const status = within(container).getByRole('status', {
+			busy: true,
+			name: locale === 'fr' ? 'Chargement…' : 'Loading…'
+		});
 
-			expect(container).toHaveAttribute('data-theme', theme);
-			expect(status).toHaveTextContent(locale === 'fr' ? 'Chargement…' : 'Loading…');
-		}
-	);
+		expect(status.querySelectorAll('.skel').length).toBeGreaterThan(0);
+	});
 
-	it.each(LOCALES_AND_THEMES)('vide expliqué en $locale / thème $theme', ({ locale, theme }) => {
+	it.each(LOCALES)('vide expliqué en %s', (locale) => {
 		setLocale(locale);
 		const { container } = render(EmptyState);
-		container.dataset['theme'] = theme;
 
-		expect(container).toHaveAttribute('data-theme', theme);
+		expect(container.querySelector('.empty')).toBeInTheDocument();
 		expect(within(container).getByRole('status')).toHaveTextContent(
 			locale === 'fr' ? 'Aucun élément' : 'Nothing to show'
 		);
@@ -103,32 +95,34 @@ describe('états communs', () => {
 		);
 	});
 
-	it.each(LOCALES_AND_THEMES)(
-		'erreur avec explication en $locale / thème $theme',
-		({ locale, theme }) => {
-			setLocale(locale);
-			const explanation =
-				locale === 'fr' ? 'La mesure n’a pas pu être lue.' : 'The reading failed.';
-			const { container } = render(ErrorState, { props: { explanation } });
-			container.dataset['theme'] = theme;
+	it.each(LOCALES)('erreur avec explication et bouton « réessayer » en %s', async (locale) => {
+		setLocale(locale);
+		const explanation = locale === 'fr' ? 'La mesure n’a pas pu être lue.' : 'The reading failed.';
+		const onretry = vi.fn();
+		const { container } = render(ErrorState, { props: { explanation, onretry } });
+		const alert = within(container).getByRole('alert');
 
-			expect(container).toHaveAttribute('data-theme', theme);
-			expect(within(container).getByRole('alert')).toHaveTextContent(explanation);
-		}
-	);
+		expect(alert).toHaveClass('banner', 'banner--warn');
+		expect(alert).toHaveTextContent(explanation);
+		await fireEvent.click(
+			within(alert).getByRole('button', { name: locale === 'fr' ? 'Réessayer' : 'Try again' })
+		);
+		expect(onretry).toHaveBeenCalledOnce();
+	});
 
-	it.each(LOCALES_AND_THEMES)(
-		'mesure non disponible sans valeur inventée en $locale / thème $theme',
-		({ locale, theme }) => {
-			setLocale(locale);
-			const label = locale === 'fr' ? 'Chauffe' : 'Temperature';
-			const { container } = render(UnavailableState, { props: { label } });
-			container.dataset['theme'] = theme;
+	it('erreur sans bouton quand aucune reprise n’est possible', () => {
+		const { container } = render(ErrorState, { props: { explanation: 'Échec.' } });
 
-			expect(container).toHaveAttribute('data-theme', theme);
-			expect(within(container).getByRole('status')).toHaveTextContent(label);
-			expect(container.textContent).toContain(locale === 'fr' ? 'Non disponible' : 'Not available');
-			expect(container.textContent).not.toMatch(/\d/);
-		}
-	);
+		expect(within(container).queryByRole('button')).not.toBeInTheDocument();
+	});
+
+	it.each(LOCALES)('mesure non disponible sans valeur inventée en %s', (locale) => {
+		setLocale(locale);
+		const label = locale === 'fr' ? 'Chauffe' : 'Temperature';
+		const { container } = render(UnavailableState, { props: { label } });
+
+		expect(within(container).getByRole('status')).toHaveTextContent(label);
+		expect(container.textContent).toContain(locale === 'fr' ? 'Non disponible' : 'Not available');
+		expect(container.textContent).not.toMatch(/\d/);
+	});
 });
