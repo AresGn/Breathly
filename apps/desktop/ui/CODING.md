@@ -52,7 +52,7 @@ Chaque action est atteignable au clavier avec un focus visible ; chaque contrôl
 
 ## 9. Tests
 
-Vitest et Testing Library : un test par état affiché (chargement, vide, erreur, « non disponible », mode simple et avancé) ; les quatre composants communs sont testés en français et en anglais ; le rendu dans les deux thèmes relève des essais manuels. S’ajoutent un test des clés de traduction et un test d'accessibilité de base (noms des contrôles). Pas de test de bout en bout en V0.1 : essais manuels sur les machines de validation (PRD §13). Aucun test ignoré (`it.skip`, `.only`, `.todo`, `.fails` refusés par ESLint **[machine]**), supprimé ou affaibli **[relecture]**. Un test sans assertion échoue (`expect.requireAssertions`) **[machine]**.
+Vitest et Testing Library : un test par état affiché (chargement, vide, erreur, « non disponible », mode simple et avancé) ; les quatre composants d’état commun sont testés en français et en anglais, et un test vérifie que chaque jeton qu’ils utilisent est défini dans les deux thèmes. S'ajoutent un test des clés de traduction et un test d'accessibilité de base (noms des contrôles). Pas de test de bout en bout en V0.1 : essais manuels sur les machines de validation (PRD §13). Aucun test ignoré (`it.skip`, `.only`, `.todo`, `.fails` refusés par ESLint **[machine]**), supprimé ou affaibli **[relecture]**. Un test sans assertion échoue (`expect.requireAssertions`) **[machine]**.
 
 ## 10. Imports et scripts
 

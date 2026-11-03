@@ -541,27 +541,6 @@ summary:focus-visible,
 	color: var(--color-accent);
 }
 
-/* ---------- États communs ---------- */
-.component-state {
-	display: grid;
-	justify-items: start;
-	gap: var(--space-2);
-	padding: var(--space-4);
-	border: 1px solid var(--color-border);
-	border-radius: var(--radius-md);
-	background: var(--color-surface);
-	color: var(--color-text);
-}
-.component-state p {
-	margin: 0;
-}
-.component-state__title {
-	font-weight: 600;
-}
-.component-state__description {
-	color: var(--color-text-muted);
-}
-
 /* ---------- Bandeaux ---------- */
 .banner {
 	display: flex;

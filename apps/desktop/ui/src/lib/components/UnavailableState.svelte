@@ -5,13 +5,13 @@
 	let { label, explanation }: { label: string; explanation?: string } = $props();
 </script>
 
-<div class="component-state" role="status">
-	<p class="component-state__title">{label}</p>
-	<span class="status status--na">
-		<Icon name="info" />
-		{t('component.state.unavailable')}
-	</span>
-	<p class="component-state__description">
-		{explanation ?? t('component.state.unavailable.description')}
-	</p>
+<div class="card stack" role="status">
+	<div class="h3">{label}</div>
+	<div>
+		<span class="status status--na">
+			<Icon name="info" />
+			{t('component.state.unavailable')}
+		</span>
+	</div>
+	<div class="small muted">{explanation ?? t('component.state.unavailable.description')}</div>
 </div>
