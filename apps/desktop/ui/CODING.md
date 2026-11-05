@@ -11,7 +11,7 @@ Mot-guide : **l'interface affiche et déclenche, elle ne décide pas.** Toute r�
 | Dossier | Contenu |
 |---|---|
 | `src/routes/` | une route par écran (SvelteKit) ; `+layout.ts` avec `export const ssr = false;` |
-| `src/lib/components/` | composants de présentation purs : propriétés en entrée, événements en sortie, aucune logique métier |
+| `src/lib/components/` | composants de présentation purs : propriétés en entrée, événements en sortie, aucune logique métier ; composants communs `RiskLevelBadge`, `ByteSize`, `LoadingState`, `EmptyState`, `ErrorState` et `UnavailableState` |
 | `src/lib/api/` | **le seul endroit** qui appelle les commandes Tauri (`invoke`), avec des types |
 | `src/lib/generated/` | types générés depuis Rust, jamais écrits à la main **[machine, à écrire avec la génération des types]** (la CI vérifiera qu'ils sont à jour) |
 | `src/lib/state/` | états partagés en `.svelte.ts` (runes) |
@@ -52,7 +52,7 @@ Chaque action est atteignable au clavier avec un focus visible ; chaque contrôl
 
 ## 9. Tests
 
-Vitest et Testing Library : un test par état affiché (chargement, vide, erreur, « non disponible », mode simple et avancé), un test des clés de traduction, un test d'accessibilité de base (noms des contrôles). Pas de test de bout en bout en V0.1 : essais manuels sur les machines de validation (PRD §13). Aucun test ignoré (`it.skip`, `.only`, `.todo`, `.fails` refusés par ESLint **[machine]**), supprimé ou affaibli **[relecture]**. Un test sans assertion échoue (`expect.requireAssertions`) **[machine]**.
+Vitest et Testing Library : un test par état affiché (chargement, vide, erreur, « non disponible », mode simple et avancé) ; les quatre composants d’état commun sont testés en français et en anglais, et un test vérifie que chaque jeton qu’ils utilisent est défini dans les deux thèmes. S'ajoutent un test des clés de traduction et un test d'accessibilité de base (noms des contrôles). Pas de test de bout en bout en V0.1 : essais manuels sur les machines de validation (PRD §13). Aucun test ignoré (`it.skip`, `.only`, `.todo`, `.fails` refusés par ESLint **[machine]**), supprimé ou affaibli **[relecture]**. Un test sans assertion échoue (`expect.requireAssertions`) **[machine]**.
 
 ## 10. Imports et scripts
 
