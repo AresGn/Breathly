@@ -14,7 +14,7 @@ pub(crate) enum PathStyle {
 impl PathStyle {
     pub(crate) fn is_absolute(self, path: &Path) -> bool {
         match self {
-            Self::Posix => path.is_absolute(),
+            Self::Posix => path.to_string_lossy().starts_with('/'),
             Self::Windows => is_windows_absolute(&path.to_string_lossy()),
         }
     }
