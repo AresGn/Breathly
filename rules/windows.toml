@@ -12,6 +12,9 @@
 # aussi les iconcache_*.db). Règle à ajouter quand une source officielle existe.
 #
 # Aucun de ces dossiers n'exige les droits administrateur : ils sont dans le profil de l'utilisateur.
+#
+# Non vérifié sous Windows : existence des dossiers constatée le 2026-10-30, aucune suppression essayée
+# (moteur d'analyse #55, #56).
 
 [[rule]]
 id            = "windows-temp"
