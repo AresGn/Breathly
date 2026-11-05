@@ -78,6 +78,8 @@ Sont refusés (`PathRefusal`) :
 - un premier dossier protégé sous `~` ou `%USERPROFILE%` : `Documents`, `Images`, `Pictures`, `Vidéos`, `Videos`, `Musique`, `Music`, `Bureau`, `Desktop`, sans tenir compte de la casse (S5) ;
 - un dossier `.git` à n'importe quel niveau (S5).
 
+**Résolution de `%TEMP%`** (`StandardPaths::temp_dir`, ticket #33). Parce que `%TEMP%` seul est une cible, sa résolution ne retombe jamais sur le dossier personnel : variable `TEMP` absente, vide, relative, égale à `%USERPROFILE%` ou à l'un de ses parents donnent `TempDirUnsafe`, et la règle n'est pas appliquée. Windows écrit ses fichiers temporaires dans `TMP`, puis `TEMP`, puis `USERPROFILE` (ordre de `GetTempPath2`) alors que la règle nettoie `TEMP` : si `TMP` diffère de `TEMP`, Breathly nettoie `TEMP` seulement. Sous Linux, la racine est `TMPDIR` (absolu) ou `/tmp`.
+
 `Windows.old` (V0.4, droits administrateur) n'a pas de racine autorisée en V0.1 : il en faudra une, avec l'ADR 0006.
 
 **Ce que la validation statique ne garantit pas**, et qui reste aux garde-fous de `breathly-disk`, revérifiés pour chaque élément au moment d'agir (S5, SEC2) : les profils de navigateur (sous Windows, le cache de Chromium est **dans** le dossier du profil, `User Data/Default/Cache` : un refus par préfixe bloquerait des règles légitimes), les conteneurs chiffrés trouvés dans un dossier, les fichiers ouverts, les liens symboliques et les jonctions (ADR 0019), les noms courts 8.3 de Windows (`DOCUME~1`), les dossiers de l'utilisateur déplacés ou renommés par la langue du système.

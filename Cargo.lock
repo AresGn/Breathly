@@ -172,6 +172,7 @@ version = "0.0.0"
 name = "breathly-platform"
 version = "0.0.0"
 dependencies = [
+ "dirs",
  "thiserror 2.0.21",
 ]
 
