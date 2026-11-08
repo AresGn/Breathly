@@ -11,7 +11,7 @@ Mot-guide : **l'interface affiche et déclenche, elle ne décide pas.** Toute r�
 | Dossier | Contenu |
 |---|---|
 | `src/routes/` | une route par écran (SvelteKit) ; `+layout.ts` avec `export const ssr = false;` |
-| `src/lib/components/` | composants de présentation purs : propriétés en entrée, événements en sortie, aucune logique métier ; composants communs `RiskLevelBadge`, `ByteSize`, `LoadingState`, `EmptyState`, `ErrorState` et `UnavailableState` |
+| `src/lib/components/` | composants de présentation purs : propriétés en entrée, événements en sortie, aucune logique métier ; composants communs `RiskLevelBadge`, `ByteSize`, `LoadingState`, `EmptyState`, `ErrorState` et `UnavailableState` ; dialogues réutilisables `ConfirmDialog`, `PermanentDeleteDialog`, `CommandCopyDialog` (et `CommandCopy`) et `ErrorDialog`, tous bâtis sur `DialogShell` (focus piégé, `Échap`, retour du focus au déclencheur). `PermanentDeleteDialog` peut recevoir un extrait pour la liste consultable ; `CommandCopy` peut afficher une commande de retour facultative. |
 | `src/lib/api/` | **le seul endroit** qui appelle les commandes Tauri (`invoke`), avec des types |
 | `src/lib/generated/` | types générés depuis Rust, jamais écrits à la main **[machine, à écrire avec la génération des types]** (la CI vérifiera qu'ils sont à jour) |
 | `src/lib/state/` | états partagés en `.svelte.ts` (runes) |
