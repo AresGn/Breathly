@@ -7,8 +7,11 @@
 mod clock;
 mod disk;
 mod error;
+mod paths;
 mod process;
 mod system;
+mod system_paths;
+mod temp_guard;
 mod temperature;
 mod trash;
 mod units;
@@ -19,11 +22,13 @@ pub mod fake;
 pub use clock::Clock;
 pub use disk::{DiskInspector, Volume, VolumeRole, VolumeSpace};
 pub use error::{Measure, PlatformError};
+pub use paths::{StandardPath, StandardPaths, UserFolder};
 pub use process::{
     Executable, ExecutableOrigin, MemoryUsage, Packaging, ProcessInspector, ProcessRole,
     ProcessSnapshot,
 };
 pub use system::{CpuTimes, MemoryStatus, SwapDevice, SwapKind, SwapStatus, SystemInspector};
+pub use system_paths::SystemStandardPaths;
 pub use temperature::{TemperatureReader, TemperatureReading};
 pub use trash::{TrashItem, TrashItemId, TrashProvider};
 pub use units::{ByteSize, Celsius, InvalidValue, ProcessId, ProcessName};
