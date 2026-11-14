@@ -1,4 +1,5 @@
 <script lang="ts">
+	import '#lib/styles/fonts.css';
 	import '#lib/styles/breathly.css';
 	import { page } from '$app/state';
 	import Sidebar from '#lib/components/Sidebar.svelte';
