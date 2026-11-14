@@ -1,0 +1,32 @@
+/* Polices embarquées (SIL OFL 1.1, licences dans static/fonts/) : aucune requête réseau (SEC1). */
+@font-face {
+	font-family: 'Bricolage Grotesque';
+	font-style: normal;
+	font-weight: 500 700;
+	font-display: swap;
+	src: url('/fonts/BricolageGrotesque-Variable.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Hanken Grotesk';
+	font-style: normal;
+	font-weight: 400 700;
+	font-display: swap;
+	src: url('/fonts/HankenGrotesk-Variable.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'DM Mono';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/DMMono-Regular.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'DM Mono';
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url('/fonts/DMMono-Medium.woff2') format('woff2');
+}
