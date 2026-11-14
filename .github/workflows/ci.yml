@@ -72,7 +72,7 @@ jobs:
       - if: matrix.stack == 'rust'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev rpm
       # La version de Rust vient de rust-toolchain.toml (ADR 0011), pas de « stable ». Les composants sont demandés ici
       # aussi : un toolchain installé en profil minimal n'a ni clippy ni rustfmt.
       - if: matrix.stack == 'rust'
@@ -86,11 +86,13 @@ jobs:
           path: |
             ~/.cargo/bin/cargo-audit
             ~/.cargo/bin/cargo-deny
-          key: cargo-tools-audit-0.22.2-deny-0.20.2-${{ runner.os }}
+            ~/.cargo/bin/cargo-tauri
+          key: cargo-tools-audit-0.22.2-deny-0.20.2-tauri-cli-2.12.4-${{ runner.os }}
       - if: matrix.stack == 'rust' && steps.cargo-tools.outputs.cache-hit != 'true'
         run: |
           cargo install cargo-audit --version 0.22.2 --locked
           cargo install cargo-deny --version 0.20.2 --locked
+          cargo install tauri-cli --version 2.12.4 --locked
       - if: contains(fromJSON('["typescript-nextjs","node-api"]'), matrix.stack)
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
@@ -102,12 +104,47 @@ jobs:
           node-version: 24
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
+      - if: matrix.path == '.'
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: package.json
+      - if: matrix.path == '.'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
       - name: Setup de l'application
         run: bash tools/stack.sh setup "${{ matrix.path }}"
       - name: Portes (lint, statique, architecture, tests)
         run: bash tools/stack.sh check "${{ matrix.path }}"
       - name: Audit des dépendances
         run: bash tools/stack.sh audit "${{ matrix.path }}"
+      - if: matrix.path == '.'
+        name: Installer les dépendances de l'interface
+        run: pnpm install --frozen-lockfile
+      - if: matrix.path == '.'
+        name: Construire les installeurs Linux
+        run: cargo tauri build --ci --bundles deb,rpm
+        working-directory: apps/desktop/src-tauri
+      - if: matrix.path == '.'
+        name: Vérifier le budget des installeurs
+        run: |
+          shopt -s nullglob
+          deb=(target/release/bundle/deb/*.deb)
+          rpm=(target/release/bundle/rpm/*.rpm)
+          if (( ${#deb[@]} != 1 || ${#rpm[@]} != 1 )); then
+            echo "Un fichier .deb et un fichier .rpm sont attendus."
+            exit 1
+          fi
+          for package in "${deb[@]}" "${rpm[@]}"; do
+            bytes=$(stat -c '%s' "$package")
+            printf '%s: %s bytes\n' "$package" "$bytes"
+            if (( bytes >= 15000000 )); then
+              echo "$package dépasse le budget de 15 000 000 octets."
+              exit 1
+            fi
+          done
 
   # Workspace Rust sous Windows (PRD §13) : sans lui, le code propre à Windows de breathly-platform ne serait jamais
   # compilé ni testé. Même version de Rust que le job `app` (rust-toolchain.toml, ADR 0011). Constaté sur un
