@@ -35,7 +35,7 @@ Vouvoiement ; total libérable 13,7 Go avec les gros fichiers à part (8,4 Go) ;
 
 ## Polices et licences
 
-Bricolage Grotesque, Hanken Grotesk et DM Mono sont publiées sous licence **SIL OFL 1.1** : vérifié le 2026-10-18 dans le dépôt `google/fonts` (dossier `ofl/`), et le numéro de version de la licence a été relu le 2026-11-08 dans chaque fichier `OFL.txt`. Elles sont **embarquées en WOFF2** dans `apps/desktop/ui/static/fonts/`, avec leurs fichiers de licence et un `README.md` qui note leur poids (environ 103 Kio au total, sous-ensemble latin et latin étendu) ; l'application n'ouvre aucune connexion pour les charger. Seules les maquettes chargent Google Fonts, pour l'aperçu. Les icônes sont dessinées à la main dans l'esprit de Lucide (licence ISC, non vérifiée ici) ; le logo et l'illustration sont originaux.
+Bricolage Grotesque, Hanken Grotesk et DM Mono sont publiées sous licence **SIL OFL 1.1**. Leurs versions sources, licences, poids, sous-ensembles et limites de mesure sont documentés dans [`../polices-embarquees.md`](../polices-embarquees.md). Elles sont **embarquées en WOFF2** dans `apps/desktop/ui/static/fonts/` ; l'application n'ouvre aucune connexion pour les charger. Seules les maquettes chargent Google Fonts, pour l'aperçu. Les icônes sont dessinées à la main dans l'esprit de Lucide (licence ISC, non vérifiée ici) ; le logo et l'illustration sont originaux.
 
 ## Mise à jour
 

@@ -9,7 +9,7 @@
 		"prepare": "svelte-kit sync || echo ''",
 		"lint": "prettier --check . && eslint .",
 		"typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
-		"test": "vitest run",
+		"test": "vite build && vitest run",
 		"fix": "prettier --write . && eslint --fix ."
 	},
 	"devDependencies": {

@@ -16,7 +16,8 @@ Mot-guide : **l'interface affiche et déclenche, elle ne décide pas.** Toute r�
 | `src/lib/generated/` | types générés depuis Rust, jamais écrits à la main **[machine, à écrire avec la génération des types]** (la CI vérifiera qu'ils sont à jour) |
 | `src/lib/state/` | états partagés en `.svelte.ts` (runes) |
 | `src/lib/i18n/` | chargeur de textes typé ; les textes sont dans `locales/` |
-| `src/lib/styles/` | jetons de design (`breathly.css` des maquettes) |
+| `src/lib/styles/` | jetons de design (`breathly.css`) et polices embarquées (`fonts.css`) |
+| `static/fonts/` | fichiers WOFF2 et licences OFL ; documentation dans `docs/design/polices-embarquees.md` |
 
 ## 2. Composants
 
@@ -60,7 +61,7 @@ Imports internes par l'alias de sous-chemin `#lib/…` (SvelteKit 3, déclaré d
 
 ## 11. Scripts attendus par le kit
 
-`pnpm lint` (`prettier --check` puis ESLint), `pnpm typecheck` (svelte-check, avertissements bloquants), `pnpm test` (Vitest, jsdom) et `pnpm fix` (corrige la mise en forme).
+`pnpm lint` (`prettier --check` puis ESLint), `pnpm typecheck` (svelte-check, avertissements bloquants), `pnpm test` (build de production puis Vitest, jsdom) et `pnpm fix` (corrige la mise en forme).
 
 ## 12. Définition de « terminé »
 

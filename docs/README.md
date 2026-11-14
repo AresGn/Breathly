@@ -15,6 +15,7 @@ La documentation vit dans le dépôt, en Markdown, et se relit comme le code : u
 | Ce que fait le produit (exigences, états, permissions) | `prd/` | une règle métier change |
 | Pourquoi on a choisi (décisions) | `adr/` | une décision est prise ou remplacée (jamais réécrite en silence) |
 | Comment c'est conçu (système, base, écrans) | `design/` | la conception change |
+| Les polices embarquées, leurs licences et leurs sources | `design/polices-embarquees.md` | une police ou son fichier source change |
 | Les règles de sécurité par conception | `policies/securite.md` | une règle de sécurité change |
 | Le modèle de menaces | `policies/modele-de-menaces.md` | un flux critique change |
 | Les politiques de conformité | `policies/` | décision du client ou note de conformité |
