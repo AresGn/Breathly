@@ -41,8 +41,11 @@ impl Sources for MapSources {
     }
 
     fn user_folder(&self, folder: UserFolder) -> Option<PathBuf> {
-        self.home
-            .map(|home| PathBuf::from(home).join(folder.english_name()))
+        // Pas de `Path::join` : sous Windows il insère `\`, et `PathStyle::Posix` ne découpe que sur `/`.
+        self.home.map(|home| {
+            let home = home.trim_end_matches(['/', '\\']);
+            PathBuf::from(format!("{home}/{}", folder.english_name()))
+        })
     }
 
     fn resolve(&self, path: &Path) -> Option<PathBuf> {
