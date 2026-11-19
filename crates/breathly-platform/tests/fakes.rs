@@ -6,13 +6,15 @@ use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
 
 use breathly_platform::fake::{
-    FakeDisks, FakeProcesses, FakeSystem, FakeTemperature, FixedClock, MemoryTrash, SystemFacts,
+    FakeDisks, FakeProcesses, FakeSystem, FakeTemperature, FixedClock, FixedStandardPaths,
+    MemoryTrash, SystemFacts,
 };
 use breathly_platform::{
     ByteSize, Celsius, Clock, CpuTimes, DiskInspector, Executable, ExecutableOrigin, InvalidValue,
     MemoryStatus, MemoryUsage, Packaging, ProcessId, ProcessInspector, ProcessName, ProcessRole,
-    ProcessSnapshot, SwapDevice, SwapKind, SwapStatus, SystemInspector, TemperatureReader,
-    TemperatureReading, TrashProvider, Volume, VolumeRole, VolumeSpace,
+    ProcessSnapshot, StandardPaths, SwapDevice, SwapKind, SwapStatus, SystemInspector,
+    TemperatureReader, TemperatureReading, TrashProvider, UserFolder, Volume, VolumeRole,
+    VolumeSpace,
 };
 
 type TestResult = Result<(), Box<dyn Error>>;
@@ -113,5 +115,20 @@ fn the_fake_temperature_and_clock_work_behind_their_traits() -> TestResult {
     let clock: &dyn Clock = &fixed;
     fixed.advance(Duration::from_secs(1));
     assert_eq!(clock.now(), SystemTime::UNIX_EPOCH + Duration::from_secs(1));
+    Ok(())
+}
+
+#[test]
+fn the_fake_standard_paths_live_under_the_given_root() -> TestResult {
+    let root = Path::new("/sandbox");
+    let paths: Box<dyn StandardPaths> = Box::new(FixedStandardPaths::under(root));
+    assert_eq!(paths.config_dir()?, root.join("config"));
+    assert_eq!(paths.state_dir()?, root.join("state"));
+    assert_eq!(paths.temp_dir()?, root.join("tmp"));
+    assert!(paths.home_dir()?.starts_with(root));
+    assert_eq!(
+        paths.user_folder(UserFolder::Documents)?,
+        root.join("home").join("Documents")
+    );
     Ok(())
 }

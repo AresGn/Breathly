@@ -14,10 +14,17 @@ fake = []
 
 [dependencies]
 thiserror = "2.0.21"
+dirs = "7.0.0"
+
+[dev-dependencies]
+tempfile = "3.27.0"
 
 [[test]]
 name = "fakes"
 required-features = ["fake"]
+
+[[test]]
+name = "standard_paths"
 
 # Table propre (et non `workspace = true`) : seul ce crate a le droit à `unsafe`, avec un `#[allow]` justifié par bloc.
 # Copie de celle du workspace, hors unsafe_code (tools/check-rust.py).

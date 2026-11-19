@@ -5,6 +5,7 @@
 
 use thiserror::Error;
 
+use crate::paths::StandardPath;
 use crate::trash::TrashItemId;
 
 /// Mesure du système qu'un adapter n'a pas pu lire.
@@ -29,6 +30,10 @@ pub enum PlatformError {
     TrashItemNotFound { item: TrashItemId },
     #[error("emplacement d'origine occupé : rien n'a été restauré")]
     RestoreCollision { item: TrashItemId },
+    #[error("dossier standard indisponible : {path:?}")]
+    StandardPathUnavailable { path: StandardPath },
+    #[error("dossier temporaire absent ou confondu avec le dossier personnel")]
+    TempDirUnsafe,
 }
 
 impl PlatformError {
@@ -66,6 +71,14 @@ impl PlatformError {
                 "platform.restore_collision",
                 "errors.platform.restore_collision",
             ),
+            Self::StandardPathUnavailable { .. } => (
+                "platform.standard_path_unavailable",
+                "errors.platform.standard_path_unavailable",
+            ),
+            Self::TempDirUnsafe => (
+                "platform.temp_dir_unsafe",
+                "errors.platform.temp_dir_unsafe",
+            ),
         }
     }
 }
@@ -85,6 +98,10 @@ mod tests {
             PlatformError::TrashSourceMissing,
             PlatformError::TrashItemNotFound { item: item.clone() },
             PlatformError::RestoreCollision { item },
+            PlatformError::StandardPathUnavailable {
+                path: StandardPath::Config,
+            },
+            PlatformError::TempDirUnsafe,
         ];
         for error in errors {
             assert!(error.code().starts_with("platform."));
