@@ -11,12 +11,13 @@ Mot-guide : **l'interface affiche et déclenche, elle ne décide pas.** Toute r�
 | Dossier | Contenu |
 |---|---|
 | `src/routes/` | une route par écran (SvelteKit) ; `+layout.ts` avec `export const ssr = false;` |
-| `src/lib/components/` | composants de présentation purs : propriétés en entrée, événements en sortie, aucune logique métier ; composants communs `RiskLevelBadge`, `ByteSize`, `LoadingState`, `EmptyState`, `ErrorState` et `UnavailableState` |
+| `src/lib/components/` | composants de présentation purs : propriétés en entrée, événements en sortie, aucune logique métier ; composants communs `RiskLevelBadge`, `ByteSize`, `LoadingState`, `EmptyState`, `ErrorState` et `UnavailableState` ; dialogues réutilisables `ConfirmDialog`, `PermanentDeleteDialog`, `CommandCopyDialog` (et `CommandCopy`) et `ErrorDialog`, tous bâtis sur `DialogShell` (focus piégé, `Échap`, retour du focus au déclencheur). `PermanentDeleteDialog` peut recevoir un extrait pour la liste consultable ; `CommandCopy` peut afficher une commande de retour facultative. |
 | `src/lib/api/` | **le seul endroit** qui appelle les commandes Tauri (`invoke`), avec des types |
 | `src/lib/generated/` | types générés depuis Rust, jamais écrits à la main **[machine, à écrire avec la génération des types]** (la CI vérifiera qu'ils sont à jour) |
 | `src/lib/state/` | états partagés en `.svelte.ts` (runes) |
 | `src/lib/i18n/` | chargeur de textes typé ; les textes sont dans `locales/` |
-| `src/lib/styles/` | jetons de design (`breathly.css` des maquettes) |
+| `src/lib/styles/` | jetons de design (`breathly.css`) et polices embarquées (`fonts.css`) |
+| `static/fonts/` | fichiers WOFF2 et licences OFL ; documentation dans `docs/design/polices-embarquees.md` |
 
 ## 2. Composants
 
@@ -60,7 +61,7 @@ Imports internes par l'alias de sous-chemin `#lib/…` (SvelteKit 3, déclaré d
 
 ## 11. Scripts attendus par le kit
 
-`pnpm lint` (`prettier --check` puis ESLint), `pnpm typecheck` (svelte-check, avertissements bloquants), `pnpm test` (Vitest, jsdom) et `pnpm fix` (corrige la mise en forme).
+`pnpm lint` (`prettier --check` puis ESLint), `pnpm typecheck` (svelte-check, avertissements bloquants), `pnpm test` (build de production puis Vitest, jsdom) et `pnpm fix` (corrige la mise en forme).
 
 ## 12. Définition de « terminé »
 
