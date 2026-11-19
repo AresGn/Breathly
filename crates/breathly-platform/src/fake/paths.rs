@@ -35,13 +35,6 @@ impl StandardPaths for FixedStandardPaths {
     }
 
     fn user_folder(&self, folder: UserFolder) -> Result<PathBuf, PlatformError> {
-        let name = match folder {
-            UserFolder::Documents => "Documents",
-            UserFolder::Pictures => "Pictures",
-            UserFolder::Videos => "Videos",
-            UserFolder::Music => "Music",
-            UserFolder::Desktop => "Desktop",
-        };
-        Ok(self.root.join("home").join(name))
+        Ok(self.root.join("home").join(folder.english_name()))
     }
 }

@@ -1,6 +1,6 @@
-//! Contrôle du dossier temporaire : il ne doit jamais désigner le profil de l'utilisateur ni l'un de ses parents.
+//! Contrôle du dossier temporaire : il ne doit jamais contenir le profil de l'utilisateur ni un dossier protégé
+//! (S5), ni se trouver dans un dossier protégé. Tout chemin qu'on ne sait pas lire sans ambiguïté est refusé.
 
-use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 /// Façon d'écrire et de comparer les chemins : séparateurs et casse changent d'un système à l'autre. La logique
@@ -11,6 +11,9 @@ pub(crate) enum PathStyle {
     Windows,
 }
 
+const WINDOWS_VERBATIM: &str = r"\\?\";
+const WINDOWS_DEVICE: &str = r"\\.\";
+
 impl PathStyle {
     pub(crate) fn is_absolute(self, path: &Path) -> bool {
         match self {
@@ -19,27 +22,16 @@ impl PathStyle {
         }
     }
 
-    /// Noms du chemin, sans séparateur ni élément vide ; en minuscules sous Windows, qui ignore la casse.
-    fn names(self, path: &Path) -> Vec<String> {
+    /// Noms d'un chemin absolu, ou `None` s'il est relatif ou ambigu (`.`, `..`, espace de noms des périphériques).
+    /// Sous Windows : casse ignorée, préfixe `\\?\` retiré, points et espaces finaux retirés comme le fait Win32.
+    fn names(self, path: &Path) -> Option<Vec<String>> {
         let text = path.to_string_lossy();
         match self {
             Self::Posix => text
-                .split('/')
-                .filter(|n| !n.is_empty())
-                .map(str::to_owned)
-                .collect(),
-            Self::Windows => text
-                .split(['/', '\\'])
-                .filter(|n| !n.is_empty())
-                .map(str::to_lowercase)
-                .collect(),
+                .starts_with('/')
+                .then(|| plain_names(text.split('/')))?,
+            Self::Windows => windows_names(&text.replace('/', "\\")),
         }
-    }
-
-    /// `ancestor` est `path` ou l'un de ses parents.
-    fn contains(self, ancestor: &Path, path: &Path) -> bool {
-        let (ancestor, path) = (self.names(ancestor), self.names(path));
-        path.starts_with(&ancestor)
     }
 }
 
@@ -52,17 +44,72 @@ fn is_windows_absolute(text: &str) -> bool {
     is_drive || text.starts_with("\\\\")
 }
 
-/// Le dossier temporaire annoncé par l'environnement, ou `None` s'il n'est pas sûr.
-pub(crate) fn safe_temp(
-    candidate: Option<&OsStr>,
-    profiles: &[PathBuf],
-    style: PathStyle,
-) -> Option<PathBuf> {
-    let temp = PathBuf::from(candidate.filter(|raw| !raw.is_empty())?);
-    let is_safe = style.is_absolute(&temp)
-        && !style.names(&temp).is_empty()
-        && !profiles
-            .iter()
-            .any(|profile| style.contains(&temp, profile));
-    is_safe.then_some(temp)
+fn plain_names<'a>(parts: impl Iterator<Item = &'a str>) -> Option<Vec<String>> {
+    parts
+        .filter(|name| !name.is_empty())
+        .map(|name| (name != "." && name != "..").then(|| name.to_owned()))
+        .collect()
 }
+
+/// `\\?\C:\x` devient `C:\x`, `\\?\UNC\srv\x` devient `\\srv\x` ; `\\.\` (périphériques) est refusé.
+fn windows_names(text: &str) -> Option<Vec<String>> {
+    if text.starts_with(WINDOWS_DEVICE) {
+        return None;
+    }
+    let text = match text.strip_prefix(WINDOWS_VERBATIM) {
+        Some(rest)
+            if rest
+                .get(..4)
+                .is_some_and(|unc| unc.eq_ignore_ascii_case("UNC\\")) =>
+        {
+            format!("\\\\{}", &rest[4..])
+        }
+        Some(rest) => rest.to_owned(),
+        None => text.to_owned(),
+    };
+    if !is_windows_absolute(&text) || text.contains('?') {
+        return None;
+    }
+    let trimmed = text
+        .split('\\')
+        .filter(|name| !name.is_empty())
+        .map(|name| match name.trim_end_matches(['.', ' ']) {
+            "" => "..",
+            cut => cut,
+        });
+    let names = plain_names(trimmed)?;
+    let has_stream = names.iter().skip(1).any(|name| name.contains(':'));
+    (!has_stream).then(|| names.iter().map(|name| name.to_lowercase()).collect())
+}
+
+/// Dossiers que le dossier temporaire ne doit jamais englober : le profil, et les dossiers de l'utilisateur dans
+/// lesquels il ne doit pas non plus se trouver. Chaque chemin y figure tel qu'écrit et, si on l'a pu, résolu.
+#[derive(Debug, Default)]
+pub(crate) struct Protected {
+    pub(crate) profiles: Vec<PathBuf>,
+    pub(crate) folders: Vec<PathBuf>,
+}
+
+/// Le dossier temporaire est sûr au regard des dossiers protégés. Échec fermé : profil inconnu ou illisible, refus.
+pub(crate) fn is_safe_temp(temp: &Path, protected: &Protected, style: PathStyle) -> bool {
+    let Some(temp) = style.names(temp).filter(|names| !names.is_empty()) else {
+        return false;
+    };
+    let names_of = |paths: &[PathBuf]| -> Option<Vec<Vec<String>>> {
+        paths.iter().map(|path| style.names(path)).collect()
+    };
+    let (Some(profiles), Some(folders)) =
+        (names_of(&protected.profiles), names_of(&protected.folders))
+    else {
+        return false;
+    };
+    let holds_a_protected_folder = profiles
+        .iter()
+        .chain(&folders)
+        .any(|inner| inner.starts_with(&temp));
+    let is_in_a_user_folder = folders.iter().any(|folder| temp.starts_with(folder));
+    !profiles.is_empty() && !holds_a_protected_folder && !is_in_a_user_folder
+}
+
+#[cfg(test)]
+mod tests;

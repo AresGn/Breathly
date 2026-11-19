@@ -5,11 +5,12 @@
 
 use std::env;
 use std::ffi::OsString;
-use std::path::PathBuf;
+use std::fs;
+use std::path::{Path, PathBuf};
 
 use crate::error::PlatformError;
 use crate::paths::{StandardPath, StandardPaths, UserFolder};
-use crate::temp_guard::{PathStyle, safe_temp};
+use crate::temp_guard::{PathStyle, Protected, is_safe_temp};
 
 const POSIX_APP_FOLDER: &str = "breathly";
 const WINDOWS_APP_FOLDER: &str = "Breathly";
@@ -20,6 +21,8 @@ pub(crate) trait Sources: Send + Sync {
     fn var(&self, name: &str) -> Option<OsString>;
     fn home(&self) -> Option<PathBuf>;
     fn user_folder(&self, folder: UserFolder) -> Option<PathBuf>;
+    /// Chemin réel : liens suivis, noms courts Windows développés ; `None` s'il n'existe pas.
+    fn resolve(&self, path: &Path) -> Option<PathBuf>;
 }
 
 struct OsSources;
@@ -42,22 +45,44 @@ impl Sources for OsSources {
             UserFolder::Desktop => dirs::desktop_dir(),
         }
     }
+
+    fn resolve(&self, path: &Path) -> Option<PathBuf> {
+        fs::canonicalize(path).ok()
+    }
 }
 
-pub(crate) struct ComposedPaths<S> {
+/// Les dossiers standard du système sur lequel Breathly tourne.
+pub struct SystemStandardPaths {
     style: PathStyle,
-    sources: S,
+    sources: Box<dyn Sources>,
 }
 
-impl<S: Sources> ComposedPaths<S> {
-    pub(crate) const fn new(style: PathStyle, sources: S) -> Self {
+impl SystemStandardPaths {
+    #[must_use]
+    pub fn new() -> Self {
+        let style = if cfg!(windows) {
+            PathStyle::Windows
+        } else {
+            PathStyle::Posix
+        };
+        Self::with_sources(style, Box::new(OsSources))
+    }
+
+    pub(crate) fn with_sources(style: PathStyle, sources: Box<dyn Sources>) -> Self {
         Self { style, sources }
+    }
+
+    fn non_empty_var(&self, name: &str) -> Option<PathBuf> {
+        self.sources
+            .var(name)
+            .filter(|raw| !raw.is_empty())
+            .map(PathBuf::from)
     }
 
     /// Variable d'environnement qui doit contenir un chemin absolu, sinon elle est ignorée (spec XDG).
     fn absolute_var(&self, name: &str) -> Option<PathBuf> {
-        let value = PathBuf::from(self.sources.var(name).filter(|raw| !raw.is_empty())?);
-        self.style.is_absolute(&value).then_some(value)
+        self.non_empty_var(name)
+            .filter(|value| self.style.is_absolute(value))
     }
 
     fn home(&self) -> Result<PathBuf, PlatformError> {
@@ -67,39 +92,67 @@ impl<S: Sources> ComposedPaths<S> {
             .ok_or(unavailable(StandardPath::Home))
     }
 
-    /// Dossier de l'application sous `variable`, ou sous `~/fallback` quand elle manque (Linux seulement).
+    /// Dossier de l'application sous la variable de l'OS ; sous Linux, sous le défaut XDG du dossier personnel.
     fn app_dir(&self, kind: AppDir) -> Result<PathBuf, PlatformError> {
-        let which = kind.standard_path();
-        let base = match self.style {
-            PathStyle::Posix => self
-                .absolute_var(kind.xdg_variable())
-                .or_else(|| self.home().ok().map(|home| home.join(kind.xdg_fallback()))),
-            PathStyle::Windows => self.absolute_var(kind.windows_variable()),
+        let (base, folder) = match self.style {
+            PathStyle::Posix => (
+                self.absolute_var(kind.xdg_variable()).or_else(|| {
+                    let home = self.home().ok()?;
+                    Some(
+                        kind.xdg_fallback()
+                            .iter()
+                            .fold(home, |path, name| path.join(name)),
+                    )
+                }),
+                POSIX_APP_FOLDER,
+            ),
+            PathStyle::Windows => (
+                self.absolute_var(kind.windows_variable()),
+                WINDOWS_APP_FOLDER,
+            ),
         };
-        let folder = match self.style {
-            PathStyle::Posix => POSIX_APP_FOLDER,
-            PathStyle::Windows => WINDOWS_APP_FOLDER,
-        };
-        base.map(|base| base.join(folder)).ok_or(unavailable(which))
+        base.map(|base| base.join(folder))
+            .ok_or(unavailable(kind.standard_path()))
     }
 
-    fn temp_candidate(&self) -> Option<OsString> {
+    /// Windows : `TEMP`, puis `TMP` s'il manque (jamais si `TEMP` est présent mais refusé). Linux : `TMPDIR`
+    /// absolu, sinon `/tmp`.
+    fn temp_candidate(&self) -> Option<PathBuf> {
         match self.style {
-            PathStyle::Windows => self.sources.var("TEMP"),
+            PathStyle::Windows => self
+                .non_empty_var("TEMP")
+                .or_else(|| self.non_empty_var("TMP")),
             PathStyle::Posix => self
-                .sources
-                .var("TMPDIR")
-                .filter(|raw| !raw.is_empty())
-                .or_else(|| Some(OsString::from(POSIX_TEMP_FALLBACK))),
+                .absolute_var("TMPDIR")
+                .or_else(|| Some(PathBuf::from(POSIX_TEMP_FALLBACK))),
         }
     }
 
-    fn profiles(&self) -> Vec<PathBuf> {
-        let userprofile = self.sources.var("USERPROFILE").map(PathBuf::from);
-        [self.sources.home(), userprofile]
-            .into_iter()
+    /// Profil et dossiers protégés, tels qu'écrits et résolus.
+    fn protected(&self) -> Protected {
+        let profile_var = match self.style {
+            PathStyle::Windows => "USERPROFILE",
+            PathStyle::Posix => "HOME",
+        };
+        let profiles = [self.sources.home(), self.non_empty_var(profile_var)];
+        let folders = UserFolder::ALL.map(|folder| self.sources.user_folder(folder));
+        Protected {
+            profiles: self.with_resolved(profiles.into_iter().flatten()),
+            folders: self.with_resolved(folders.into_iter().flatten()),
+        }
+    }
+
+    fn with_resolved(&self, paths: impl Iterator<Item = PathBuf>) -> Vec<PathBuf> {
+        paths
+            .flat_map(|path| [self.sources.resolve(&path), Some(path)])
             .flatten()
             .collect()
+    }
+}
+
+impl Default for SystemStandardPaths {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -124,10 +177,10 @@ impl AppDir {
         }
     }
 
-    const fn xdg_fallback(self) -> &'static str {
+    const fn xdg_fallback(self) -> &'static [&'static str] {
         match self {
-            Self::Config => ".config",
-            Self::State => ".local/state",
+            Self::Config => &[".config"],
+            Self::State => &[".local", "state"],
         }
     }
 
@@ -143,7 +196,7 @@ const fn unavailable(path: StandardPath) -> PlatformError {
     PlatformError::StandardPathUnavailable { path }
 }
 
-impl<S: Sources> StandardPaths for ComposedPaths<S> {
+impl StandardPaths for SystemStandardPaths {
     fn config_dir(&self) -> Result<PathBuf, PlatformError> {
         self.app_dir(AppDir::Config)
     }
@@ -156,10 +209,18 @@ impl<S: Sources> StandardPaths for ComposedPaths<S> {
         self.home()
     }
 
+    /// Le chemin est jugé tel qu'écrit puis résolu : un lien ou un nom court vers le profil est refusé.
     fn temp_dir(&self) -> Result<PathBuf, PlatformError> {
-        let candidate = self.temp_candidate();
-        safe_temp(candidate.as_deref(), &self.profiles(), self.style)
-            .ok_or(PlatformError::TempDirUnsafe)
+        let temp = self.temp_candidate().ok_or(PlatformError::TempDirUnsafe)?;
+        let resolved = self
+            .sources
+            .resolve(&temp)
+            .ok_or(PlatformError::TempDirUnsafe)?;
+        let protected = self.protected();
+        let is_safe = [&temp, &resolved]
+            .iter()
+            .all(|path| is_safe_temp(path, &protected, self.style));
+        is_safe.then_some(temp).ok_or(PlatformError::TempDirUnsafe)
     }
 
     fn user_folder(&self, folder: UserFolder) -> Result<PathBuf, PlatformError> {
@@ -167,49 +228,6 @@ impl<S: Sources> StandardPaths for ComposedPaths<S> {
             .user_folder(folder)
             .filter(|path| self.style.is_absolute(path))
             .ok_or(unavailable(StandardPath::Folder(folder)))
-    }
-}
-
-/// Les dossiers standard du système sur lequel Breathly tourne.
-pub struct SystemStandardPaths(ComposedPaths<OsSources>);
-
-impl SystemStandardPaths {
-    #[must_use]
-    pub const fn new() -> Self {
-        let style = if cfg!(windows) {
-            PathStyle::Windows
-        } else {
-            PathStyle::Posix
-        };
-        Self(ComposedPaths::new(style, OsSources))
-    }
-}
-
-impl Default for SystemStandardPaths {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl StandardPaths for SystemStandardPaths {
-    fn config_dir(&self) -> Result<PathBuf, PlatformError> {
-        self.0.config_dir()
-    }
-
-    fn state_dir(&self) -> Result<PathBuf, PlatformError> {
-        self.0.state_dir()
-    }
-
-    fn home_dir(&self) -> Result<PathBuf, PlatformError> {
-        self.0.home_dir()
-    }
-
-    fn temp_dir(&self) -> Result<PathBuf, PlatformError> {
-        self.0.temp_dir()
-    }
-
-    fn user_folder(&self, folder: UserFolder) -> Result<PathBuf, PlatformError> {
-        self.0.user_folder(folder)
     }
 }
 

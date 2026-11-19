@@ -18,6 +18,28 @@ pub enum UserFolder {
     Desktop,
 }
 
+impl UserFolder {
+    pub(crate) const ALL: [Self; 5] = [
+        Self::Documents,
+        Self::Pictures,
+        Self::Videos,
+        Self::Music,
+        Self::Desktop,
+    ];
+
+    /// Nom anglais du dossier, celui des faux et des tests.
+    #[cfg(any(test, feature = "fake"))]
+    pub(crate) const fn english_name(self) -> &'static str {
+        match self {
+            Self::Documents => "Documents",
+            Self::Pictures => "Pictures",
+            Self::Videos => "Videos",
+            Self::Music => "Music",
+            Self::Desktop => "Desktop",
+        }
+    }
+}
+
 /// Dossier qu'un adapter n'a pas pu établir ou refuse de renvoyer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum StandardPath {
@@ -47,12 +69,14 @@ pub trait StandardPaths: Send + Sync {
     /// `StandardPathUnavailable` si l'OS n'en donne pas.
     fn home_dir(&self) -> Result<PathBuf, PlatformError>;
 
-    /// Dossier des fichiers temporaires que la racine `%TEMP%` d'une règle désigne : `TEMP` sous Windows (et non
-    /// `TMP`, que Windows préfère pour écrire), `TMPDIR` puis `/tmp` sous Linux. Ne retombe jamais sur le dossier
-    /// personnel : une règle qui nettoie toute cette racine viserait tout le profil.
+    /// Dossier des fichiers temporaires que la racine `%TEMP%` d'une règle désigne : `TEMP` (puis `TMP` s'il manque)
+    /// sous Windows, `TMPDIR` absolu puis `/tmp` sous Linux. Ne retombe jamais sur le dossier personnel : une règle
+    /// qui nettoie toute cette racine viserait tout le profil.
     ///
     /// # Errors
-    /// `TempDirUnsafe` si le dossier est absent, vide, relatif, ou égal au dossier personnel ou à l'un de ses parents.
+    /// `TempDirUnsafe` (échec fermé) si le dossier est absent, relatif, introuvable, s'il contient `.` ou `..`, si le
+    /// dossier personnel est inconnu, s'il contient le dossier personnel ou un dossier protégé, ou s'il est dans un
+    /// dossier protégé ; chemins comparés tels qu'écrits puis résolus (liens, noms courts Windows).
     fn temp_dir(&self) -> Result<PathBuf, PlatformError>;
 
     /// Un des dossiers de l'utilisateur protégés par S5 (`Documents`, `Images`, etc.).

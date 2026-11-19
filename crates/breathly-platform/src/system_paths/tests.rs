@@ -2,12 +2,16 @@
 
 use std::collections::HashMap;
 
+use std::path::Path;
+
 use super::*;
 
+/// Sources choisies ; `links` simule un lien symbolique ou un nom court Windows, tout autre chemin existe tel quel.
 #[derive(Default)]
 struct MapSources {
     vars: HashMap<&'static str, &'static str>,
     home: Option<&'static str>,
+    links: HashMap<&'static str, &'static str>,
 }
 
 impl MapSources {
@@ -18,6 +22,11 @@ impl MapSources {
 
     fn home(mut self, home: &'static str) -> Self {
         self.home = Some(home);
+        self
+    }
+
+    fn link(mut self, from: &'static str, to: &'static str) -> Self {
+        self.links.insert(from, to);
         self
     }
 }
@@ -32,23 +41,22 @@ impl Sources for MapSources {
     }
 
     fn user_folder(&self, folder: UserFolder) -> Option<PathBuf> {
-        let name = match folder {
-            UserFolder::Documents => "Documents",
-            UserFolder::Pictures => "Pictures",
-            UserFolder::Videos => "Videos",
-            UserFolder::Music => "Music",
-            UserFolder::Desktop => "Desktop",
-        };
-        self.home.map(|home| PathBuf::from(home).join(name))
+        self.home
+            .map(|home| PathBuf::from(home).join(folder.english_name()))
+    }
+
+    fn resolve(&self, path: &Path) -> Option<PathBuf> {
+        let text = path.to_str()?;
+        Some(PathBuf::from(self.links.get(text).copied().unwrap_or(text)))
     }
 }
 
-fn linux(sources: MapSources) -> ComposedPaths<MapSources> {
-    ComposedPaths::new(PathStyle::Posix, sources)
+fn linux(sources: MapSources) -> SystemStandardPaths {
+    SystemStandardPaths::with_sources(PathStyle::Posix, Box::new(sources))
 }
 
-fn windows(sources: MapSources) -> ComposedPaths<MapSources> {
-    ComposedPaths::new(PathStyle::Windows, sources)
+fn windows(sources: MapSources) -> SystemStandardPaths {
+    SystemStandardPaths::with_sources(PathStyle::Windows, Box::new(sources))
 }
 
 const WIN_HOME: &str = r"C:\Users\Awa";
@@ -145,105 +153,4 @@ fn user_folders_come_from_the_system_and_must_be_absolute() {
     );
 }
 
-#[test]
-fn linux_temp_is_tmpdir_or_slash_tmp_never_home() {
-    let custom = linux(
-        MapSources::default()
-            .home("/home/awa")
-            .with("TMPDIR", "/var/tmp"),
-    );
-    assert_eq!(custom.temp_dir(), Ok(PathBuf::from("/var/tmp")));
-    let unset = linux(MapSources::default().home("/home/awa"));
-    assert_eq!(unset.temp_dir(), Ok(PathBuf::from("/tmp")));
-    let empty = linux(MapSources::default().home("/home/awa").with("TMPDIR", ""));
-    assert_eq!(empty.temp_dir(), Ok(PathBuf::from("/tmp")));
-}
-
-#[test]
-fn linux_temp_refuses_home_or_a_parent_of_home() {
-    for tmpdir in ["/home/awa", "/home/awa/", "/home", "/"] {
-        let paths = linux(
-            MapSources::default()
-                .home("/home/awa")
-                .with("TMPDIR", tmpdir),
-        );
-        assert_eq!(
-            paths.temp_dir(),
-            Err(PlatformError::TempDirUnsafe),
-            "{tmpdir}"
-        );
-    }
-    let relative = linux(MapSources::default().with("TMPDIR", "tmp"));
-    assert_eq!(relative.temp_dir(), Err(PlatformError::TempDirUnsafe));
-}
-
-#[test]
-fn windows_temp_is_the_temp_variable() {
-    let paths = windows(windows_session());
-    assert_eq!(
-        paths.temp_dir(),
-        Ok(PathBuf::from(r"C:\Users\Awa\AppData\Local\Temp"))
-    );
-}
-
-#[test]
-fn windows_temp_missing_or_empty_is_refused_not_replaced_by_the_profile() {
-    let without = windows(
-        MapSources::default()
-            .home(WIN_HOME)
-            .with("USERPROFILE", WIN_HOME),
-    );
-    assert_eq!(without.temp_dir(), Err(PlatformError::TempDirUnsafe));
-    let empty = windows(windows_session().with("TEMP", ""));
-    assert_eq!(empty.temp_dir(), Err(PlatformError::TempDirUnsafe));
-}
-
-#[test]
-fn windows_temp_equal_to_the_profile_or_its_parent_is_refused() {
-    for temp in [
-        r"C:\Users\Awa",
-        r"C:\Users\Awa\",
-        r"c:\users\AWA",
-        r"C:/Users/Awa",
-        r"C:\Users",
-        r"C:\",
-    ] {
-        let paths = windows(windows_session().with("TEMP", temp));
-        assert_eq!(
-            paths.temp_dir(),
-            Err(PlatformError::TempDirUnsafe),
-            "{temp}"
-        );
-    }
-}
-
-#[test]
-fn windows_temp_equal_to_userprofile_is_refused_even_without_a_known_home() {
-    let paths = windows(
-        MapSources::default()
-            .with("USERPROFILE", WIN_HOME)
-            .with("TEMP", WIN_HOME),
-    );
-    assert_eq!(paths.temp_dir(), Err(PlatformError::TempDirUnsafe));
-}
-
-#[test]
-fn windows_temp_must_be_absolute() {
-    for temp in ["Temp", r"..\Temp", r"\Temp"] {
-        let paths = windows(windows_session().with("TEMP", temp));
-        assert_eq!(
-            paths.temp_dir(),
-            Err(PlatformError::TempDirUnsafe),
-            "{temp}"
-        );
-    }
-}
-
-#[test]
-fn windows_temp_follows_temp_even_when_tmp_differs() {
-    let paths = windows(windows_session().with("TMP", r"D:\Scratch"));
-    assert_eq!(
-        paths.temp_dir(),
-        Ok(PathBuf::from(r"C:\Users\Awa\AppData\Local\Temp"))
-    );
-}
+mod temp;
