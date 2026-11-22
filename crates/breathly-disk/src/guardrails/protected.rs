@@ -46,8 +46,8 @@ fn check_user_folders(
 /// Les dossiers protégés de la maison, par leur nom français ou anglais (même s'ils n'ont pas de dossier standard).
 fn protected_names(home: &CanonicalPath) -> Result<Vec<PathBuf>, Refusal> {
     let mut found = Vec::new();
-    for entry in fs::read_dir(home.as_path()).map_err(|_| Refusal::PathBusy)? {
-        let entry = entry.map_err(|_| Refusal::PathBusy)?;
+    for entry in fs::read_dir(home.as_path()).map_err(|error| read_refusal(&error))? {
+        let entry = entry.map_err(|error| read_refusal(&error))?;
         if is_protected_folder(&entry.file_name().to_string_lossy()) {
             found.push(entry.path());
         }
@@ -72,7 +72,7 @@ fn store_firefox_profiles(packages: &Path) -> Result<Vec<PathBuf>, Refusal> {
     };
     let mut found = Vec::new();
     for entry in entries {
-        let entry = entry.map_err(|_| Refusal::PathBusy)?;
+        let entry = entry.map_err(|error| read_refusal(&error))?;
         let name = entry.file_name().to_string_lossy().to_lowercase();
         if name.starts_with(FIREFOX_PACKAGE_PREFIX) {
             found.push(entry.path().join(FIREFOX_PACKAGE_PROFILE));
@@ -85,7 +85,7 @@ fn read_dir_if_present(folder: &Path) -> Result<Option<fs::ReadDir>, Refusal> {
     match fs::read_dir(folder) {
         Ok(entries) => Ok(Some(entries)),
         Err(error) if error.kind() == ErrorKind::NotFound => Ok(None),
-        Err(_) => Err(Refusal::PathBusy),
+        Err(error) => Err(read_refusal(&error)),
     }
 }
 
@@ -130,9 +130,9 @@ fn check_git_and_containers(item: &CanonicalPath) -> Result<(), Refusal> {
 fn check_contents(folder: &Path) -> Result<(), Refusal> {
     let mut pending = vec![folder.to_path_buf()];
     while let Some(current) = pending.pop() {
-        let entries = fs::read_dir(&current).map_err(|_| Refusal::PathBusy)?;
+        let entries = fs::read_dir(&current).map_err(|error| read_refusal(&error))?;
         for entry in entries {
-            let entry = entry.map_err(|_| Refusal::PathBusy)?;
+            let entry = entry.map_err(|error| read_refusal(&error))?;
             check_entry(&entry, &mut pending)?;
         }
     }
@@ -146,7 +146,11 @@ fn check_entry(entry: &fs::DirEntry, pending: &mut Vec<PathBuf>) -> Result<(), R
     if is_encrypted_container(&entry.path()) {
         return Err(Refusal::EncryptedContainer);
     }
-    if entry.file_type().map_err(|_| Refusal::PathBusy)?.is_dir() {
+    if entry
+        .file_type()
+        .map_err(|error| read_refusal(&error))?
+        .is_dir()
+    {
         pending.push(entry.path());
     }
     Ok(())
@@ -159,4 +163,13 @@ fn is_git(name: &OsStr) -> bool {
 fn is_encrypted_container(path: &Path) -> bool {
     path.extension()
         .is_some_and(|extension| is_encrypted_container_extension(&extension.to_string_lossy()))
+}
+
+/// Une lecture refusée par les permissions est « inaccessible » ; toute autre cause est « occupé ».
+fn read_refusal(error: &std::io::Error) -> Refusal {
+    if error.kind() == ErrorKind::PermissionDenied {
+        Refusal::PathDenied
+    } else {
+        Refusal::PathBusy
+    }
 }

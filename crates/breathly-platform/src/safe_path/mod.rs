@@ -28,7 +28,7 @@ pub enum AnchorRefusal {
     /// Un composant du chemin est devenu un lien, une jonction, ou a disparu (`path_changed`).
     #[error("un dossier du chemin a changé depuis la vérification")]
     PathChanged,
-    /// Un dossier du chemin ne peut pas être ouvert : utilisé par un autre programme ou refusé (`path_busy`).
+    /// Un dossier du chemin ne peut pas être ouvert : utilisé par un autre programme (`path_busy`).
     #[error("un dossier du chemin est utilisé par un autre programme")]
     PathBusy,
     /// Un dossier du chemin est refusé par les permissions (`path_denied`).

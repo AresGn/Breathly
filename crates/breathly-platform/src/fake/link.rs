@@ -20,6 +20,7 @@ pub fn link_directory(link: &Path, target: &Path) -> io::Result<()> {
 #[cfg(windows)]
 #[allow(
     clippy::disallowed_methods,
+    clippy::disallowed_types,
     reason = "mklink /J crée une jonction sans droits administrateur : la bibliothèque standard n'en a pas (ADR 0019)"
 )]
 fn junction(link: &Path, target: &Path) -> io::Result<()> {
