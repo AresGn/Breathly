@@ -1,11 +1,15 @@
 //! Fichier ouvert sous Linux : instantané de `/proc` (ADR 0020, essai du 2026-10-19). Pour **chaque** vérification,
 //! les descripteurs (`/proc/<pid>/fd`) et les cartes mémoire (`/proc/<pid>/maps`) de chaque processus lisible, hors
 //! Breathly lui-même. Un processus illisible (autre compte, processus protégé) est ignoré : la limite est connue.
+//! Seul le processus de Breathly lui-même est exclu, pas ses descendants : un processus enfant qui tient le fichier
+//! est présenté comme un logiciel à fermer, ce qui refuse par prudence (jamais l'inverse).
 //! Si `/proc` est inutilisable (absent, ou pas même les descripteurs de Breathly lisibles), tout est « impossible ».
 //! Aucun `unsafe`, aucun programme externe.
 
 use std::collections::BTreeSet;
+use std::ffi::OsStr;
 use std::fs;
+use std::os::unix::ffi::OsStrExt;
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
@@ -119,10 +123,14 @@ struct Target<'a> {
 }
 
 impl Held {
-    /// Un fichier est tenu si son identité (dev, inode) figure dans l'instantané ; un dossier, si un chemin de
-    /// l'instantané se trouve dessous.
+    /// Un fichier est tenu si son identité (dev, inode) ou son chemin figure dans l'instantané ; un dossier, si un
+    /// chemin de l'instantané se trouve dessous. Le chemin est un second critère : le périphérique de `maps` est
+    /// celui du superbloc, qui peut différer de celui de `stat` (sous-volume btrfs, overlayfs) ; une
+    /// correspondance de trop refuse un élément, jamais n'en laisse passer un.
     fn covers(&self, target: &Target<'_>) -> bool {
-        self.identity == target.identity || (target.is_folder && self.path.starts_with(target.path))
+        self.identity == target.identity
+            || self.path == target.path
+            || (target.is_folder && self.path.starts_with(target.path))
     }
 }
 
@@ -146,20 +154,30 @@ fn descriptors(base: &Path, pid: ProcessId) -> Vec<Held> {
         .collect()
 }
 
-/// Les fichiers cartographiés en mémoire, dont le descripteur est peut-être fermé (`/proc/<pid>/maps`).
+/// Les fichiers cartographiés en mémoire, dont le descripteur est peut-être fermé (`/proc/<pid>/maps`). Lu en
+/// octets : un nom de fichier n'est pas toujours de l'UTF-8, et il ne doit pas faire disparaître l'entrée.
 fn mappings(base: &Path, pid: ProcessId) -> Vec<Held> {
-    let Ok(text) = fs::read_to_string(base.join("maps")) else {
+    let Ok(bytes) = fs::read(base.join("maps")) else {
         return Vec::new();
     };
-    text.lines().filter_map(|line| mapping(line, pid)).collect()
+    bytes
+        .split(|byte| *byte == b'\n')
+        .filter_map(|line| mapping(line, pid))
+        .collect()
 }
 
 /// Une ligne : `adresses droits décalage major:minor inode  chemin` ; le chemin peut contenir des espaces.
-fn mapping(line: &str, pid: ProcessId) -> Option<Held> {
-    let mut fields = line.splitn(6, ' ');
-    let device = fields.nth(3)?;
-    let inode: u64 = fields.next()?.trim().parse().ok()?;
-    let path = clean(Path::new(fields.next()?.trim_start()))?;
+fn mapping(line: &[u8], pid: ProcessId) -> Option<Held> {
+    let mut fields = line.splitn(6, |byte| *byte == b' ');
+    let device = std::str::from_utf8(fields.nth(3)?).ok()?;
+    let inode: u64 = std::str::from_utf8(fields.next()?)
+        .ok()?
+        .trim()
+        .parse()
+        .ok()?;
+    let path = clean(Path::new(OsStr::from_bytes(
+        fields.next()?.trim_ascii_start(),
+    )))?;
     let (major, minor) = device.split_once(':')?;
     let device = libc::makedev(
         u32::from_str_radix(major, 16).ok()?,
@@ -172,15 +190,17 @@ fn mapping(line: &str, pid: ProcessId) -> Option<Held> {
     })
 }
 
-/// Un chemin absolu, sans le suffixe « (deleted) » que le noyau ajoute à un fichier supprimé.
+/// Un chemin absolu, sans le suffixe « (deleted) » que le noyau ajoute à un fichier supprimé. Travaille en octets :
+/// un nom qui n'est pas de l'UTF-8 reste reconnu.
 fn clean(path: &Path) -> Option<PathBuf> {
-    let text = path.to_str()?;
-    if !text.starts_with('/') {
+    let bytes = path.as_os_str().as_bytes();
+    if bytes.first() != Some(&b'/') {
         return None;
     }
-    Some(PathBuf::from(
-        text.strip_suffix(DELETED_SUFFIX).unwrap_or(text),
-    ))
+    let bytes = bytes
+        .strip_suffix(DELETED_SUFFIX.as_bytes())
+        .unwrap_or(bytes);
+    Some(PathBuf::from(OsStr::from_bytes(bytes)))
 }
 
 #[cfg(test)]

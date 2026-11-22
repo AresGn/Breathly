@@ -26,14 +26,21 @@ impl FakeOpenFiles {
         Self::default()
     }
 
-    /// Le fichier `path` devient ouvert par ces logiciels. Un chemin introuvable n'est pas retenu.
+    /// Le fichier `path` devient ouvert par ces logiciels.
+    ///
+    /// # Panics
+    /// Si le chemin n'existe pas ou si un nom de logiciel est vide : un test qui se trompe doit échouer, pas croire
+    /// qu'un fichier est tenu alors que le faux ne le retient pas.
     pub fn hold(&self, path: impl Into<PathBuf>, programs: &[&str]) {
-        let Ok(canonical) = CanonicalPath::resolve(&path.into()) else {
-            return;
-        };
+        let path = path.into();
+        let canonical = CanonicalPath::resolve(&path)
+            .unwrap_or_else(|error| panic!("fichier à retenir introuvable : {error}"));
         let names = programs
             .iter()
-            .filter_map(|name| ProcessName::try_from((*name).to_owned()).ok())
+            .map(|name| {
+                ProcessName::try_from((*name).to_owned())
+                    .unwrap_or_else(|error| panic!("nom de logiciel {name:?} refusé : {error}"))
+            })
             .collect();
         self.lock().held.push((canonical, names));
     }
@@ -43,9 +50,14 @@ impl FakeOpenFiles {
         self.lock().held.clear();
     }
 
-    /// La détection tombe en panne (ou revient) : `Unavailable` pour tout élément.
-    pub fn set_unavailable(&self, is_unavailable: bool) {
-        self.lock().is_unavailable = is_unavailable;
+    /// La détection tombe en panne : `Unavailable` pour tout élément.
+    pub fn break_detection(&self) {
+        self.lock().is_unavailable = true;
+    }
+
+    /// La détection revient.
+    pub fn restore_detection(&self) {
+        self.lock().is_unavailable = false;
     }
 
     fn lock(&self) -> std::sync::MutexGuard<'_, State> {

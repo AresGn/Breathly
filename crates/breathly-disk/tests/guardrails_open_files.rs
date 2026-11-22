@@ -65,7 +65,7 @@ fn a_file_next_to_an_open_one_is_still_verified() -> TestResult {
 fn a_detection_that_fails_refuses_the_item_instead_of_allowing_it() -> TestResult {
     let fixture = Fixture::new()?;
     let item = fixture.file(".cache/demo/old.bin")?;
-    fixture.open_files.set_unavailable(true);
+    fixture.open_files.break_detection();
     let roots = [fixture.home().join(".cache/demo")];
     assert_eq!(
         fixture.verdict(&rule("safe")?, (&roots, &item)),

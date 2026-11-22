@@ -2,7 +2,9 @@
 //! fichiers d'essai, donc leur identité (dev, inode) est celle que le noyau donnerait.
 
 use std::error::Error;
+use std::ffi::OsStr;
 use std::fs;
+use std::os::unix::ffi::OsStrExt;
 use std::os::unix::fs::{MetadataExt, symlink};
 use std::path::{Path, PathBuf};
 
@@ -151,6 +153,41 @@ fn a_deleted_file_still_mapped_keeps_its_folder_in_use() -> TestResult {
         fake.status(&fake.sandbox.path().join("cache"))?,
         programs(&["player"])?
     );
+    Ok(())
+}
+
+#[test]
+fn a_file_whose_name_is_not_utf8_is_still_seen_through_a_descriptor() -> TestResult {
+    let fake = FakeProc::new()?;
+    let file = fake.sandbox.path().join(OsStr::from_bytes(b"caf\xe9.bin"));
+    fs::write(&file, b"x")?;
+    fake.hold((200, "editeur"), &file)?;
+    assert_eq!(fake.status(&file)?, programs(&["editeur"])?);
+    Ok(())
+}
+
+#[test]
+fn a_file_whose_name_is_not_utf8_is_still_seen_through_a_mapping() -> TestResult {
+    let fake = FakeProc::new()?;
+    let file = fake.sandbox.path().join(OsStr::from_bytes(b"caf\xe9.so"));
+    fs::write(&file, b"x")?;
+    let base = fake.process(200, "player")?;
+    let mut line = b"7f00-7f10 r--p 0 00:00 0 ".to_vec();
+    line.extend_from_slice(file.as_os_str().as_bytes());
+    line.push(b'\n');
+    fs::write(base.join("maps"), line)?;
+    assert_eq!(fake.status(&file)?, programs(&["player"])?);
+    Ok(())
+}
+
+#[test]
+fn a_mapping_whose_device_differs_from_stat_is_matched_by_its_path() -> TestResult {
+    let fake = FakeProc::new()?;
+    let file = fake.file("lib.so")?;
+    let base = fake.process(200, "player")?;
+    let line = format!("7f00-7f10 r--p 0 ff:ff 987654321 {}\n", file.display());
+    fs::write(base.join("maps"), line)?;
+    assert_eq!(fake.status(&file)?, programs(&["player"])?);
     Ok(())
 }
 
