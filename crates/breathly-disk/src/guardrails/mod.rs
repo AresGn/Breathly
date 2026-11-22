@@ -1,9 +1,9 @@
 //! Garde-fous S5 et `VerifiedItem` (ticket #72, SEC2, ADR 0018 et 0019).
 //!
 //! Pour chaque élément, au moment d'agir : refus d'un niveau 🔴, élément hors de tout emplacement de la règle,
-//! dossiers de l'utilisateur, profils de navigateur, conteneurs chiffrés, dossiers `.git`, puis ancrage sans suivre
-//! de lien. Aucun réglage ne désactive un garde-fou : `Guardrails` n'en lit aucun. Les garde-fous « fichier ouvert »
-//! (#73), liens symboliques (#74) et liste d'exclusion (#75) ont leur ticket.
+//! dossiers de l'utilisateur, profils de navigateur, conteneurs chiffrés, dossiers `.git`, fichiers ouverts (#73, ADR
+//! 0020), puis ancrage sans suivre de lien. Aucun réglage ne désactive un garde-fou : `Guardrails` n'en lit aucun. Les
+//! garde-fous liens symboliques (#74) et liste d'exclusion (#75) ont leur ticket.
 
 mod browsers;
 mod protected;
@@ -12,7 +12,9 @@ mod verified;
 
 use std::path::{Path, PathBuf};
 
-use breathly_platform::{CanonicalPath, PathAnchor, StandardPaths};
+use breathly_platform::{
+    CanonicalPath, OpenFileInspector, OpenFileStatus, PathAnchor, StandardPaths,
+};
 use breathly_rules::Rule;
 
 pub use refusal::Refusal;
@@ -32,19 +34,24 @@ pub struct Candidate<'a> {
 /// Les garde-fous S5, revérifiés pour chaque élément.
 pub struct Guardrails<'a> {
     paths: &'a dyn StandardPaths,
+    open_files: &'a dyn OpenFileInspector,
 }
 
 impl<'a> Guardrails<'a> {
     #[must_use]
-    pub const fn new(paths: &'a dyn StandardPaths) -> Self {
-        Self { paths }
+    pub const fn new(paths: &'a dyn StandardPaths, open_files: &'a dyn OpenFileInspector) -> Self {
+        Self { paths, open_files }
     }
 
     /// Revérifie l'élément et renvoie son identité, ou le refus (un résultat typé : les autres éléments continuent).
     ///
     /// # Errors
     /// [`Refusal`] : niveau 🔴, hors règle, dossier protégé, profil de navigateur, conteneur chiffré, `.git`,
-    /// chemin introuvable, `path_changed` ou `path_busy`.
+    /// fichier ouvert (ou vérification impossible), chemin introuvable, `path_changed` ou `path_busy`.
+    ///
+    /// Un élément qui est ou contient un fichier ouvert est refusé en entier : Breathly ne ferme jamais un logiciel
+    /// (invariant 10). L'état « partiel » d'un dossier 🟢 (les fichiers ouverts conservés, le reste supprimé)
+    /// viendra avec la suppression (tickets #81 et #82), qui revérifie chaque fichier.
     pub fn verify(&self, candidate: &Candidate<'_>) -> Result<VerifiedItem, Refusal> {
         let rule = candidate.rule;
         if !rule.risk().is_selectable() {
@@ -53,8 +60,19 @@ impl<'a> Guardrails<'a> {
         let item = CanonicalPath::resolve(candidate.path)?;
         let root = containing_root(candidate.roots, &item)?;
         protected::check(&item, self.paths)?;
+        self.ensure_not_open(&item)?;
         let anchor = PathAnchor::open(&root, &item)?;
         Ok(VerifiedItem::new(rule, item.display_path(), anchor))
+    }
+
+    /// Interroge le système à chaque appel : un élément devenu ouvert entre l'analyse et l'action est refusé. Quand
+    /// la détection est impossible, le refus est la décision de l'ADR 0020 (échec fermé).
+    fn ensure_not_open(&self, item: &CanonicalPath) -> Result<(), Refusal> {
+        match self.open_files.check(item) {
+            OpenFileStatus::Free => Ok(()),
+            OpenFileStatus::InUse { programs } => Err(Refusal::InUse { programs }),
+            OpenFileStatus::Unavailable => Err(Refusal::OpenCheckUnavailable),
+        }
     }
 }
 

@@ -7,6 +7,7 @@
 mod clock;
 mod disk;
 mod error;
+mod open_file;
 mod paths;
 mod process;
 mod safe_path;
@@ -23,6 +24,7 @@ pub mod fake;
 pub use clock::Clock;
 pub use disk::{DiskInspector, Volume, VolumeRole, VolumeSpace};
 pub use error::{Measure, PlatformError};
+pub use open_file::{OpenFileInspector, OpenFileStatus, SystemOpenFiles};
 pub use paths::{StandardPath, StandardPaths, UserFolder};
 pub use process::{
     Executable, ExecutableOrigin, MemoryUsage, Packaging, ProcessInspector, ProcessRole,

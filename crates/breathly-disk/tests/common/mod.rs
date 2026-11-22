@@ -9,7 +9,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use breathly_disk::{Candidate, Guardrails, Refusal};
-use breathly_platform::fake::FixedStandardPaths;
+use breathly_platform::fake::{FakeOpenFiles, FixedStandardPaths};
 use breathly_rules::{Rule, parse_cleanup_rules};
 use tempfile::TempDir;
 
@@ -18,6 +18,7 @@ pub type TestResult = Result<(), Box<dyn Error>>;
 pub struct Fixture {
     pub sandbox: TempDir,
     pub paths: FixedStandardPaths,
+    pub open_files: FakeOpenFiles,
 }
 
 impl Fixture {
@@ -25,7 +26,11 @@ impl Fixture {
         let sandbox = tempfile::tempdir()?;
         fs::create_dir_all(sandbox.path().join("home"))?;
         let paths = FixedStandardPaths::under(sandbox.path());
-        Ok(Self { sandbox, paths })
+        Ok(Self {
+            sandbox,
+            paths,
+            open_files: FakeOpenFiles::new(),
+        })
     }
 
     pub fn home(&self) -> PathBuf {
@@ -41,12 +46,14 @@ impl Fixture {
 
     pub fn verdict(&self, rule: &Rule, place: (&[PathBuf], &Path)) -> Result<(), Refusal> {
         let (roots, path) = place;
-        verdict_of(&self.paths, Candidate { rule, roots, path })
+        verdict_of(self, Candidate { rule, roots, path })
     }
 }
 
-pub fn verdict_of(paths: &FixedStandardPaths, candidate: Candidate<'_>) -> Result<(), Refusal> {
-    Guardrails::new(paths).verify(&candidate).map(drop)
+pub fn verdict_of(fixture: &Fixture, candidate: Candidate<'_>) -> Result<(), Refusal> {
+    Guardrails::new(&fixture.paths, &fixture.open_files)
+        .verify(&candidate)
+        .map(drop)
 }
 
 pub fn rule(risk: &str) -> Result<Rule, Box<dyn Error>> {
