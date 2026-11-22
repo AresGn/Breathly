@@ -14,6 +14,7 @@ const FILE_SHARE_WRITE: u32 = 0x2;
 const FILE_FLAG_BACKUP_SEMANTICS: u32 = 0x0200_0000;
 const FILE_FLAG_OPEN_REPARSE_POINT: u32 = 0x0020_0000;
 const FILE_ATTRIBUTE_REPARSE_POINT: u32 = 0x400;
+const ERROR_ACCESS_DENIED: i32 = 5;
 const ERROR_SHARING_VIOLATION: i32 = 32;
 
 /// Les handles des dossiers de la chaîne, tenus ouverts tant que l'ancre vit, et le nom de l'élément.
@@ -67,11 +68,11 @@ fn lock_folder(path: &Path) -> Result<File, AnchorRefusal> {
     Ok(handle)
 }
 
-/// Violation de partage (32) : utilisé par un autre programme. Tout le reste : le dossier a changé ou disparu.
+/// Violation de partage (32) : utilisé par un autre programme ; accès refusé (5) : permissions. Tout le reste : le dossier a changé ou disparu.
 fn refusal(error: &io::Error) -> AnchorRefusal {
-    if error.raw_os_error() == Some(ERROR_SHARING_VIOLATION) {
-        AnchorRefusal::PathBusy
-    } else {
-        AnchorRefusal::PathChanged
+    match error.raw_os_error() {
+        Some(ERROR_SHARING_VIOLATION) => AnchorRefusal::PathBusy,
+        Some(ERROR_ACCESS_DENIED) => AnchorRefusal::PathDenied,
+        Some(_) | None => AnchorRefusal::PathChanged,
     }
 }

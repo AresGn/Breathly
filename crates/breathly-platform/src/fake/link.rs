@@ -23,17 +23,19 @@ pub fn link_directory(link: &Path, target: &Path) -> io::Result<()> {
     reason = "mklink /J crée une jonction sans droits administrateur : la bibliothèque standard n'en a pas (ADR 0019)"
 )]
 fn junction(link: &Path, target: &Path) -> io::Result<()> {
-    let status = std::process::Command::new("cmd")
-        .arg("/C")
-        .arg("mklink")
-        .arg("/J")
-        .arg(link)
-        .arg(target)
-        .output()?
-        .status;
-    if status.success() {
+    let backslashed = |path: &Path| path.to_string_lossy().replace('/', "\\");
+    let output = std::process::Command::new("cmd")
+        .args(["/C", "mklink", "/J"])
+        .arg(backslashed(link))
+        .arg(backslashed(target))
+        .output()?;
+    if output.status.success() {
         Ok(())
     } else {
-        Err(io::Error::other("mklink /J a échoué"))
+        Err(io::Error::other(format!(
+            "mklink /J a échoué : {} {}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        )))
     }
 }

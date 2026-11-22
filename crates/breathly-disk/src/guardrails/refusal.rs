@@ -25,6 +25,8 @@ pub enum Refusal {
     PathChanged,
     #[error("un dossier du chemin est utilisé par un autre programme")]
     PathBusy,
+    #[error("un dossier du chemin est inaccessible (permissions)")]
+    PathDenied,
 }
 
 impl Refusal {
@@ -54,6 +56,7 @@ impl Refusal {
             Self::PathUnresolvable => ("guard.path_unresolvable", "errors.guard.path_unresolvable"),
             Self::PathChanged => ("guard.path_changed", "errors.guard.path_changed"),
             Self::PathBusy => ("guard.path_busy", "errors.guard.path_busy"),
+            Self::PathDenied => ("guard.path_denied", "errors.guard.path_denied"),
         }
     }
 }
@@ -63,6 +66,7 @@ impl From<AnchorRefusal> for Refusal {
         match refusal {
             AnchorRefusal::PathChanged => Self::PathChanged,
             AnchorRefusal::PathBusy => Self::PathBusy,
+            AnchorRefusal::PathDenied => Self::PathDenied,
         }
     }
 }

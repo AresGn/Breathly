@@ -31,13 +31,16 @@ pub enum AnchorRefusal {
     /// Un dossier du chemin ne peut pas être ouvert : utilisé par un autre programme ou refusé (`path_busy`).
     #[error("un dossier du chemin est utilisé par un autre programme")]
     PathBusy,
+    /// Un dossier du chemin est refusé par les permissions (`path_denied`).
+    #[error("un dossier du chemin est inaccessible (permissions)")]
+    PathDenied,
 }
 
 /// Chemin absolu passé par `fs::canonicalize` : liens suivis, casse et noms courts Windows normalisés.
 ///
 /// Un chemin brut ne se compare jamais à un chemin canonique (ADR 0019) : le type l'interdit. Son `Debug` masque
 /// la valeur (SEC9).
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone)]
 pub struct CanonicalPath(PathBuf);
 
 impl fmt::Debug for CanonicalPath {
@@ -45,6 +48,15 @@ impl fmt::Debug for CanonicalPath {
         formatter.write_str("CanonicalPath(..)")
     }
 }
+
+/// Égalité composante par composante, comme `is_within` : sans tenir compte de la casse sous Windows.
+impl PartialEq for CanonicalPath {
+    fn eq(&self, other: &Self) -> bool {
+        self.is_within(other) && other.is_within(self)
+    }
+}
+
+impl Eq for CanonicalPath {}
 
 impl CanonicalPath {
     /// Canonicalise `path`.
@@ -120,7 +132,7 @@ impl PathAnchor {
     ///
     /// # Errors
     /// `PathChanged` si `target` n'est pas sous `root`, ou si un composant est devenu un lien, une jonction ou a
-    /// disparu ; `PathBusy` si un dossier ne peut pas être ouvert (utilisé par un autre programme).
+    /// disparu ; `PathBusy` si un dossier est utilisé par un autre programme ; `PathDenied` si les permissions l'interdisent.
     pub fn open(root: &CanonicalPath, target: &CanonicalPath) -> Result<Self, AnchorRefusal> {
         let below = target
             .components_below(root)

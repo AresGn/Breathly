@@ -16,6 +16,15 @@ use std::collections::BTreeSet;
 pub use embedded::{embedded_rule_file_names, load_cleanup_rules};
 pub use error::{Field, Language, RuleDefect, RuleRef, RulesError};
 pub use path::{PathRefusal, PathRoot, RulePath, is_protected_folder};
+/// Vrai si `extension` (sans le point, sans tenir compte de la casse) est celle d'un conteneur chiffré, d'un coffre
+/// ou d'une clé (S5, design 0004) : la liste des règles et celle des garde-fous sont la même.
+#[must_use]
+pub fn is_encrypted_container_extension(extension: &str) -> bool {
+    validate::ENCRYPTED_CONTAINER_EXTENSIONS
+        .iter()
+        .any(|known| known.eq_ignore_ascii_case(extension))
+}
+
 pub use rule::{InformativeCommand, LocalizedText, Os, PathsByOs, RiskLevel, Rule, RuleId, Target};
 
 use crate::raw::RawRule;

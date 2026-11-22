@@ -92,12 +92,11 @@ fn check_entry_at(parent: &OwnedFd, name: &OsStr) -> Result<(), AnchorRefusal> {
     Ok(())
 }
 
-/// Un dossier refusé à l'ouverture est « occupé » ; un lien (`ELOOP`), un non-dossier ou une disparition, « changé ».
+/// Un refus de permission est « inaccessible », `EBUSY` « occupé » ; un lien (`ELOOP`), un non-dossier ou une disparition, « changé ».
 fn refusal(error: &io::Error) -> AnchorRefusal {
     match error.raw_os_error() {
-        Some(code) if code == libc::EACCES || code == libc::EPERM || code == libc::EBUSY => {
-            AnchorRefusal::PathBusy
-        }
+        Some(code) if code == libc::EACCES || code == libc::EPERM => AnchorRefusal::PathDenied,
+        Some(code) if code == libc::EBUSY => AnchorRefusal::PathBusy,
         Some(_) | None => AnchorRefusal::PathChanged,
     }
 }

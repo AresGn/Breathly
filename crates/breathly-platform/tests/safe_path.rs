@@ -26,6 +26,16 @@ fn a_path_is_within_its_root_and_a_sibling_with_the_same_prefix_is_not() -> Test
 }
 
 #[test]
+fn equality_follows_the_same_rule_as_is_within() -> TestResult {
+    let sandbox = tempfile::tempdir()?;
+    fs::create_dir_all(sandbox.path().join("a"))?;
+    let first = canonical(&sandbox.path().join("a"))?;
+    assert_eq!(first, canonical(&sandbox.path().join("a"))?);
+    assert_ne!(first, canonical(sandbox.path())?);
+    Ok(())
+}
+
+#[test]
 fn a_missing_path_cannot_be_resolved() -> TestResult {
     let sandbox = tempfile::tempdir()?;
     assert!(CanonicalPath::resolve(&sandbox.path().join("absent")).is_err());
@@ -111,7 +121,7 @@ fn a_folder_of_the_chain_turned_into_a_link_after_resolution_is_refused() -> Tes
 
 #[cfg(unix)]
 #[test]
-fn a_folder_that_cannot_be_opened_is_busy_not_lost() -> TestResult {
+fn a_folder_without_permission_is_denied_not_lost() -> TestResult {
     use std::os::unix::fs::PermissionsExt;
 
     let sandbox = tempfile::tempdir()?;
@@ -127,7 +137,7 @@ fn a_folder_that_cannot_be_opened_is_busy_not_lost() -> TestResult {
     if still_readable {
         return Ok(());
     }
-    assert_eq!(outcome.unwrap_err(), AnchorRefusal::PathBusy);
+    assert_eq!(outcome.unwrap_err(), AnchorRefusal::PathDenied);
     Ok(())
 }
 
