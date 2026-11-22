@@ -34,6 +34,8 @@ pub enum PlatformError {
     StandardPathUnavailable { path: StandardPath },
     #[error("dossier temporaire absent ou confondu avec le dossier personnel")]
     TempDirUnsafe,
+    #[error("chemin introuvable ou impossible à résoudre")]
+    PathUnresolvable,
 }
 
 impl PlatformError {
@@ -79,6 +81,10 @@ impl PlatformError {
                 "platform.temp_dir_unsafe",
                 "errors.platform.temp_dir_unsafe",
             ),
+            Self::PathUnresolvable => (
+                "platform.path_unresolvable",
+                "errors.platform.path_unresolvable",
+            ),
         }
     }
 }
@@ -102,6 +108,7 @@ mod tests {
                 path: StandardPath::Config,
             },
             PlatformError::TempDirUnsafe,
+            PlatformError::PathUnresolvable,
         ];
         for error in errors {
             assert!(error.code().starts_with("platform."));

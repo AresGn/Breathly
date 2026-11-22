@@ -9,6 +9,7 @@ mod disk;
 mod error;
 mod paths;
 mod process;
+mod safe_path;
 mod system;
 mod system_paths;
 mod temp_guard;
@@ -27,6 +28,7 @@ pub use process::{
     Executable, ExecutableOrigin, MemoryUsage, Packaging, ProcessInspector, ProcessRole,
     ProcessSnapshot,
 };
+pub use safe_path::{AnchorRefusal, CanonicalPath, PathAnchor};
 pub use system::{CpuTimes, MemoryStatus, SwapDevice, SwapKind, SwapStatus, SystemInspector};
 pub use system_paths::SystemStandardPaths;
 pub use temperature::{TemperatureReader, TemperatureReading};

@@ -167,12 +167,19 @@ dependencies = [
 [[package]]
 name = "breathly-disk"
 version = "0.0.0"
+dependencies = [
+ "breathly-platform",
+ "breathly-rules",
+ "tempfile",
+ "thiserror 2.0.21",
+]
 
 [[package]]
 name = "breathly-platform"
 version = "0.0.0"
 dependencies = [
  "dirs",
+ "libc",
  "tempfile",
  "thiserror 2.0.21",
 ]

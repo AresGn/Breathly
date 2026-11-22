@@ -15,7 +15,7 @@ use std::collections::BTreeSet;
 
 pub use embedded::{embedded_rule_file_names, load_cleanup_rules};
 pub use error::{Field, Language, RuleDefect, RuleRef, RulesError};
-pub use path::{PathRefusal, PathRoot, RulePath};
+pub use path::{PathRefusal, PathRoot, RulePath, is_protected_folder};
 pub use rule::{InformativeCommand, LocalizedText, Os, PathsByOs, RiskLevel, Rule, RuleId, Target};
 
 use crate::raw::RawRule;
