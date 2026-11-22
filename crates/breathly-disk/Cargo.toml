@@ -8,5 +8,14 @@ license.workspace = true
 repository.workspace = true
 publish.workspace = true
 
+[dependencies]
+breathly-platform = { path = "../breathly-platform" }
+breathly-rules = { path = "../breathly-rules" }
+thiserror = "2.0.21"
+
+[dev-dependencies]
+breathly-platform = { path = "../breathly-platform", features = ["fake"] }
+tempfile = "3.27.0"
+
 [lints]
 workspace = true

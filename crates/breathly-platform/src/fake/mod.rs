@@ -2,6 +2,7 @@
 //!
 //! Aucun faux ne lit ni n'écrit le vrai système : tout reste en mémoire (PRD §14).
 
+mod link;
 mod paths;
 mod trash;
 
@@ -16,6 +17,7 @@ use crate::process::{ProcessInspector, ProcessSnapshot};
 use crate::system::{CpuTimes, MemoryStatus, SwapStatus, SystemInspector};
 use crate::temperature::{TemperatureReader, TemperatureReading};
 
+pub use link::link_directory;
 pub use paths::FixedStandardPaths;
 pub use trash::MemoryTrash;
 

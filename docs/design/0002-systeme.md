@@ -126,4 +126,4 @@ Le cœur est exposé à l'interface par des **commandes Tauri** enregistrées un
 | 5 | Noms exacts de l'API Tauri pour la progression | ouvert, non vérifié |
 | 6 | Mémoire et fils de l'analyse du disque | ouvert, mesuré par le prototype (ADR 0008) |
 | 8 | `sysinfo` renvoie les fils d'exécution comme des processus sous Linux : les écarter (`thread_kind`) et regrouper par nom d'exécutable, sinon la mémoire est comptée plusieurs fois (prototype P2) | établi le 2026-10-18 ; RSS cumulé d'un navigateur à relire (mémoire partagée) |
-| 7 | Chemins Windows très longs et jonctions dans les garde-fous | ouvert : tests dédiés (US-034.3) |
+| 7 | Chemins Windows très longs et jonctions dans les garde-fous | décidé par l'ADR 0019 ; garde-fous et ancrage écrits (ticket #72) ; tests de jonction et de chemins longs sous `windows-latest` (US-034.3) |

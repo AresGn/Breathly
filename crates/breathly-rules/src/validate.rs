@@ -11,7 +11,7 @@ use crate::rule::{
 };
 
 /// Extensions de conteneurs chiffrés, de coffres et de clés, jamais nettoyables (S5, liste « … » élargie).
-const ENCRYPTED_CONTAINER_EXTENSIONS: [&str; 10] = [
+pub(crate) const ENCRYPTED_CONTAINER_EXTENSIONS: [&str; 10] = [
     "hc", "vc", "tc", "kdbx", "kdb", "luks", "gpg", "pgp", "age", "key",
 ];
 const EXTENSION_MAX_LEN: usize = 16;

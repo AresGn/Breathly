@@ -200,6 +200,8 @@ fn check_component(name: &str) -> Result<(), PathRefusal> {
     Ok(())
 }
 
-fn is_protected_folder(name: &str) -> bool {
+/// Vrai si `name` est un dossier protégé de l'utilisateur (S5), en français ou en anglais, sans tenir compte de la casse.
+#[must_use]
+pub fn is_protected_folder(name: &str) -> bool {
     PROTECTED_USER_FOLDERS.contains(&name.to_lowercase().as_str())
 }

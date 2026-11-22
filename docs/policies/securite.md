@@ -37,7 +37,7 @@
 
 ## 3. Décisions à prendre par un ADR avant le premier code sensible
 
-- **Suppression sûre** : stratégie contre l'écart entre vérification et action. **Le prototype P1 (2026-10-18) a démontré la faille** : si un dossier du chemin devient un lien symbolique entre la vérification et l'action, `trash::delete` suit le lien et atteint un fichier protégé ; recanoniser juste avant d'agir la détecte sans fermer la fenêtre. À décider : comparaison d'identité du dossier parent avant et après, ou opérations relatives à un descripteur pour la suppression définitive. Normalisation sous Windows (chemins longs, jonctions) non étudiée.
+- **Suppression sûre** : **décidé** (ADR 0018 pour Linux et Windows, ADR 0019 pour les chemins Windows). Les opérations s'appuient sur l'identité des dossiers de la chaîne, ouverts sans suivre de lien (`PathAnchor`), et non sur un chemin revérifié. Le module des garde-fous et `VerifiedItem` sont écrits (ticket #72) ; les opérations de suppression arrivent avec les tickets #81 et #82.
 - **Configuration Tauri** : une CSP stricte (`default-src 'self'`, aucun contenu distant) et une liste de capacités **vide** sont posées dans `tauri.conf.json` ; le rendu de la coquille sous cette CSP est vérifié (2026-10-18, `docs/research/2026-10-18-coquille-desktop.md`). Chaque écran ou commande future ajuste la CSP et la capacité de la fenêtre principale par une PR qui le dit.
 - **Construction des installeurs** : l'AppImage télécharge `AppRun`, `linuxdeploy` et un greffon « continuous » non épinglés par empreinte ; **décision du 2026-10-18 : pas d'AppImage en V0.1** (ADR 0008), elle reviendra avec ses outils épinglés par empreinte (SEC11).
 - **Garde réseau** : outil exact de contrôle de l'arbre de dépendances (SEC1).

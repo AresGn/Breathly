@@ -45,6 +45,7 @@ Sont acceptées pour la V0.1, en plus de l'ADR 0011 :
 | `trash` | 5.2.9 | 2026-09-13 | MIT | platform |
 | `jwalk` | 0.9.0 | 2026-08-05 | MIT | disk (sous réserve de la mesure du ticket #48) |
 | `dirs` | 7.0.0 | 2026-09-05 | MIT OR Apache-2.0 | platform |
+| `libc` (Unix seulement) | 0.2.190 | 2026-10-02 | MIT OR Apache-2.0 | platform (ADR 0018 : `openat`, `fstatat`) |
 | `open` | 5.4.4 | 2026-09-10 | MIT | platform |
 | `time` (fonctions `formatting` et `parsing`) | 0.3.55 | 2026-08-01 | MIT OR Apache-2.0 | platform, disk |
 | `tracing-subscriber` (sans fonctions par défaut, `fmt` seule) | 0.3.23 | 2026-03-13 | MIT | desktop |
