@@ -22,7 +22,7 @@ fn an_item_inside_a_rule_location_is_verified() -> TestResult {
         roots: &roots,
         path: &item,
     };
-    let verified = Guardrails::new(&fixture.paths).verify(&candidate)?;
+    let verified = Guardrails::new(&fixture.paths, &fixture.open_files).verify(&candidate)?;
     assert_eq!(verified.rule().as_str(), "demo-cache");
     assert_eq!(verified.risk(), RiskLevel::Safe);
     assert_eq!(verified.anchor().file_name(), "old.bin");

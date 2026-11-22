@@ -44,3 +44,11 @@ Le garde-fou S5 (invariant 3 d'`AGENTS.md`, US-034.1) interdit de supprimer un f
 ## Impact sur l'architecture
 
 Un port de plus dans `breathly-platform` (design 0002 §5), sans changement du graphe de dépendances (design 0002 §3). Le design 0002 §5 (traits de `platform`) et la liste d'`AGENTS.md` listent le nouveau port dans la PR du ticket #73 ; `docs/policies/securite.md` §3 n'a plus de point ouvert sur ce sujet.
+
+## Mise en œuvre du garde-fou (ticket #73)
+
+- Le port `OpenFileInspector` et son adapter `SystemOpenFiles` sont dans `breathly-platform` ; `Guardrails::verify` l'interroge pour chaque élément, au moment d'agir, après les dossiers protégés et avant l'ancrage.
+- **Refus d'un élément entier.** Le garde-fou refuse tout élément qui est ou contient un fichier ouvert (`guard.in_use`), quel que soit son niveau. L'état « partiel » d'un dossier 🟢 (fichiers ouverts conservés, reste supprimé) arrive avec la suppression (tickets #81 et #82), qui revérifie chaque fichier : refuser en entier ici est le seul choix sûr tant que rien ne supprime fichier par fichier.
+- **Une seule raison pour « impossible ».** Une détection qui échoue pour tout `/proc` et une sonde Windows qui échoue pour un élément (code autre que 32) donnent la même raison `guard.open_check_unavailable` ; l'ADR en nommait deux (`open_check_unavailable`, `open_check_failed`), l'explication affichée est la même.
+- **Windows : le handle de la sonde n'est pas gardé.** Le garde-fou ne fait qu'un contrôle ; garder le handle ouvert pendant l'action (pas d'écart entre la sonde et la suppression) revient au ticket #81. Un dossier est parcouru fichier par fichier, liens et jonctions non suivis.
+- **Non vérifié** : le module Windows n'a été que compilé et passé à Clippy pour la cible Windows ; son test (`tests/open_files_windows.rs`) reste à jouer à la main sur la machine de validation.

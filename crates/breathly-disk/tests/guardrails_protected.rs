@@ -139,7 +139,7 @@ fn a_user_folder_the_system_cannot_name_makes_the_item_refused_not_allowed() -> 
         roots: &roots,
         path: &item,
     };
-    let verdict = breathly_disk::Guardrails::new(&paths).verify(&candidate);
+    let verdict = breathly_disk::Guardrails::new(&paths, &fixture.open_files).verify(&candidate);
     assert_eq!(verdict.unwrap_err(), Refusal::PathUnresolvable);
     Ok(())
 }

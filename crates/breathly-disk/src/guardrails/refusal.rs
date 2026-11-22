@@ -1,11 +1,12 @@
 //! Les refus des garde-fous : un résultat typé, jamais une erreur du nettoyage (design 0001 : l'élément est
 //! « ignoré » et les autres continuent).
 
-use breathly_platform::{AnchorRefusal, PlatformError};
+use breathly_platform::{AnchorRefusal, PlatformError, ProcessName};
 use thiserror::Error;
 
-/// Pourquoi un élément n'est pas vérifié. Aucune variante ne porte de chemin (SEC9).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
+/// Pourquoi un élément n'est pas vérifié. Aucune variante ne porte de chemin (SEC9) ; `InUse` porte les noms courts
+/// des logiciels, pour l'explication (« fermez-le puis relancez l'analyse »).
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum Refusal {
     #[error("un élément 🔴 n'est jamais sélectionnable")]
     NotSelectable,
@@ -19,6 +20,10 @@ pub enum Refusal {
     EncryptedContainer,
     #[error("dossier .git")]
     GitFolder,
+    #[error("fichier ouvert par un logiciel")]
+    InUse { programs: Vec<ProcessName> },
+    #[error("impossible de savoir si un fichier est ouvert")]
+    OpenCheckUnavailable,
     #[error("chemin introuvable ou impossible à résoudre")]
     PathUnresolvable,
     #[error("un dossier du chemin a changé depuis l'analyse")]
@@ -32,17 +37,17 @@ pub enum Refusal {
 impl Refusal {
     /// Code stable, repris dans l'historique et les journaux.
     #[must_use]
-    pub const fn code(self) -> &'static str {
+    pub const fn code(&self) -> &'static str {
         self.names().0
     }
 
     /// Clé du texte d'explication affiché (US-036.4), dans les catalogues de `locales/`.
     #[must_use]
-    pub const fn translation_key(self) -> &'static str {
+    pub const fn translation_key(&self) -> &'static str {
         self.names().1
     }
 
-    const fn names(self) -> (&'static str, &'static str) {
+    const fn names(&self) -> (&'static str, &'static str) {
         match self {
             Self::NotSelectable => ("guard.not_selectable", "errors.guard.not_selectable"),
             Self::OutsideRule => ("guard.outside_rule", "errors.guard.outside_rule"),
@@ -53,6 +58,11 @@ impl Refusal {
                 "errors.guard.encrypted_container",
             ),
             Self::GitFolder => ("guard.git_folder", "errors.guard.git_folder"),
+            Self::InUse { .. } => ("guard.in_use", "errors.guard.in_use"),
+            Self::OpenCheckUnavailable => (
+                "guard.open_check_unavailable",
+                "errors.guard.open_check_unavailable",
+            ),
             Self::PathUnresolvable => ("guard.path_unresolvable", "errors.guard.path_unresolvable"),
             Self::PathChanged => ("guard.path_changed", "errors.guard.path_changed"),
             Self::PathBusy => ("guard.path_busy", "errors.guard.path_busy"),
