@@ -36,55 +36,44 @@ pub enum PlatformError {
     TempDirUnsafe,
     #[error("chemin introuvable ou impossible à résoudre")]
     PathUnresolvable,
+    #[error("le système n'a pas fourni d'aléa")]
+    EntropyUnavailable,
+    #[error("impossible de réserver le fichier à l'utilisateur")]
+    OwnerOnlyFailed,
 }
 
 impl PlatformError {
     /// Code stable, repris dans les journaux et par l'interface.
     #[must_use]
     pub const fn code(&self) -> &'static str {
-        self.names().0
+        match self {
+            Self::MeasureUnavailable { .. } => "platform.measure_unavailable",
+            Self::TrashUnavailable => "platform.trash_unavailable",
+            Self::TrashSourceMissing => "platform.trash_source_missing",
+            Self::TrashItemNotFound { .. } => "platform.trash_item_not_found",
+            Self::RestoreCollision { .. } => "platform.restore_collision",
+            Self::StandardPathUnavailable { .. } => "platform.standard_path_unavailable",
+            Self::TempDirUnsafe => "platform.temp_dir_unsafe",
+            Self::PathUnresolvable => "platform.path_unresolvable",
+            Self::EntropyUnavailable => "platform.entropy_unavailable",
+            Self::OwnerOnlyFailed => "platform.owner_only_failed",
+        }
     }
 
     /// Clé du texte affiché, dans les catalogues de `locales/`.
     #[must_use]
     pub const fn translation_key(&self) -> &'static str {
-        self.names().1
-    }
-
-    const fn names(&self) -> (&'static str, &'static str) {
         match self {
-            Self::MeasureUnavailable { .. } => (
-                "platform.measure_unavailable",
-                "errors.platform.measure_unavailable",
-            ),
-            Self::TrashUnavailable => (
-                "platform.trash_unavailable",
-                "errors.platform.trash_unavailable",
-            ),
-            Self::TrashSourceMissing => (
-                "platform.trash_source_missing",
-                "errors.platform.trash_source_missing",
-            ),
-            Self::TrashItemNotFound { .. } => (
-                "platform.trash_item_not_found",
-                "errors.platform.trash_item_not_found",
-            ),
-            Self::RestoreCollision { .. } => (
-                "platform.restore_collision",
-                "errors.platform.restore_collision",
-            ),
-            Self::StandardPathUnavailable { .. } => (
-                "platform.standard_path_unavailable",
-                "errors.platform.standard_path_unavailable",
-            ),
-            Self::TempDirUnsafe => (
-                "platform.temp_dir_unsafe",
-                "errors.platform.temp_dir_unsafe",
-            ),
-            Self::PathUnresolvable => (
-                "platform.path_unresolvable",
-                "errors.platform.path_unresolvable",
-            ),
+            Self::MeasureUnavailable { .. } => "errors.platform.measure_unavailable",
+            Self::TrashUnavailable => "errors.platform.trash_unavailable",
+            Self::TrashSourceMissing => "errors.platform.trash_source_missing",
+            Self::TrashItemNotFound { .. } => "errors.platform.trash_item_not_found",
+            Self::RestoreCollision { .. } => "errors.platform.restore_collision",
+            Self::StandardPathUnavailable { .. } => "errors.platform.standard_path_unavailable",
+            Self::TempDirUnsafe => "errors.platform.temp_dir_unsafe",
+            Self::PathUnresolvable => "errors.platform.path_unresolvable",
+            Self::EntropyUnavailable => "errors.platform.entropy_unavailable",
+            Self::OwnerOnlyFailed => "errors.platform.owner_only_failed",
         }
     }
 }
@@ -109,6 +98,8 @@ mod tests {
             },
             PlatformError::TempDirUnsafe,
             PlatformError::PathUnresolvable,
+            PlatformError::EntropyUnavailable,
+            PlatformError::OwnerOnlyFailed,
         ];
         for error in errors {
             assert!(error.code().starts_with("platform."));

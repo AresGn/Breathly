@@ -16,7 +16,16 @@ name = "breathly_desktop_lib"
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
+breathly-disk = { path = "../../../crates/breathly-disk" }
+breathly-platform = { path = "../../../crates/breathly-platform" }
+breathly-rules = { path = "../../../crates/breathly-rules" }
+serde = { version = "1.0.229", features = ["derive"] }
 tauri = { version = "2", features = [] }
+tracing = "=0.1.44"
+
+[dev-dependencies]
+breathly-platform = { path = "../../../crates/breathly-platform", features = ["fake"] }
+tempfile = "=3.27.0"
 
 [lints]
 workspace = true

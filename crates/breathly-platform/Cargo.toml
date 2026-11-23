@@ -15,6 +15,7 @@ fake = []
 [dependencies]
 thiserror = "2.0.21"
 dirs = "7.0.0"
+trash = "=5.2.9"
 
 [target.'cfg(unix)'.dependencies]
 # openat et fstatat de l'ancrage (ADR 0018) ; déjà dans l'arbre par sysinfo.

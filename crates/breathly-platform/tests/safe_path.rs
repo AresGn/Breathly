@@ -165,6 +165,71 @@ fn a_folder_held_without_sharing_by_another_program_is_busy_not_lost() -> TestRe
     Ok(())
 }
 
+#[test]
+fn deleting_a_file_removes_only_that_file() -> TestResult {
+    let sandbox = tempfile::tempdir()?;
+    fs::create_dir_all(sandbox.path().join("cache"))?;
+    let file = sandbox.path().join("cache/old.bin");
+    let kept = sandbox.path().join("cache/kept.bin");
+    fs::write(&file, b"abcdef")?;
+    fs::write(&kept, b"zz")?;
+    let anchor = open_anchor(sandbox.path(), "cache", "cache/old.bin")?;
+    assert_eq!(anchor.byte_size()?.bytes(), 6);
+    anchor.delete_permanently()?;
+    assert!(!file.exists());
+    assert_eq!(fs::read(kept)?, b"zz");
+    Ok(())
+}
+
+#[test]
+fn deleting_a_directory_removes_its_contents() -> TestResult {
+    let sandbox = tempfile::tempdir()?;
+    fs::create_dir_all(sandbox.path().join("cache/box/inner"))?;
+    fs::write(sandbox.path().join("cache/box/inner/a.bin"), b"aa")?;
+    fs::write(sandbox.path().join("cache/box/b.bin"), b"bbb")?;
+    let anchor = open_anchor(sandbox.path(), "cache", "cache/box")?;
+    assert_eq!(anchor.byte_size()?.bytes(), 5);
+    anchor.delete_permanently()?;
+    assert!(!sandbox.path().join("cache/box").exists());
+    Ok(())
+}
+
+#[test]
+fn relocate_moves_the_entry_without_copying_it() -> TestResult {
+    let sandbox = tempfile::tempdir()?;
+    fs::create_dir_all(sandbox.path().join("cache"))?;
+    fs::create_dir_all(sandbox.path().join("quarantine"))?;
+    let file = sandbox.path().join("cache/old.bin");
+    fs::write(&file, b"abcdef")?;
+    let anchor = open_anchor(sandbox.path(), "cache", "cache/old.bin")?;
+    anchor.relocate(&sandbox.path().join("quarantine"), "q-1".as_ref())?;
+    assert!(!file.exists());
+    assert_eq!(fs::read(sandbox.path().join("quarantine/q-1"))?, b"abcdef");
+    Ok(())
+}
+
+#[cfg(unix)]
+#[test]
+fn a_symlink_inside_a_deleted_directory_is_removed_but_not_followed() -> TestResult {
+    let sandbox = tempfile::tempdir()?;
+    fs::create_dir_all(sandbox.path().join("cache/box"))?;
+    let precious = sandbox.path().join("precious.bin");
+    fs::write(&precious, b"keep")?;
+    std::os::unix::fs::symlink(&precious, sandbox.path().join("cache/box/link"))?;
+    let anchor = open_anchor(sandbox.path(), "cache", "cache/box")?;
+    anchor.delete_permanently()?;
+    assert!(!sandbox.path().join("cache/box").exists());
+    assert_eq!(fs::read(precious)?, b"keep");
+    Ok(())
+}
+
+fn open_anchor(sandbox: &Path, root: &str, item: &str) -> Result<PathAnchor, Box<dyn Error>> {
+    Ok(PathAnchor::open(
+        &canonical(&sandbox.join(root))?,
+        &canonical(&sandbox.join(item))?,
+    )?)
+}
+
 #[cfg(windows)]
 #[test]
 fn the_comparison_ignores_the_case_on_windows() -> TestResult {

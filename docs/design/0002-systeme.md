@@ -94,13 +94,15 @@ Le cœur est exposé à l'interface par des **commandes Tauri** enregistrées un
 | `get_recommendations` | — | recommandations (au plus 5) | orchestrateur, voir §7 |
 | `simulate_cleanup` | identifiants d'éléments | rapport + jeton de confirmation | ne modifie rien (US-032) |
 | `start_cleanup` | jeton de confirmation | identifiant de tâche | exige la simulation et la confirmation (design 0001) |
-| `stop_cleanup` | identifiant de tâche | — | arrêt après l'élément en cours (US-036.3) |
+| `stop_cleanup` | identifiant de tâche | résumé | arrêt après l'élément en cours (US-036.3) ; le résumé porte les deux chiffres |
 | `list_history`, `restore_entry`, `erase_unrecoverable_entries` | filtres, identifiant | entrées, résultat | vérifie l'état « non annulable » à la demande (US-040.7) |
 | `purge_trash` | éléments listés, jeton | résultat | confirmation avec nombre et taille (US-037) |
 | `get_settings`, `set_settings` | réglages typés | réglages | valide les seuils et les chemins d'exclusion |
 | `open_folder` | identifiant de gros fichier | — | n'ouvre que des dossiers issus de la dernière analyse (US-022.2) |
 
 **Invariant de sécurité : l'interface n'envoie jamais un chemin à supprimer.** Elle envoie des identifiants d'éléments produits par la dernière analyse ; le cœur les résout en chemins via les règles et revérifie les garde-fous. Une interface compromise ne peut donc pas demander de supprimer un chemin arbitraire.
+
+`start_cleanup` n'accepte que le jeton lié au plan figé par la simulation. Un jeton absent, mal formé, expiré (15 minutes, `CONFIRMATION_TTL`) ou déjà utilisé est refusé et rien n'est modifié.
 
 - **Erreurs** : un seul type d'erreur côté cœur avec un code stable, une clé de traduction et des paramètres (jamais de texte de l'utilisateur affiché en dur, US-002.3).
 - **Progression** : des événements envoyés à l'interface (identifiant de tâche, avancement croissant) ; les noms exacts de l'API Tauri (événements ou canaux) sont **non vérifiés** et se fixent à l'implémentation.

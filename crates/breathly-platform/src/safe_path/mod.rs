@@ -4,6 +4,7 @@
 //! canonicalisés) et [`PathAnchor`] (l'identité d'un élément, obtenue en ouvrant chaque dossier de la chaîne sans
 //! suivre de lien). Aucun autre crate ne compare des chemins à la main.
 
+mod removal;
 #[cfg(unix)]
 mod unix;
 #[cfg(unix)]
@@ -21,6 +22,9 @@ use std::path::{Component, Path, PathBuf};
 use thiserror::Error;
 
 use crate::error::PlatformError;
+use crate::units::ByteSize;
+
+pub use removal::RemovalError;
 
 /// Pourquoi un élément ne peut pas être ancré : un refus sans perte, jamais une suppression de repli.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
@@ -145,5 +149,30 @@ impl PathAnchor {
     #[must_use]
     pub fn file_name(&self) -> &OsStr {
         self.held.file_name()
+    }
+
+    /// Taille de l'élément, liens non suivis : un dossier est la somme de ses fichiers.
+    ///
+    /// # Errors
+    /// [`RemovalError`] si l'élément a disparu, ou s'il contient un autre volume.
+    pub fn byte_size(&self) -> Result<ByteSize, RemovalError> {
+        self.held.byte_size().map(ByteSize::from_bytes)
+    }
+
+    /// Supprime l'élément définitivement, sans suivre de lien ni franchir un volume.
+    ///
+    /// # Errors
+    /// [`RemovalError`] si la suppression échoue. Un autre volume est refusé avant toute suppression.
+    pub fn delete_permanently(&self) -> Result<(), RemovalError> {
+        self.held.delete_permanently()
+    }
+
+    /// Déplace l'élément dans `directory` sous le nom `name`, sur le même volume.
+    ///
+    /// # Errors
+    /// [`RemovalError::CrossVolume`] si la destination n'est pas sur le même volume, [`RemovalError::Occupied`]
+    /// si le nom est pris, [`RemovalError::Failed`] sinon. Rien n'est supprimé dans ces cas.
+    pub fn relocate(&self, directory: &Path, name: &OsStr) -> Result<(), RemovalError> {
+        self.held.relocate(directory, name)
     }
 }

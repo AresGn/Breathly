@@ -5,9 +5,12 @@ use std::ffi::{OsStr, OsString};
 use std::fs::{self, File, OpenOptions};
 use std::io;
 use std::os::windows::fs::{MetadataExt, OpenOptionsExt};
-use std::path::Path;
+use std::path::{Path, PathBuf};
+
+mod remove;
 
 use super::AnchorRefusal;
+use super::RemovalError;
 
 const FILE_SHARE_READ: u32 = 0x1;
 const FILE_SHARE_WRITE: u32 = 0x2;
@@ -25,11 +28,24 @@ pub(super) struct Held {
     )]
     chain: Vec<File>,
     name: OsString,
+    item: PathBuf,
 }
 
 impl Held {
     pub(super) fn file_name(&self) -> &OsStr {
         &self.name
+    }
+
+    pub(super) fn byte_size(&self) -> Result<u64, RemovalError> {
+        remove::byte_size(&self.item)
+    }
+
+    pub(super) fn delete_permanently(&self) -> Result<(), RemovalError> {
+        remove::delete_permanently(&self.item)
+    }
+
+    pub(super) fn relocate(&self, directory: &Path, name: &OsStr) -> Result<(), RemovalError> {
+        remove::relocate(&self.item, directory, name)
     }
 }
 
@@ -48,6 +64,7 @@ pub(super) fn hold(root: &Path, below: &[&OsStr]) -> Result<Held, AnchorRefusal>
     Ok(Held {
         chain,
         name: (*last).to_owned(),
+        item: path,
     })
 }
 
