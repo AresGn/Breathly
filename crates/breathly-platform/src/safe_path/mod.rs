@@ -4,6 +4,7 @@
 //! canonicalisés) et [`PathAnchor`] (l'identité d'un élément, obtenue en ouvrant chaque dossier de la chaîne sans
 //! suivre de lien). Aucun autre crate ne compare des chemins à la main.
 
+mod measure;
 #[cfg(unix)]
 mod unix;
 #[cfg(unix)]
@@ -20,7 +21,10 @@ use std::path::{Component, Path, PathBuf};
 
 use thiserror::Error;
 
+pub use measure::MeasureError;
+
 use crate::error::PlatformError;
+use crate::units::ByteSize;
 
 /// Pourquoi un élément ne peut pas être ancré : un refus sans perte, jamais une suppression de repli.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
@@ -139,6 +143,14 @@ impl PathAnchor {
             .filter(|names| !names.is_empty())
             .ok_or(AnchorRefusal::PathChanged)?;
         os::hold(root.as_path(), &below).map(|held| Self { held })
+    }
+
+    /// Taille de l'élément, liens non suivis : un dossier est la somme de ses fichiers.
+    ///
+    /// # Errors
+    /// [`MeasureError`] si l'élément a disparu, ne se lit pas, ou si un autre volume s'y trouve (Linux).
+    pub fn byte_size(&self) -> Result<ByteSize, MeasureError> {
+        self.held.byte_size().map(ByteSize::from_bytes)
     }
 
     /// Nom de l'élément dans son dossier parent.

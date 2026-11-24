@@ -8,17 +8,16 @@ use std::os::unix::ffi::OsStrExt;
 use std::os::unix::fs::OpenOptionsExt;
 use std::path::Path;
 
+mod measure;
+
 use super::AnchorRefusal;
+use super::MeasureError;
 
 const DIRECTORY_FLAGS: libc::c_int =
     libc::O_RDONLY | libc::O_NOFOLLOW | libc::O_DIRECTORY | libc::O_CLOEXEC;
 
 /// Le dossier parent de l'élément, tenu ouvert, et le nom de l'élément.
 pub(super) struct Held {
-    #[expect(
-        dead_code,
-        reason = "tenu ouvert : c'est l'identité de l'élément, lu par les suppressions des tickets #81 et #82"
-    )]
     parent: OwnedFd,
     name: OsString,
 }
@@ -26,6 +25,10 @@ pub(super) struct Held {
 impl Held {
     pub(super) fn file_name(&self) -> &OsStr {
         &self.name
+    }
+
+    pub(super) fn byte_size(&self) -> Result<u64, MeasureError> {
+        measure::byte_size(self)
     }
 }
 

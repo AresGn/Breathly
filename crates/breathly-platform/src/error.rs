@@ -36,6 +36,8 @@ pub enum PlatformError {
     TempDirUnsafe,
     #[error("chemin introuvable ou impossible à résoudre")]
     PathUnresolvable,
+    #[error("le système n'a pas fourni d'aléa")]
+    EntropyUnavailable,
 }
 
 impl PlatformError {
@@ -85,6 +87,10 @@ impl PlatformError {
                 "platform.path_unresolvable",
                 "errors.platform.path_unresolvable",
             ),
+            Self::EntropyUnavailable => (
+                "platform.entropy_unavailable",
+                "errors.platform.entropy_unavailable",
+            ),
         }
     }
 }
@@ -109,6 +115,7 @@ mod tests {
             },
             PlatformError::TempDirUnsafe,
             PlatformError::PathUnresolvable,
+            PlatformError::EntropyUnavailable,
         ];
         for error in errors {
             assert!(error.code().starts_with("platform."));

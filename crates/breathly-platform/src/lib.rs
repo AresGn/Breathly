@@ -10,6 +10,7 @@ mod error;
 mod open_file;
 mod paths;
 mod process;
+mod random;
 mod safe_path;
 mod system;
 mod system_paths;
@@ -30,7 +31,8 @@ pub use process::{
     Executable, ExecutableOrigin, MemoryUsage, Packaging, ProcessInspector, ProcessRole,
     ProcessSnapshot,
 };
-pub use safe_path::{AnchorRefusal, CanonicalPath, PathAnchor};
+pub use random::fill_random;
+pub use safe_path::{AnchorRefusal, CanonicalPath, MeasureError, PathAnchor};
 pub use system::{CpuTimes, MemoryStatus, SwapDevice, SwapKind, SwapStatus, SystemInspector};
 pub use system_paths::SystemStandardPaths;
 pub use temperature::{TemperatureReader, TemperatureReading};

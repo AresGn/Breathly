@@ -5,9 +5,10 @@ use std::ffi::{OsStr, OsString};
 use std::fs::{self, File, OpenOptions};
 use std::io;
 use std::os::windows::fs::{MetadataExt, OpenOptionsExt};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use super::AnchorRefusal;
+use super::MeasureError;
 
 const FILE_SHARE_READ: u32 = 0x1;
 const FILE_SHARE_WRITE: u32 = 0x2;
@@ -25,12 +26,31 @@ pub(super) struct Held {
     )]
     chain: Vec<File>,
     name: OsString,
+    item: PathBuf,
 }
 
 impl Held {
     pub(super) fn file_name(&self) -> &OsStr {
         &self.name
     }
+
+    /// Les handles de la chaîne vivent pendant la mesure. Un changement de volume n'est pas détecté sous Windows.
+    pub(super) fn byte_size(&self) -> Result<u64, MeasureError> {
+        measure(&self.item)
+    }
+}
+
+fn measure(path: &Path) -> Result<u64, MeasureError> {
+    let meta = fs::symlink_metadata(path).map_err(|_| MeasureError::Failed)?;
+    if meta.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0 || !meta.is_dir() {
+        return Ok(meta.len());
+    }
+    let mut total = 0_u64;
+    for entry in fs::read_dir(path).map_err(|_| MeasureError::Failed)? {
+        let entry = entry.map_err(|_| MeasureError::Failed)?;
+        total = total.saturating_add(measure(&entry.path())?);
+    }
+    Ok(total)
 }
 
 pub(super) fn hold(root: &Path, below: &[&OsStr]) -> Result<Held, AnchorRefusal> {
@@ -48,6 +68,7 @@ pub(super) fn hold(root: &Path, below: &[&OsStr]) -> Result<Held, AnchorRefusal>
     Ok(Held {
         chain,
         name: (*last).to_owned(),
+        item: path,
     })
 }
 
