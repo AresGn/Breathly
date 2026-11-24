@@ -175,3 +175,44 @@ fn the_comparison_ignores_the_case_on_windows() -> TestResult {
     assert!(item.is_within(&root));
     Ok(())
 }
+
+fn anchor_of(sandbox: &Path, item: &str) -> Result<PathAnchor, Box<dyn Error>> {
+    let root = canonical(&sandbox.join("cache"))?;
+    let target = canonical(&sandbox.join("cache").join(item))?;
+    Ok(PathAnchor::open(&root, &target)?)
+}
+
+#[test]
+fn the_size_of_a_file_is_its_length() -> TestResult {
+    let sandbox = tempfile::tempdir()?;
+    fs::create_dir_all(sandbox.path().join("cache"))?;
+    fs::write(sandbox.path().join("cache/a.bin"), b"sept oc")?;
+    assert_eq!(anchor_of(sandbox.path(), "a.bin")?.byte_size()?.bytes(), 7);
+    Ok(())
+}
+
+#[test]
+fn the_size_of_a_folder_is_the_sum_of_its_files() -> TestResult {
+    let sandbox = tempfile::tempdir()?;
+    fs::create_dir_all(sandbox.path().join("cache/dir/inner"))?;
+    fs::write(sandbox.path().join("cache/dir/one"), b"123")?;
+    fs::write(sandbox.path().join("cache/dir/inner/two"), b"45678")?;
+    assert_eq!(anchor_of(sandbox.path(), "dir")?.byte_size()?.bytes(), 8);
+    Ok(())
+}
+
+#[cfg(unix)]
+#[test]
+fn a_link_inside_a_folder_is_not_followed_when_measuring() -> TestResult {
+    let sandbox = tempfile::tempdir()?;
+    fs::create_dir_all(sandbox.path().join("cache/dir"))?;
+    fs::create_dir_all(sandbox.path().join("protected"))?;
+    fs::write(sandbox.path().join("protected/big"), vec![0_u8; 4096])?;
+    std::os::unix::fs::symlink(
+        sandbox.path().join("protected"),
+        sandbox.path().join("cache/dir/link"),
+    )?;
+    let size = anchor_of(sandbox.path(), "dir")?.byte_size()?.bytes();
+    assert!(size < 4096, "le lien a été suivi : {size}");
+    Ok(())
+}
