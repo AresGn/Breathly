@@ -14,5 +14,5 @@ pub use journal::{
 };
 pub use plan::{ItemId, PlannedItem, SelectedItem};
 pub use report::{CleanupReport, CleanupStatus, ItemFailure, ProgressMessage, StopFlag};
-pub use run::{CleanupParts, CleanupRun, run_cleanup};
+pub use run::{CleanupParts, CleanupRun, run_cleanup, run_cleanup_into};
 pub use token::{CONFIRMATION_TTL, ConfirmationStore, ConfirmationToken};

@@ -7,26 +7,29 @@ use std::io;
 use std::os::windows::fs::MetadataExt;
 use std::path::Path;
 
-use super::{FILE_ATTRIBUTE_REPARSE_POINT, lock_folder};
+use super::{FILE_ATTRIBUTE_REPARSE_POINT, Held, lock_folder};
 use crate::safe_path::RemovalError;
 
 const ERROR_NOT_SAME_DEVICE: i32 = 17;
 
-pub(super) fn byte_size(item: &Path) -> Result<u64, RemovalError> {
-    measure(item)
+// Chaque opération reçoit `Held` : les handles de la chaîne (racine de la règle et chaque dossier) vivent donc
+// pendant toute l'opération et ne peuvent pas être relâchés avant elle (ADR 0018, note Windows).
+
+pub(super) fn byte_size(held: &Held) -> Result<u64, RemovalError> {
+    measure(held.item())
 }
 
-pub(super) fn delete_permanently(item: &Path) -> Result<(), RemovalError> {
-    measure(item)?;
-    remove_tree(item)
+pub(super) fn delete_permanently(held: &Held) -> Result<(), RemovalError> {
+    measure(held.item())?;
+    remove_tree(held.item())
 }
 
-pub(super) fn relocate(item: &Path, directory: &Path, name: &OsStr) -> Result<(), RemovalError> {
+pub(super) fn relocate(held: &Held, directory: &Path, name: &OsStr) -> Result<(), RemovalError> {
     let destination = directory.join(name);
     if fs::symlink_metadata(&destination).is_ok() {
         return Err(RemovalError::Occupied);
     }
-    fs::rename(item, destination).map_err(|error| map_rename(&error))
+    fs::rename(held.item(), destination).map_err(|error| map_rename(&error))
 }
 
 fn measure(path: &Path) -> Result<u64, RemovalError> {

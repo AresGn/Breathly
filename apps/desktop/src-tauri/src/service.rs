@@ -1,6 +1,7 @@
 //! Une session de nettoyage à la fois, sur un fil nommé (ADR 0013).
 
 use std::path::PathBuf;
+use std::sync::mpsc;
 use std::sync::{Arc, Condvar, Mutex, PoisonError};
 use std::thread;
 
@@ -11,8 +12,9 @@ use breathly_platform::{
 };
 
 use crate::error::DesktopError;
+use crate::relay::{self, RELAY_INTERVAL};
 use crate::summary::{CleanupSummary, ItemView, ProgressEvent, SummaryStatus, failed_summary};
-use crate::worker::{self, ProgressSink};
+use crate::worker::{self, ProgressSink, emit};
 
 pub struct CleanupPorts {
     pub paths: Arc<dyn StandardPaths>,
@@ -177,8 +179,8 @@ impl Inner {
         if session.running.is_some() {
             return Err(DesktopError::AlreadyRunning);
         }
-        let plan = self.plan_of(token)?;
         let id = task_id()?;
+        let plan = self.plan_of(token)?;
         let stop = Arc::new(StopFlag::new());
         session.running = Some(Running {
             id: id.clone(),
@@ -192,13 +194,16 @@ impl Inner {
         Ok(self.store.consume(&parsed, self.ports.clock.now())?)
     }
 
-    fn work(&self, reserved: &Reserved, mut sink: ProgressSink) {
-        sink(ProgressEvent::Started);
-        let summary = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            worker::perform(&self.ports, reserved, &mut sink)
-        }));
-        let summary = summary.unwrap_or_else(|_| panicked(reserved.plan.len()));
-        sink(crate::summary::terminal_event(&summary));
+    fn work(&self, reserved: &Reserved, sink: ProgressSink) {
+        let (progress, events) = mpsc::channel();
+        let relay = thread::Builder::new()
+            .name("breathly-relais".to_owned())
+            .spawn(move || relay::forward(&events, sink, RELAY_INTERVAL));
+        emit(&progress, ProgressEvent::Started);
+        let summary = worker::perform(&self.ports, reserved, &progress);
+        emit(&progress, crate::summary::terminal_event(&summary));
+        drop(progress);
+        join_relay(relay);
         self.finish(&reserved.id, summary);
     }
 
@@ -230,6 +235,19 @@ impl Inner {
     }
 }
 
+fn join_relay(relay: std::io::Result<thread::JoinHandle<()>>) {
+    let Ok(handle) = relay else {
+        tracing::warn!(code = "desktop.relay_failed", "relais impossible à créer");
+        return;
+    };
+    if handle.join().is_err() {
+        tracing::warn!(
+            code = "desktop.relay_panicked",
+            "relais de progression arrêté"
+        );
+    }
+}
+
 fn report_of(session: &Session, task_id: &str) -> Result<CleanupSummary, DesktopError> {
     match &session.finished {
         Some(done) if done.id == task_id => Ok(done.summary.clone()),
@@ -252,26 +270,10 @@ fn hex(nibble: u8) -> char {
     char::from(b"0123456789abcdef"[usize::from(nibble)])
 }
 
-fn panicked(total: usize) -> CleanupSummary {
-    failed_summary(bounded(total), panic_view(), SummaryStatus::Panicked)
-}
-
-fn panic_view() -> ItemView {
-    ItemView {
-        id: "task".to_owned(),
-        code: "desktop.task_panicked",
-        translation_key: "errors.desktop.task_panicked",
-    }
-}
-
 fn thread_failure() -> ItemView {
     ItemView {
         id: "task".to_owned(),
         code: "desktop.thread_failed",
         translation_key: "errors.desktop.thread_failed",
     }
-}
-
-fn bounded(total: usize) -> u32 {
-    u32::try_from(total).unwrap_or(u32::MAX)
 }

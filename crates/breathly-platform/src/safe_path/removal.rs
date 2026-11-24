@@ -40,3 +40,12 @@ impl RemovalError {
         }
     }
 }
+
+/// Chemin d'un élément 🟡 vers la corbeille (ADR 0018).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrashRoute {
+    /// Déplacement par descripteur dans la quarantaine, puis corbeille de la quarantaine (Linux).
+    Quarantine,
+    /// Corbeille de l'élément en place, pendant que les dossiers du chemin restent verrouillés (Windows).
+    InPlace,
+}

@@ -11,6 +11,9 @@ mod remove;
 
 use super::AnchorRefusal;
 use super::RemovalError;
+use super::TrashRoute;
+
+pub(super) const TRASH_ROUTE: TrashRoute = TrashRoute::InPlace;
 
 const FILE_SHARE_READ: u32 = 0x1;
 const FILE_SHARE_WRITE: u32 = 0x2;
@@ -32,20 +35,24 @@ pub(super) struct Held {
 }
 
 impl Held {
+    pub(super) fn item(&self) -> &Path {
+        &self.item
+    }
+
     pub(super) fn file_name(&self) -> &OsStr {
         &self.name
     }
 
     pub(super) fn byte_size(&self) -> Result<u64, RemovalError> {
-        remove::byte_size(&self.item)
+        remove::byte_size(self)
     }
 
     pub(super) fn delete_permanently(&self) -> Result<(), RemovalError> {
-        remove::delete_permanently(&self.item)
+        remove::delete_permanently(self)
     }
 
     pub(super) fn relocate(&self, directory: &Path, name: &OsStr) -> Result<(), RemovalError> {
-        remove::relocate(&self.item, directory, name)
+        remove::relocate(self, directory, name)
     }
 }
 

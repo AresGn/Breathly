@@ -13,6 +13,7 @@ export const CLEANUP_MESSAGES = {
 	entropyUnavailable: 'errors.clean.entropy_unavailable',
 	clockRange: 'errors.clean.clock_range',
 	historyUnwritable: 'errors.clean.history_unwritable',
+	quarantineUnavailable: 'errors.clean.quarantine_unavailable',
 	quarantineStuck: 'errors.clean.quarantine_stuck',
 	removalFailed: 'errors.clean.removal_failed',
 	alreadyRunning: 'errors.desktop.already_running',

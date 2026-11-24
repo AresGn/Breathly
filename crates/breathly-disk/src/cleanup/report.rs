@@ -41,7 +41,8 @@ pub struct CleanupReport {
 }
 
 impl CleanupReport {
-    pub(super) fn new(total: u32) -> Self {
+    #[must_use]
+    pub fn new(total: u32) -> Self {
         Self {
             status: CleanupStatus::Completed,
             trashed: ByteSize::from_bytes(0),
@@ -74,7 +75,8 @@ impl CleanupReport {
         self.count_one();
     }
 
-    pub(super) fn finish(&mut self, status: CleanupStatus) {
+    /// Fixe l'état final et compte les éléments non faits.
+    pub fn finish(&mut self, status: CleanupStatus) {
         self.status = status;
         self.not_done = self.not_done.saturating_sub(self.done);
     }

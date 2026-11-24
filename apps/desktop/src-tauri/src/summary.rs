@@ -42,14 +42,27 @@ pub enum ProgressEvent {
     Step {
         done: u32,
         total: u32,
-        step_key: &'static str,
+        step: &'static str,
     },
     Finished,
     Cancelled,
     Failed {
-        code: &'static str,
-        translation_key: &'static str,
+        error: ErrorView,
     },
+}
+
+/// L'erreur typée du contrat : un code stable et une clé de traduction (ADR 0015).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ErrorView {
+    pub code: &'static str,
+    pub translation_key: &'static str,
+}
+
+impl ProgressEvent {
+    pub(crate) fn is_step(&self) -> bool {
+        matches!(self, Self::Step { .. })
+    }
 }
 
 pub(crate) fn summarize(report: &CleanupReport) -> CleanupSummary {
@@ -67,6 +80,18 @@ pub(crate) fn summarize(report: &CleanupReport) -> CleanupSummary {
         skipped: report.skipped.iter().map(view_of).collect(),
         errors: report.errors.iter().map(view_of).collect(),
     }
+}
+
+/// Ce qui était déjà fait reste vrai : le résumé part du rapport, puis ajoute la cause de l'échec.
+pub(crate) fn aborted_summary(
+    report: &CleanupReport,
+    status: SummaryStatus,
+    view: ItemView,
+) -> CleanupSummary {
+    let mut summary = summarize(report);
+    summary.status = status;
+    summary.errors.push(view);
+    summary
 }
 
 pub(crate) fn failed_summary(total: u32, view: ItemView, status: SummaryStatus) -> CleanupSummary {
@@ -91,16 +116,17 @@ pub(crate) fn terminal_event(summary: &CleanupSummary) -> ProgressEvent {
 }
 
 fn failed_event(summary: &CleanupSummary) -> ProgressEvent {
-    let Some(failure) = summary.errors.first() else {
-        return ProgressEvent::Failed {
+    let error = summary.errors.first().map_or(
+        ErrorView {
             code: "desktop.task_panicked",
             translation_key: "errors.desktop.task_panicked",
-        };
-    };
-    ProgressEvent::Failed {
-        code: failure.code,
-        translation_key: failure.translation_key,
-    }
+        },
+        |failure| ErrorView {
+            code: failure.code,
+            translation_key: failure.translation_key,
+        },
+    );
+    ProgressEvent::Failed { error }
 }
 
 fn status_of(status: CleanupStatus) -> SummaryStatus {

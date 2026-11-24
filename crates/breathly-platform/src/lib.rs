@@ -35,7 +35,7 @@ pub use process::{
     ProcessSnapshot,
 };
 pub use random::fill_random;
-pub use safe_path::{AnchorRefusal, CanonicalPath, PathAnchor, RemovalError};
+pub use safe_path::{AnchorRefusal, CanonicalPath, PathAnchor, RemovalError, TrashRoute};
 pub use system::{CpuTimes, MemoryStatus, SwapDevice, SwapKind, SwapStatus, SystemInspector};
 pub use system_paths::SystemStandardPaths;
 pub use temperature::{TemperatureReader, TemperatureReading};

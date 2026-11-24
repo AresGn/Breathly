@@ -6,6 +6,7 @@
 mod command_list;
 mod commands;
 mod error;
+mod relay;
 mod service;
 mod summary;
 mod worker;

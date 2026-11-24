@@ -62,6 +62,7 @@
 	"errors.clean.entropy_unavailable": "The computer did not provide the required randomness.",
 	"errors.clean.clock_range": "The computer clock cannot confirm this action.",
 	"errors.clean.history_unwritable": "The history could not be written. Nothing was deleted.",
+	"errors.clean.quarantine_unavailable": "Breathly’s holding area can’t be created. Nothing was deleted.",
 	"errors.clean.quarantine_stuck": "A file could not be put back. It remains in Breathly’s waiting area.",
 	"errors.clean.removal_failed": "This item could not be handled.",
 	"errors.desktop.already_running": "A cleanup is already running.",

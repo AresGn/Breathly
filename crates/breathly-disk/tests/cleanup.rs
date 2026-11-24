@@ -162,6 +162,25 @@ fn stop_finishes_the_current_item_and_counts_the_rest() -> Result<(), Box<dyn st
 }
 
 #[test]
+fn a_stop_during_the_last_item_still_ends_stopped() -> Result<(), Box<dyn std::error::Error>> {
+    let world = World::new()?;
+    let only = world.cache_file("a.bin")?;
+    let plan = plan(vec![world.item("review", &only)?])?;
+    let stop = StopFlag::new();
+    let stopping = StopAfterFirst::new(world.bridge(), &stop);
+    let report = world.clean(&Attempt {
+        plan: &plan,
+        stop: &stop,
+        trash: &stopping,
+    })?;
+    assert_eq!(report.status, CleanupStatus::Stopped);
+    assert_eq!(report.done, 1);
+    assert_eq!(report.not_done, 0);
+    assert!(!only.exists());
+    Ok(())
+}
+
+#[test]
 fn an_unwritable_history_deletes_nothing() -> Result<(), Box<dyn std::error::Error>> {
     let world = World::new()?;
     let file = world.cache_file("old.bin")?;

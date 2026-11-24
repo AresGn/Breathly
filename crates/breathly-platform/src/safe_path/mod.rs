@@ -24,7 +24,7 @@ use thiserror::Error;
 use crate::error::PlatformError;
 use crate::units::ByteSize;
 
-pub use removal::RemovalError;
+pub use removal::{RemovalError, TrashRoute};
 
 /// Pourquoi un élément ne peut pas être ancré : un refus sans perte, jamais une suppression de repli.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
@@ -165,6 +165,12 @@ impl PathAnchor {
     /// [`RemovalError`] si la suppression échoue. Un autre volume est refusé avant toute suppression.
     pub fn delete_permanently(&self) -> Result<(), RemovalError> {
         self.held.delete_permanently()
+    }
+
+    /// Comment envoyer l'élément à la corbeille sans qu'un chemin revérifié ne soit suivi (ADR 0018).
+    #[must_use]
+    pub fn trash_route(&self) -> TrashRoute {
+        os::TRASH_ROUTE
     }
 
     /// Déplace l'élément dans `directory` sous le nom `name`, sur le même volume.

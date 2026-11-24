@@ -5,7 +5,7 @@ use std::path::Path;
 use std::time::SystemTime;
 
 use breathly_platform::{
-    ByteSize, CanonicalPath, PathAnchor, PlatformError, RemovalError, TrashProvider,
+    ByteSize, CanonicalPath, PathAnchor, PlatformError, RemovalError, TrashProvider, TrashRoute,
 };
 use breathly_rules::RiskLevel;
 
@@ -111,6 +111,9 @@ fn send_to_trash(
     io: &mut ActionIo<'_>,
     entry: EntryId,
 ) -> Result<Option<String>, StepFailure> {
+    if verified.anchor().trash_route() == TrashRoute::InPlace {
+        return send_in_place(verified, io);
+    }
     let stored = OsString::from(format!("q-{}", entry.raw()));
     if let Err(error) = verified.anchor().relocate(io.quarantine, &stored) {
         return Err(relocate_failure(error));
@@ -125,6 +128,20 @@ fn send_to_trash(
                 error: &error,
             },
         )),
+    }
+}
+
+/// Windows : aucune quarantaine (ADR 0018). Les dossiers du chemin restent verrouillés par l'ancre pendant l'envoi.
+fn send_in_place(
+    verified: &VerifiedItem,
+    io: &ActionIo<'_>,
+) -> Result<Option<String>, StepFailure> {
+    match io.trash.send(verified.origin()) {
+        Ok(id) => Ok(Some(id.as_str().to_owned())),
+        Err(error) => Err(StepFailure::Fail(Failure {
+            code: error.code(),
+            translation_key: error.translation_key(),
+        })),
     }
 }
 

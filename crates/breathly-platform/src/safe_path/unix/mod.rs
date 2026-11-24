@@ -12,6 +12,9 @@ mod remove;
 
 use super::AnchorRefusal;
 use super::RemovalError;
+use super::TrashRoute;
+
+pub(super) const TRASH_ROUTE: TrashRoute = TrashRoute::Quarantine;
 
 const DIRECTORY_FLAGS: libc::c_int =
     libc::O_RDONLY | libc::O_NOFOLLOW | libc::O_DIRECTORY | libc::O_CLOEXEC;

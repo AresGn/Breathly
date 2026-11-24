@@ -18,6 +18,8 @@ pub enum CleanError {
     ClockRange,
     #[error("historique non inscriptible")]
     HistoryUnwritable,
+    #[error("zone d'attente de Breathly impossible à créer")]
+    QuarantineUnavailable,
 }
 
 impl CleanError {
@@ -32,6 +34,7 @@ impl CleanError {
             Self::EntropyUnavailable => "clean.entropy_unavailable",
             Self::ClockRange => "clean.clock_range",
             Self::HistoryUnwritable => "clean.history_unwritable",
+            Self::QuarantineUnavailable => "clean.quarantine_unavailable",
         }
     }
 
@@ -46,6 +49,7 @@ impl CleanError {
             Self::EntropyUnavailable => "errors.clean.entropy_unavailable",
             Self::ClockRange => "errors.clean.clock_range",
             Self::HistoryUnwritable => "errors.clean.history_unwritable",
+            Self::QuarantineUnavailable => "errors.clean.quarantine_unavailable",
         }
     }
 }

@@ -30,27 +30,42 @@ pub struct CleanupRun<'a> {
 
 /// Exécute le plan. `stop` est consulté avant chaque élément.
 #[must_use]
-pub fn run_cleanup(mut run: CleanupRun<'_>) -> CleanupReport {
+pub fn run_cleanup(run: CleanupRun<'_>) -> CleanupReport {
     let total = u32::try_from(run.plan.len()).unwrap_or(u32::MAX);
     let mut report = CleanupReport::new(total);
+    run_cleanup_into(run, &mut report);
+    report
+}
+
+/// Comme [`run_cleanup`], mais le résumé appartient à l'appelant : si l'exécution panique, il garde ce qui était
+/// déjà fait (les deux chiffres restent vrais).
+pub fn run_cleanup_into(mut run: CleanupRun<'_>, report: &mut CleanupReport) {
+    let total = u32::try_from(run.plan.len()).unwrap_or(u32::MAX);
     for item in run.plan {
         if run.stop.is_requested() {
             report.finish(CleanupStatus::Stopped);
-            return report;
+            return;
         }
-        if !apply_item(item, &mut run.parts, &mut report) {
+        if !apply_item(item, &mut run.parts, report) {
             report.finish(CleanupStatus::Aborted);
-            return report;
+            return;
         }
-        let done = report.done;
         (run.progress)(ProgressMessage {
-            done,
+            done: report.done,
             total,
             step_key: STEP_KEY,
         });
     }
-    report.finish(final_status(&report));
-    report
+    report.finish(closing_status(report, run.stop));
+}
+
+/// Un arrêt demandé pendant le dernier élément finit en `Stopped` (design 0001 §2 : Stopping, `item_done`, Stopped).
+fn closing_status(report: &CleanupReport, stop: &StopFlag) -> CleanupStatus {
+    if stop.is_requested() {
+        CleanupStatus::Stopped
+    } else {
+        final_status(report)
+    }
 }
 
 fn apply_item(

@@ -9,6 +9,6 @@ pub use cleanup::{
     CONFIRMATION_TTL, CleanError, CleanupJournal, CleanupParts, CleanupReport, CleanupRun,
     CleanupStatus, Closed, ConfirmationStore, ConfirmationToken, Destination, EntryId, ItemFailure,
     ItemId, JournalOutcome, JsonlJournal, Pending, PlannedItem, ProgressMessage, SelectedItem,
-    StopFlag, run_cleanup,
+    StopFlag, run_cleanup, run_cleanup_into,
 };
 pub use guardrails::{Candidate, Guardrails, Refusal, VerifiedItem};
